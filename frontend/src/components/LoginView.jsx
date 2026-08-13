@@ -4,9 +4,9 @@ import { login, registerUser } from '../services/api';
 export default function LoginView({ onLoginSuccess }) {
   const [isRegister, setIsRegister] = useState(false);
 
-  // Campos de Login (Administrador Único Inicial)
-  const [loginEmail, setLoginEmail] = useState('admin@devstudio.com');
-  const [loginPassword, setLoginPassword] = useState('admin123');
+  // Campos de Login (Vacíos por defecto por seguridad)
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
   // Campos de Registro
   const [regName, setRegName] = useState('');
