@@ -113,6 +113,15 @@ function App() {
     }
   };
 
+  const handleUpdateUser = async (id, updatedFields) => {
+    try {
+      await updateUser(id, updatedFields);
+      setUsers(users.map((u) => (u.id === id ? { ...u, ...updatedFields } : u)));
+    } catch (err) {
+      console.error('Error al actualizar usuario:', err);
+    }
+  };
+
   const handleSaveProject = async (newProjData) => {
     try {
       const result = await createProject(newProjData);
@@ -198,6 +207,7 @@ function App() {
             permissions={permissions}
             onOpenAddModal={() => setShowEmployeeModal(true)}
             onDeleteUser={handleDeleteUser}
+            onUpdateUser={handleUpdateUser}
           />
         )}
 

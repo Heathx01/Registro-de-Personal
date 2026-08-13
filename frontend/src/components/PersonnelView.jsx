@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function PersonnelView({ users, currentUser, permissions, onOpenAddModal, onDeleteUser }) {
+export default function PersonnelView({ users, currentUser, permissions, onOpenAddModal, onDeleteUser, onUpdateUser }) {
   const [search, setSearch] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
@@ -18,6 +18,15 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
 
     return matchesSearch && matchesDept && matchesRole;
   });
+
+  const handleRoleChange = (userId, newRole) => {
+    if (onUpdateUser) {
+      onUpdateUser(userId, { role: newRole });
+      if (selectedUser && selectedUser.id === userId) {
+        setSelectedUser({ ...selectedUser, role: newRole });
+      }
+    }
+  };
 
   return (
     <div className="animate-fade-in">
@@ -98,7 +107,23 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
               </div>
               <div className="card-details" style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span className={`badge badge-${user.role}`}>{user.role}</span>
+                  {permissions.can_manage_users ? (
+                    <select
+                      className="filter-select"
+                      style={{ padding: '2px 6px', fontSize: '0.75rem', height: '26px', background: 'rgba(99, 102, 241, 0.2)', border: '1px solid var(--cyan)', color: '#fff', borderRadius: '6px' }}
+                      value={user.role}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                      title="Cambiar rol y privilegios de este usuario"
+                    >
+                      <option value="admin">admin (Director)</option>
+                      <option value="lead">lead (Tech Lead)</option>
+                      <option value="developer">developer (Dev)</option>
+                      <option value="qa">qa (QA Lead)</option>
+                      <option value="hr">hr (Recursos Humanos)</option>
+                    </select>
+                  ) : (
+                    <span className={`badge badge-${user.role}`}>{user.role}</span>
+                  )}
                   <span className={`badge badge-${user.status.toLowerCase().replace(' ', '')}`}>
                     ● {user.status}
                   </span>
@@ -208,6 +233,37 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
                 <p style={{ fontWeight: 600 }}>{selectedUser.phone || '+52 55 0000 0000'}</p>
               </div>
             </div>
+
+            {permissions.can_manage_users && (
+              <div
+                style={{
+                  background: 'rgba(99, 102, 241, 0.12)',
+                  border: '1px solid var(--cyan)',
+                  padding: '14px',
+                  borderRadius: '10px',
+                  marginBottom: '20px',
+                }}
+              >
+                <h4 style={{ fontSize: '0.88rem', color: 'var(--cyan)', marginBottom: '8px', fontWeight: 700 }}>
+                  ⚙️ GESTIÓN DE ROLES Y PRIVILEGIOS (Acceso Administrador)
+                </h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Asignar Rol:</label>
+                  <select
+                    className="filter-select"
+                    style={{ flex: 1, background: 'rgba(15, 23, 42, 0.9)' }}
+                    value={selectedUser.role}
+                    onChange={(e) => handleRoleChange(selectedUser.id, e.target.value)}
+                  >
+                    <option value="admin">admin - Director General (Privilegios Totales)</option>
+                    <option value="lead">lead - Tech Lead (Gestión de Proyectos y Tareas)</option>
+                    <option value="developer">developer - Desarrollador (Acceso Base a Tareas)</option>
+                    <option value="qa">qa - QA Specialist (Control de Calidad)</option>
+                    <option value="hr">hr - Recursos Humanos (Gestión de Talento)</option>
+                  </select>
+                </div>
+              </div>
+            )}
 
             <div style={{ marginBottom: '20px' }}>
               <h4 style={{ fontSize: '0.9rem', marginBottom: '8px', color: 'var(--text-muted)' }}>BIOGRAFÍA & PERFIL PROFESIONAL</h4>
