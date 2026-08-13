@@ -1,0 +1,80 @@
+====================================================================
+  GUÍA RÁPIDA DE INSTALACIÓN Y CONFIGURACIÓN - DEVSTUDIO HR PLATFORM
+====================================================================
+
+Este documento contiene los pasos exactos para clonar, ejecutar y probar
+el proyecto "Registro de Personal & Control de Proyectos" en tu máquina local.
+
+--------------------------------------------------------------------
+1. REQUISITOS PREVIOS INSTALADOS
+--------------------------------------------------------------------
+Asegúrate de contar con las siguientes herramientas en tu equipo:
+- Git
+- PHP (v8.1 o superior, mediante XAMPP, Laragon o standalone)
+- Composer
+- Node.js (v18 o superior) y npm
+
+--------------------------------------------------------------------
+2. CLONAR EL REPOSITORIO DE GITHUB
+--------------------------------------------------------------------
+Abre tu terminal y ejecuta:
+  git clone https://github.com/Heathx01/Registro-de-Personal.git
+  cd "Registro-de-Personal"
+
+--------------------------------------------------------------------
+3. CONFIGURACIÓN DEL BACKEND (LARAVEL API)
+--------------------------------------------------------------------
+1. Entra a la carpeta del backend:
+   cd backend
+
+2. Instala las dependencias de PHP:
+   composer install
+
+3. Crea tu archivo de variables de entorno (.env):
+   - En Windows (PowerShell):
+     copy .env.example .env
+   - En Linux/Mac/Git Bash:
+     cp .env.example .env
+
+4. Genera la clave secreta de la aplicación:
+   php artisan key:generate
+
+5. Configura tu base de datos en el archivo .env:
+   (Verifica que MySQL esté activo en XAMPP o crea la base de datos).
+
+6. Ejecuta las migraciones y puebla la base de datos inicial:
+   php artisan migrate:fresh --seed
+
+7. Inicia el servidor de Laravel:
+   php artisan serve
+
+   *El servidor quedará corriendo en: http://127.0.0.1:8000*
+
+--------------------------------------------------------------------
+4. CONFIGURACIÓN DEL FRONTEND (VITE + REACT)
+--------------------------------------------------------------------
+1. En OTRA ventana de terminal, dirígete a la carpeta del frontend:
+   cd frontend
+
+2. Instala las dependencias de Node.js:
+   npm install
+
+3. Inicia el servidor de desarrollo de React:
+   npm run dev
+
+   *La aplicación web abrirá en: http://localhost:5173*
+
+--------------------------------------------------------------------
+5. CREDENCIALES DE INGRESO (ADMINISTRADOR ÚNICO)
+--------------------------------------------------------------------
+Abre http://localhost:5173 en tu navegador e ingresa con la cuenta principal:
+
+   Correo:      admin@devstudio.com
+   Contraseña:  admin123
+
+Desde el rol de Administrador podrás registrar a nuevos miembros del equipo,
+asignar puestos, modificar roles, gestionar proyectos y tareas.
+
+====================================================================
+¡Listo! El sistema estará 100% operativo en tu entorno local.
+====================================================================
