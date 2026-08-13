@@ -1,0 +1,14 @@
+# Ignorar dependencias pesadas y archivos sensibles del proyecto
+**/node_modules
+**/vendor
+**/dist
+**/.env
+**/.env.local
+**/.env.*
+**/public/storage
+**/storage/*.key
+*.sqlite
+*.sqlite-journal
+*.log
+.DS_Store
+Thumbs.db

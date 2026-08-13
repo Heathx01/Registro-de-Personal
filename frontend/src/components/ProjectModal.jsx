@@ -1,0 +1,137 @@
+import React, { useState } from 'react';
+
+export default function ProjectModal({ users, onClose, onSave }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    category: 'Cloud SaaS Platform',
+    status: 'Active',
+    tech_stackText: 'React, Node.js, PostgreSQL',
+    lead_id: users[0]?.id || '',
+    progress: 10,
+    deadline: '2026-12-31',
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const tech_stack = formData.tech_stackText.split(',').map((s) => s.trim()).filter(Boolean);
+    onSave({
+      ...formData,
+      tech_stack,
+    });
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Crear Nuevo Proyecto de Software</h3>
+          <button className="btn btn-secondary" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Nombre del Proyecto</label>
+            <input
+              type="text"
+              required
+              className="search-input"
+              style={{ paddingLeft: '12px' }}
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Descripción del Producto</label>
+            <textarea
+              className="search-input"
+              style={{ paddingLeft: '12px', minHeight: '60px' }}
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Categoría</label>
+              <select
+                className="filter-select"
+                style={{ width: '100%' }}
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              >
+                <option value="Cloud SaaS Platform">Cloud SaaS Platform</option>
+                <option value="Mobile Fintech App">Mobile Fintech App</option>
+                <option value="Web App / Internal Tool">Web App / Internal Tool</option>
+                <option value="AI Engine & Analytics">AI Engine & Analytics</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Líder de Proyecto (Lead)</label>
+              <select
+                className="filter-select"
+                style={{ width: '100%' }}
+                value={formData.lead_id}
+                onChange={(e) => setFormData({ ...formData, lead_id: e.target.value })}
+              >
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.position})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Stack Tecnológico (Separados por coma)</label>
+            <input
+              type="text"
+              className="search-input"
+              style={{ paddingLeft: '12px' }}
+              value={formData.tech_stackText}
+              onChange={(e) => setFormData({ ...formData, tech_stackText: e.target.value })}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Avance Inicial (%)</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                className="search-input"
+                style={{ paddingLeft: '12px' }}
+                value={formData.progress}
+                onChange={(e) => setFormData({ ...formData, progress: Number(e.target.value) })}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Fecha Límite (Deadline)</label>
+              <input
+                type="date"
+                className="search-input"
+                style={{ paddingLeft: '12px' }}
+                value={formData.deadline}
+                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              Cancelar
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Crear Proyecto
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
