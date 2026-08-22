@@ -15,25 +15,62 @@ export default function EmployeeModal({ onClose, onSave }) {
     avatar: null,
     bio: 'Nuevo integrante del equipo de desarrollo de software.',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      if (window.confirm('¿Deseas salir? Los datos no guardados en el formulario se perderán.')) {
+        onClose();
+      }
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const skills = formData.skillsText.split(',').map((s) => s.trim()).filter(Boolean);
-    onSave({
-      ...formData,
-      skills,
-    });
+    setErrorMsg('');
+    setIsSubmitting(true);
+    try {
+      const skills = formData.skillsText.split(',').map((s) => s.trim()).filter(Boolean);
+      await onSave({
+        ...formData,
+        skills,
+      });
+    } catch (err) {
+      console.error('Error al registrar usuario:', err);
+      const msg = err?.message || (err?.errors ? Object.values(err.errors).flat().join(', ') : 'Error al intentar guardar el usuario. Por favor verifique los campos.');
+      setErrorMsg(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Registrar Nuevo Empleado en la Empresa</h3>
-          <button className="btn btn-secondary" onClick={onClose}>
+          <button type="button" className="btn btn-secondary" onClick={onClose}>
             ✕
           </button>
         </div>
+
+        {errorMsg && (
+          <div
+            style={{
+              background: 'rgba(244, 63, 94, 0.18)',
+              border: '1px solid var(--rose)',
+              color: '#fecdd3',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              fontSize: '0.85rem',
+              marginBottom: '16px',
+            }}
+          >
+            ⚠️ {errorMsg}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
@@ -61,6 +98,51 @@ export default function EmployeeModal({ onClose, onSave }) {
               />
             </div>
             <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Contraseña Inicial de Acceso</label>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  minLength={6}
+                  className="search-input"
+                  style={{ paddingLeft: '12px', paddingRight: '40px', width: '100%' }}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="Mínimo 6 caracteres"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                  }}
+                  title={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                >
+                  {showPassword ? '👁️' : '🔒'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Puesto / Título del Empleo</label>
+              <input
+                type="text"
+                required
+                className="search-input"
+                style={{ paddingLeft: '12px' }}
+                value={formData.position}
+                onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+              />
+            </div>
+            <div>
               <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Teléfono</label>
               <input
                 type="text"
@@ -73,17 +155,6 @@ export default function EmployeeModal({ onClose, onSave }) {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Puesto / Titulo del Empleo</label>
-              <input
-                type="text"
-                required
-                className="search-input"
-                style={{ paddingLeft: '12px' }}
-                value={formData.position}
-                onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-              />
-            </div>
             <div>
               <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Departamento</label>
               <select
@@ -98,9 +169,6 @@ export default function EmployeeModal({ onClose, onSave }) {
                 <option value="Recursos Humanos">Recursos Humanos</option>
               </select>
             </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Rol de Acceso y Privilegios</label>
               <select
@@ -116,6 +184,9 @@ export default function EmployeeModal({ onClose, onSave }) {
                 <option value="hr">Recursos Humanos (HR)</option>
               </select>
             </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Estado Inicial</label>
               <select
@@ -128,6 +199,16 @@ export default function EmployeeModal({ onClose, onSave }) {
                 <option value="Remote">Remote (Remoto)</option>
                 <option value="In Meeting">In Meeting</option>
               </select>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Fecha de Contratación</label>
+              <input
+                type="date"
+                className="search-input"
+                style={{ paddingLeft: '12px' }}
+                value={formData.hire_date}
+                onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })}
+              />
             </div>
           </div>
 
@@ -153,11 +234,11 @@ export default function EmployeeModal({ onClose, onSave }) {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
+            <button type="button" className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>
               Cancelar
             </button>
-            <button type="submit" className="btn btn-primary">
-              Guardar y Otorgar Accesos
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? 'Guardando...' : 'Guardar y Otorgar Accesos'}
             </button>
           </div>
         </form>

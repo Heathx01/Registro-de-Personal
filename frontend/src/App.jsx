@@ -15,6 +15,7 @@ import TaskModal from './components/TaskModal';
 import {
   getUsers,
   createUser,
+  updateUser,
   deleteUser,
   unlockUser,
   getProjects,
@@ -99,6 +100,7 @@ function App() {
       setShowEmployeeModal(false);
     } catch (err) {
       console.error('Error al guardar usuario:', err);
+      throw err;
     }
   };
 
