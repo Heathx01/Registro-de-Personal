@@ -71,15 +71,6 @@ function App() {
     setCurrentUser(null);
   };
 
-  const handleSwitchRole = (user) => {
-    setCurrentUser(user);
-    if (user.role === 'developer') {
-      setActiveTab('developer');
-    } else {
-      setActiveTab('manager');
-    }
-  };
-
   const handleUnlockUser = async (id) => {
     try {
       await unlockUser(id);
@@ -170,6 +161,7 @@ function App() {
   }
 
   const permissions = getPermissionsForRole(currentUser.role);
+  const canManageRoles = ['admin', 'lead', 'hr'].includes(currentUser.role);
 
   return (
     <div className="app-container">
@@ -178,8 +170,6 @@ function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onLogout={handleLogout}
-        onSwitchRole={handleSwitchRole}
-        MOCK_USERS={users}
       />
 
       <main className="main-content">
@@ -234,7 +224,20 @@ function App() {
           />
         )}
 
-        {activeTab === 'roles' && <RolesMatrixView />}
+        {activeTab === 'roles' && (
+          canManageRoles ? (
+            <RolesMatrixView />
+          ) : (
+            <div className="glass-card animate-fade-in" style={{ padding: '40px', textAlign: 'center', margin: '40px auto', maxWidth: '540px' }}>
+              <h3 style={{ color: 'var(--rose)', fontSize: '1.25rem', marginBottom: '10px' }}>
+                🛑 Acceso Restringido
+              </h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                La Matriz de Roles y Permisos sólo está disponible para Administradores y Líderes encargados de asignar privilegios de seguridad.
+              </p>
+            </div>
+          )
+        )}
       </main>
 
       {/* Modales de Gestión */}

@@ -36,12 +36,14 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  flex-shrink: 0;
 }
 
 .brand-logo {
   width: 42px;
   height: 42px;
+  flex-shrink: 0;
   background: linear-gradient(135deg, var(--primary) 0%, var(--cyan) 100%);
   border-radius: var(--radius-sm);
   display: flex;
@@ -51,12 +53,22 @@
   font-size: 1.3rem;
   color: white;
   box-shadow: var(--shadow-glow);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .brand-text h1 {
   font-size: 1.15rem;
   font-weight: 800;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+  margin: 0;
   background: linear-gradient(90deg, #ffffff 0%, #cbd5e1 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -66,6 +78,8 @@
 .brand-text p {
   font-size: 0.75rem;
   color: var(--text-muted);
+  line-height: 1.35;
+  margin-top: 2px;
 }
 
 .nav-tabs {
@@ -75,6 +89,8 @@
   padding: 4px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-glass);
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .tab-btn {
@@ -133,44 +149,6 @@
 .user-role {
   font-size: 0.7rem;
   color: var(--text-muted);
-}
-
-/* Quick Role Switcher Banner */
-.demo-banner {
-  background: linear-gradient(90deg, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
-  border-bottom: 1px solid rgba(99, 102, 241, 0.2);
-  padding: 10px 30px;
-  font-size: 0.83rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-}
-
-.switcher-buttons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.role-switch-btn {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid var(--border-glass);
-  color: var(--text-muted);
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.role-switch-btn:hover,
-.role-switch-btn.active {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
 }
 
 /* Personnel Grid & Table */

@@ -57,6 +57,7 @@ export default function LoginView({ onLoginSuccess }) {
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div
             className="brand-logo"
+            translate="no"
             style={{ width: '52px', height: '52px', fontSize: '1.5rem', margin: '0 auto 12px' }}
           >
             Dev

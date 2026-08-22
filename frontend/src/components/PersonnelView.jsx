@@ -5,6 +5,8 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordNotice, setPasswordNotice] = useState('');
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -25,6 +27,19 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
       if (selectedUser && selectedUser.id === userId) {
         setSelectedUser({ ...selectedUser, role: newRole });
       }
+    }
+  };
+
+  const handleUpdatePassword = () => {
+    if (!newPassword || newPassword.length < 6) {
+      setPasswordNotice('⚠️ La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+    if (onUpdateUser && selectedUser) {
+      onUpdateUser(selectedUser.id, { password: newPassword });
+      setPasswordNotice('✅ Contraseña actualizada correctamente.');
+      setNewPassword('');
+      setTimeout(() => setPasswordNotice(''), 4000);
     }
   };
 
@@ -242,13 +257,16 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
                   padding: '14px',
                   borderRadius: '10px',
                   marginBottom: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
                 }}
               >
-                <h4 style={{ fontSize: '0.88rem', color: 'var(--cyan)', marginBottom: '8px', fontWeight: 700 }}>
-                  ⚙️ GESTIÓN DE ROLES Y PRIVILEGIOS (Acceso Administrador)
+                <h4 style={{ fontSize: '0.88rem', color: 'var(--cyan)', fontWeight: 700 }}>
+                  ⚙️ GESTIÓN DE CREDENCIALES Y PRIVILEGIOS (Acceso Administrador)
                 </h4>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <label style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Asignar Rol:</label>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--text-muted)', minWidth: '120px' }}>Asignar Rol:</label>
                   <select
                     className="filter-select"
                     style={{ flex: 1, background: 'rgba(15, 23, 42, 0.9)' }}
@@ -262,6 +280,32 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
                     <option value="hr">hr - Recursos Humanos (Gestión de Talento)</option>
                   </select>
                 </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--text-muted)', minWidth: '120px' }}>Nueva Contraseña:</label>
+                  <input
+                    type="password"
+                    placeholder="Establecer nueva contraseña..."
+                    className="search-input"
+                    style={{ flex: 1, paddingLeft: '12px' }}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}
+                    onClick={handleUpdatePassword}
+                  >
+                    Actualizar Contraseña
+                  </button>
+                </div>
+
+                {passwordNotice && (
+                  <span style={{ fontSize: '0.8rem', color: passwordNotice.includes('✅') ? 'var(--emerald)' : '#f87171' }}>
+                    {passwordNotice}
+                  </span>
+                )}
               </div>
             )}
 

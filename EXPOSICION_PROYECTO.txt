@@ -1,0 +1,138 @@
+================================================================================
+        GUÍA Y EXPLICACIÓN INTEGRAL DEL PROYECTO DE REGISTRO DE PERSONAL
+================================================================================
+
+Este documento está diseñado como una guía estructurada para la exposición y 
+presentación del sistema de Registro de Personal y Gestión de Proyectos de Software.
+
+--------------------------------------------------------------------------------
+1. INFORMACIÓN GENERAL Y OBJETIVO DEL SISTEMA
+--------------------------------------------------------------------------------
+• Nombre del Proyecto: Sistema Corporativo de Registro de Personal y Gestión de Software
+• Arquitectura: Modelo Cliente-Servidor (Arquitectura desacoplada)
+  - Backend: Laravel API RESTful (PHP)
+  - Frontend: React con Vite (JavaScript, HTML5, Vanilla CSS)
+  - Base de Datos: MySQL (gestionado vía XAMPP y Migraciones de Laravel)
+
+• Objetivo Principal:
+  Proporcionar una plataforma integral para el control de personal, asignación de 
+  roles y privilegios, creación de proyectos de desarrollo, seguimiento de tareas 
+  y protección de seguridad mediante bloqueo de cuentas.
+
+--------------------------------------------------------------------------------
+2. ESTRUCTURA Y TECNOLOGÍAS DEL PROYECTO
+--------------------------------------------------------------------------------
+
+A) BACKEND (Laravel REST API - Ruta: /backend)
+   - app/Models/ User.php, Project.php, Task.php
+     Modelos de datos con sus relaciones de base de datos (relaciones 1 a muchos 
+     entre usuarios, proyectos asignados y tareas creadas).
+   - app/Http/Controllers/Api/
+     * AuthController.php: Controla el inicio de sesión (Login), validación de 
+       contraseñas con Hash (Bcrypt) y lógica de bloqueo automático por intentos fallidos.
+     * UserController.php: Gestión CRUD (Crear, Leer, Actualizar, Eliminar) de 
+       empleados, asignación de roles y estructura del organigrama.
+     * ProjectController.php: Administración de proyectos tecnológicos.
+     * TaskController.php: Creación, asignación y actualización de estados de tareas.
+   - database/migrations/
+     Tablas estructuradas para usuarios, proyectos, tareas y campos de seguridad 
+     (is_locked, failed_attempts, role, position, department, skills).
+
+B) FRONTEND (React Single Page Application - Ruta: /frontend)
+   - src/App.jsx: Componente principal que gestiona el estado global de la 
+     aplicación (usuario autenticado, pestaña activa, carga de datos).
+   - src/services/api.js: Capa de servicio de red que centraliza las peticiones 
+     HTTP hacia el backend en Laravel.
+   - src/components/:
+     * Navbar.jsx: Barra de navegación dinámica adaptable según el rol del usuario.
+     * LoginView.jsx: Pantalla de autenticación segura.
+     * ManagerDashboard.jsx: Panel de control ejecutivo para administradores.
+     * DeveloperWorkspace.jsx: Espacio de trabajo enfocado para desarrolladores.
+     * PersonnelView.jsx: Base de datos visual con ficas completas de empleados.
+     * EmployeeModal.jsx: Formulario para registrar empleados y asignar credenciales.
+     * OrganigramaView.jsx: Diagrama de jerarquía de la empresa por áreas.
+     * ProjectsView.jsx & ProjectModal.jsx: Gestión de proyectos tecnológicos.
+     * TasksView.jsx & TaskModal.jsx: Panel global de tareas del equipo.
+     * RolesMatrixView.jsx: Matriz explicativa de permisos por cada rol.
+
+--------------------------------------------------------------------------------
+3. MÓDULOS DEL SISTEMA (EXPLICACIÓN PASO A PASO PARA LA EXPOSICIÓN)
+--------------------------------------------------------------------------------
+
+MÓDULO 1: AUTENTICACIÓN Y SEGURIDAD AVANZADA (Login)
+--------------------------------------------------
+• ¿Cómo funciona?
+  El usuario ingresa su correo corporativo y contraseña. El sistema consulta la API 
+  en Laravel. Si introduce una contraseña incorrecta, se suma un intento fallido. 
+  Al tercer intento fallido consecutivo, la cuenta se BLOQUEA automáticamente por 
+  motivos de seguridad para proteger el sistema contra ataques.
+• Punto clave a exponer:
+  La cuenta no se puede desbloquear sola; requiere que un Administrador o Tech Lead 
+  la desbloquee manualmente desde el Panel de Control.
+
+MÓDULO 2: PANEL DE CONTROL EJECUTIVO (Manager Dashboard)
+--------------------------------------------------------
+• ¿Cómo funciona?
+  Muestra estadísticas clave en tiempo real: total de empleados, proyectos activos, 
+  tareas completadas y estado del servidor. Además, alerta si existen cuentas 
+  bloqueadas y provee un botón directo para su desbloqueo inmediato.
+• Punto clave a exponer:
+  Brinda una visión global del estado operativo de la empresa a los directores.
+
+MÓDULO 3: REGISTRO Y BASE DE DATOS DE PERSONAL (Personnel & EmployeeModal)
+--------------------------------------------------------------------------
+• ¿Cómo funciona?
+  Permite al Administrador registrar nuevos integrantes ingresando su nombre, correo, 
+  contraseña inicial de acceso, puesto, departamento, rol y stack tecnológico. 
+  Desde la lista, el Admin puede modificar el rol del empleado o restablecer su clave.
+• Punto clave a exponer:
+  Registro centralizado y controlado por la administración con asignación explícita de credenciales.
+
+MÓDULO 4: ESTRUCTURA ORGANIZACIONAL (Organigrama)
+--------------------------------------------------
+• ¿Cómo funciona?
+  Organiza visualmente al equipo según su nivel jerárquico dentro de la empresa:
+  Dirección Ejecutiva -> Líderes Técnicos -> Desarrollo -> QA -> Recursos Humanos.
+• Punto clave a exponer:
+  Permite visualizar con claridad las cadenas de mando y los equipos de trabajo.
+
+MÓDULO 5: GESTIÓN DE PROYECTOS TECNOLÓGICOS (Projects & ProjectModal)
+----------------------------------------------------------------------
+• ¿Cómo funciona?
+  Creación y seguimiento de proyectos con barra de progreso, stack tecnológico 
+  utilizado (ej. React, Laravel, MySQL), fecha límite y Tech Lead asignado a la cabeza.
+
+MÓDULO 6: CONTROL DE TAREAS Y WORKSPACE DE DESARROLLO (Tasks & DeveloperWorkspace)
+----------------------------------------------------------------------------------
+• ¿Cómo funciona?
+  Los directores y líderes asignan tareas con prioridad (Alta, Media, Baja). 
+  El desarrollador entra a su "Developer Workspace" personal, ve únicamente las 
+  tareas asignadas a su nombre y puede cambiar el estado (Pendiente, En Progreso, Completada).
+
+MÓDULO 7: MATRIZ DE ROLES Y PRIVILEGIOS (RolesMatrix)
+-----------------------------------------------------
+• El sistema implementa 5 roles distintos:
+  1. Admin (Director General): Control total, alta/baja de usuarios, desbloqueo y proyectos.
+  2. Tech Lead (Líder Técnico): Creación de proyectos, asignación de tareas y desbloqueo.
+  3. Developer (Desarrollador): Ejecución y actualización del estado de sus tareas.
+  4. QA (Especialista en Calidad): Reporte y seguimiento de pruebas.
+  5. HR (Recursos Humanos): Control de personal y organigrama.
+
+--------------------------------------------------------------------------------
+4. GUÍA DE DEMOSTRACIÓN PRÁCTICA DURANTE LA EXPOSICIÓN
+--------------------------------------------------------------------------------
+Si vas a realizar una demostración en vivo durante tu exposición, se recomienda 
+seguir este orden:
+
+1. Demostrar el Inicio de Sesión como Administrador (admin@devstudio.com / password123).
+2. Ir a la pestaña "Personal" y hacer clic en "Registrar Nuevo Empleado". Registrar 
+   un usuario de prueba con su contraseña inicial.
+3. Mostrar la vista "Organigrama" para visualizar la jerarquía del equipo.
+4. Ir a "Proyectos" y "Tareas" para mostrar cómo se asigna una tarea a un desarrollador.
+5. Probar el Sistema de Seguridad: Cerrar sesión, intentar ingresar con un correo 
+   y una clave errónea 3 veces para mostrar cómo la pantalla bloquea el acceso.
+6. Volver a iniciar sesión como Admin y presionar el botón "Desbloquear Cuenta".
+
+================================================================================
+                         FIN DEL DOCUMENTO DE EXPOSICIÓN
+================================================================================

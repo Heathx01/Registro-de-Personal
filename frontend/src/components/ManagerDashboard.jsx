@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import RolesMatrixView from './RolesMatrixView';
 
 export default function ManagerDashboard({ users, projects, tasks, currentUser, onUnlockUser, onAssignTask }) {
   const [selectedDev, setSelectedDev] = useState('');
@@ -268,6 +269,11 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Matriz de Roles, Permisos y Privilegios integrada en el Dashboard del Admin / Manager */}
+      <div style={{ marginTop: '32px' }}>
+        <RolesMatrixView />
       </div>
     </div>
   );
