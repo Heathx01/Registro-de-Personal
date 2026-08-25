@@ -42,7 +42,7 @@ export default function ClientModal({ client, onClose, onSave }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
             <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>
-              {client ? 'Editar Información del Cliente' : 'Registrar Nuevo Cliente SaaS'}
+              {client ? 'Editar Información del Cliente' : 'Registrar Nuevo Cliente'}
             </h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
               Gestión de clientes, contactos y datos comerciales del proyecto.

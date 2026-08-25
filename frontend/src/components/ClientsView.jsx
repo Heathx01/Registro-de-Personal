@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 
-export default function ClientsView({ clients, permissions, onOpenAddClient, onOpenEditClient, onDeleteClient }) {
+export default function ClientsView({
+  clients,
+  permissions,
+  onOpenAddClient,
+  onOpenEditClient,
+  onDeleteClient,
+  onLockAccess,
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -17,7 +24,7 @@ export default function ClientsView({ clients, permissions, onOpenAddClient, onO
     return matchesSearch && matchesType && matchesStatus;
   });
 
-  // Métricas financieras y operativas SaaS
+  // Métricas financieras y operativas de clientes
   const totalClients = clients.length;
   const activeClients = clients.filter((c) => c.status === 'active').length;
   const totalProjectsAssigned = clients.reduce((acc, c) => acc + (c.projects ? c.projects.length : 0), 0);
@@ -28,7 +35,7 @@ export default function ClientsView({ clients, permissions, onOpenAddClient, onO
 
   return (
     <div className="animate-fade-in">
-      {/* Resumen Ejecutivo SaaS */}
+      {/* Resumen Ejecutivo de Clientes */}
       <div className="metrics-grid" style={{ marginBottom: '24px' }}>
         <div className="metric-card">
           <div className="metric-header">
@@ -111,14 +118,22 @@ export default function ClientsView({ clients, permissions, onOpenAddClient, onO
           </select>
         </div>
 
-        {permissions.can_manage_projects && (
-          <button className="btn btn-primary" onClick={onOpenAddClient}>
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Registrar Cliente
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: '10px' }}>
+          {onLockAccess && (
+            <button className="btn btn-secondary" style={{ color: 'var(--rose)' }} onClick={onLockAccess} title="Bloquear vista de seguridad">
+              🔒 Bloquear Acceso
+            </button>
+          )}
+
+          {permissions.can_manage_projects && (
+            <button className="btn btn-primary" onClick={onOpenAddClient}>
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Registrar Cliente
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Grid de Tarjetas de Clientes */}

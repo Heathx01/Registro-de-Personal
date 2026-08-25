@@ -12,6 +12,7 @@ import RolesMatrixView from './components/RolesMatrixView';
 import EmployeeModal from './components/EmployeeModal';
 import ProjectModal from './components/ProjectModal';
 import ClientModal from './components/ClientModal';
+import ClientAuthModal from './components/ClientAuthModal';
 import TaskModal from './components/TaskModal';
 
 import {
@@ -46,6 +47,8 @@ function App() {
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showClientModal, setShowClientModal] = useState(false);
+  const [showClientAuthModal, setShowClientAuthModal] = useState(false);
+  const [isClientUnlocked, setIsClientUnlocked] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
 
@@ -78,8 +81,23 @@ function App() {
     }
   };
 
+  const handleTabSelect = (tab) => {
+    if (tab === 'clients' && !isClientUnlocked) {
+      setShowClientAuthModal(true);
+      return;
+    }
+    setActiveTab(tab);
+  };
+
+  const handleClientAuthSuccess = () => {
+    setIsClientUnlocked(true);
+    setShowClientAuthModal(false);
+    setActiveTab('clients');
+  };
+
   const handleLogout = () => {
     setCurrentUser(null);
+    setIsClientUnlocked(false);
   };
 
   const handleUnlockUser = async (id) => {
@@ -213,7 +231,7 @@ function App() {
       <Navbar
         currentUser={currentUser}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleTabSelect}
         onLogout={handleLogout}
       />
 
@@ -263,6 +281,10 @@ function App() {
               setShowClientModal(true);
             }}
             onDeleteClient={handleDeleteClient}
+            onLockAccess={() => {
+              setIsClientUnlocked(false);
+              setActiveTab('manager');
+            }}
           />
         )}
 
@@ -301,7 +323,15 @@ function App() {
         )}
       </main>
 
-      {/* Modales de Gestión */}
+      {/* Modales de Gestión y Autenticación */}
+      {showClientAuthModal && (
+        <ClientAuthModal
+          currentUser={currentUser}
+          onClose={() => setShowClientAuthModal(false)}
+          onAuthenticated={handleClientAuthSuccess}
+        />
+      )}
+
       {showEmployeeModal && (
         <EmployeeModal onClose={() => setShowEmployeeModal(false)} onSave={handleSaveUser} />
       )}
