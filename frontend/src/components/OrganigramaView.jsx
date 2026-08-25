@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function OrganigramaView({ users }) {
+  const { t } = useLanguage();
   const [selectedNode, setSelectedNode] = useState(null);
 
   const ceo = users.filter((u) => u.role === 'admin');
@@ -12,16 +14,16 @@ export default function OrganigramaView({ users }) {
   return (
     <div className="animate-fade-in">
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Organigrama Jerárquico de la Empresa</h2>
+        <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>{t('organigrama.title')}</h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '650px', margin: '6px auto 0' }}>
-          Estructura organizacional de DevStudio Software. Haz clic en cualquiera de los nodos para explorar responsabilidades, proyectos y privilegios asignados.
+          {t('organigrama.subtitle')}
         </p>
       </div>
 
       <div className="org-container">
-        {/* Tier 1: Dirección Executiva */}
+        {/* Tier 1 */}
         <div style={{ textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '1px', color: 'var(--purple)', fontWeight: 800 }}>
-          Nivel 1: Dirección General & Estrategia
+          {t('organigrama.direction')}
         </div>
         <div className="org-tier">
           {ceo.map((user) => (
@@ -51,7 +53,7 @@ export default function OrganigramaView({ users }) {
               <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>{user.name}</h4>
               <p style={{ fontSize: '0.78rem', color: 'var(--cyan)' }}>{user.position}</p>
               <span className="badge badge-admin" style={{ marginTop: '8px' }}>
-                DIRECTOR GENERAL
+                CEO / DIRECTOR
               </span>
             </div>
           ))}
@@ -59,9 +61,9 @@ export default function OrganigramaView({ users }) {
 
         <div className="org-connector"></div>
 
-        {/* Tier 2: Arquitectura & Liderazgo Técnico */}
+        {/* Tier 2 */}
         <div style={{ textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '1px', color: 'var(--cyan)', fontWeight: 800 }}>
-          Nivel 2: Arquitectura de Software & Liderazgo Técnico
+          {t('organigrama.leads')}
         </div>
         <div className="org-tier">
           {leads.map((user) => (
@@ -99,9 +101,9 @@ export default function OrganigramaView({ users }) {
 
         <div className="org-connector"></div>
 
-        {/* Tier 3: Desarrollo de Software & QA */}
+        {/* Tier 3 */}
         <div style={{ textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '1px', color: 'var(--primary)', fontWeight: 800 }}>
-          Nivel 3: Ingeniería de Software & Control de Calidad
+          {t('organigrama.devs')} & {t('organigrama.qa')}
         </div>
         <div className="org-tier">
           {developers.map((user) => (
@@ -171,9 +173,9 @@ export default function OrganigramaView({ users }) {
 
         <div className="org-connector"></div>
 
-        {/* Tier 4: Recursos Humanos */}
+        {/* Tier 4 */}
         <div style={{ textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '1px', color: 'var(--emerald)', fontWeight: 800 }}>
-          Nivel 4: Gestión de Talento & Cultura
+          {t('organigrama.hr')}
         </div>
         <div className="org-tier">
           {hr.map((user) => (
@@ -203,14 +205,14 @@ export default function OrganigramaView({ users }) {
               <h5 style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user.name}</h5>
               <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{user.position}</p>
               <span className="badge badge-hr" style={{ marginTop: '6px' }}>
-                RECURSOS HUMANOS
+                HR
               </span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Modal de Detalle de Nodo Jerárquico */}
+      {/* Modal Ficha Organigrama */}
       {selectedNode && (
         <div className="modal-overlay" onClick={() => setSelectedNode(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -240,26 +242,13 @@ export default function OrganigramaView({ users }) {
             </div>
 
             <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px', borderRadius: '8px', marginBottom: '16px' }}>
-              <h5 style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px' }}>RESPONSABILIDADES DEL PUESTO</h5>
+              <h5 style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px' }}>RESPONSABILITIES</h5>
               <p style={{ fontSize: '0.85rem' }}>{selectedNode.bio}</p>
-            </div>
-
-            <div style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid var(--border-glass-accent)', padding: '14px', borderRadius: '8px', marginBottom: '20px' }}>
-              <h5 style={{ fontSize: '0.82rem', color: 'var(--primary)', marginBottom: '4px' }}>CANAL DE REPORTE Y ACCESO</h5>
-              <p style={{ fontSize: '0.85rem' }}>
-                {selectedNode.role === 'admin'
-                  ? 'Reporta directamente a la Junta Directiva. Acceso total a decisiones administrativas y estratégicas.'
-                  : selectedNode.role === 'lead'
-                  ? 'Reporta a Dirección General. Supervisa equipos de desarrollo y arquitectura técnica.'
-                  : selectedNode.role === 'developer' || selectedNode.role === 'qa'
-                  ? 'Reporta a la Líder Técnica (Sarah Connor). Enfocado en entrega de código y calidad.'
-                  : 'Reporta a Dirección. Encargado de la gestión de personal y cumplimiento normativo.'}
-              </p>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button className="btn btn-secondary" onClick={() => setSelectedNode(null)}>
-                Entendido
+                {t('common.close')}
               </button>
             </div>
           </div>

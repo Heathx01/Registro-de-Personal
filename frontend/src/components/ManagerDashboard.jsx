@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import RolesMatrixView from './RolesMatrixView';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ManagerDashboard({ users, projects, tasks, currentUser, onUnlockUser, onAssignTask }) {
+  const { t } = useLanguage();
   const [selectedDev, setSelectedDev] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDesc, setTaskDesc] = useState('');
@@ -27,7 +29,7 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
     });
 
     const devObj = users.find((u) => String(u.id) === String(selectedDev));
-    setSuccessMsg(`✅ Tarea "${taskTitle}" asignada exitosamente a ${devObj ? devObj.name : 'Desarrollador'}.`);
+    setSuccessMsg(`✅ ${t('manager.assignedSuccess')}: "${taskTitle}" (${devObj ? devObj.name : 'Dev'})`);
     setTaskTitle('');
     setTaskDesc('');
     setTimeout(() => setSuccessMsg(''), 4000);
@@ -38,11 +40,11 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
       <div className="controls-bar" style={{ marginBottom: '24px' }}>
         <div>
           <span className="badge badge-lead" style={{ fontSize: '0.8rem', marginBottom: '6px' }}>
-            PÁGINA 2: VISTA DE MANAGER & LÍDER TÉCNICO
+            {t('manager.badge')}
           </span>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Panel de Supervisión y Asignación de Tareas</h2>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>{t('manager.title')}</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-            Bienvenido, Manager <strong>{currentUser.name}</strong>. Desde aquí supervisas a tu equipo de desarrollo, asignas actividades en tiempo real y gestionas permisos de seguridad.
+            {t('manager.subtitle')} (<strong>{currentUser.name}</strong>)
           </p>
         </div>
       </div>
@@ -68,7 +70,7 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
         {/* Columna 1: Equipo a Cargo y Control de Seguridad */}
         <div className="glass-card" style={{ padding: '24px' }}>
           <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ color: 'var(--cyan)' }}>👥</span> Equipo de Trabajo Asignado ({developers.length} Desarrolladores)
+            <span style={{ color: 'var(--cyan)' }}>👥</span> {t('manager.teamMembers')} ({developers.length})
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -104,11 +106,11 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
                       style={{ fontSize: '0.75rem', padding: '6px 12px' }}
                       onClick={() => onUnlockUser(dev.id)}
                     >
-                      🔓 Desbloquear Cuenta
+                      🔓 {t('manager.unlockAccount')}
                     </button>
                   ) : (
                     <span className="badge badge-active" style={{ fontSize: '0.7rem' }}>
-                      ● {dev.status}
+                      ● {t('common.active')}
                     </span>
                   )}
                 </div>
@@ -120,12 +122,12 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
         {/* Columna 2: Asignación Rápida de Tareas al Programador */}
         <div className="glass-card" style={{ padding: '24px' }}>
           <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ color: 'var(--primary)' }}>✍️</span> Asignar Nueva Tarea al Programador
+            <span style={{ color: 'var(--primary)' }}>✍️</span> {t('manager.assignTask')}
           </h3>
 
           <form onSubmit={handleAssign} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Seleccionar Programador / Empleado</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.selectDev')}</label>
               <select
                 required
                 className="filter-select"
@@ -133,7 +135,7 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
                 value={selectedDev}
                 onChange={(e) => setSelectedDev(e.target.value)}
               >
-                <option value="">-- Elige un desarrollador de tu equipo --</option>
+                <option value="">{t('manager.chooseDev')}</option>
                 {developers.map((dev) => (
                   <option key={dev.id} value={dev.id}>
                     {dev.name} - {dev.position}
@@ -143,13 +145,13 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
             </div>
 
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Título de la Actividad</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.taskTitle')}</label>
               <input
                 type="text"
                 required
                 className="search-input"
                 style={{ paddingLeft: '12px' }}
-                placeholder="Ej. Implementar autenticación JWT y refresh token..."
+                placeholder="ej. Implementar JWT & OAuth2..."
                 value={taskTitle}
                 onChange={(e) => setTaskTitle(e.target.value)}
               />
@@ -157,7 +159,7 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Proyecto</label>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.project')}</label>
                 <select
                   className="filter-select"
                   style={{ width: '100%' }}
@@ -172,34 +174,34 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Prioridad</label>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.priority')}</label>
                 <select
                   className="filter-select"
                   style={{ width: '100%' }}
                   value={priority}
                   onChange={(e) => setPriority(e.target.value)}
                 >
-                  <option value="Low">Baja</option>
-                  <option value="Medium">Media</option>
-                  <option value="High">Alta</option>
-                  <option value="Critical">Urgente / Crítica</option>
+                  <option value="Low">{t('manager.low')}</option>
+                  <option value="Medium">{t('manager.medium')}</option>
+                  <option value="High">{t('manager.high')}</option>
+                  <option value="Critical">{t('manager.critical')}</option>
                 </select>
               </div>
             </div>
 
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Instrucciones y Detalles Técnicos</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.instructions')}</label>
               <textarea
                 className="search-input"
                 style={{ paddingLeft: '12px', minHeight: '60px' }}
-                placeholder="Detalla los requisitos de entrega..."
+                placeholder="..."
                 value={taskDesc}
                 onChange={(e) => setTaskDesc(e.target.value)}
               />
             </div>
 
             <button type="submit" className="btn btn-primary" style={{ justifyContent: 'center', padding: '12px' }}>
-              🚀 Asignar Tarea en Tiempo Real
+              {t('manager.assignBtn')}
             </button>
           </form>
         </div>
@@ -208,18 +210,18 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
       {/* Tabla de Tareas Asignadas por el Manager */}
       <div className="glass-card" style={{ padding: '24px' }}>
         <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '16px' }}>
-          📋 Estado de Tareas Asignadas al Equipo ({tasks.length})
+          📋 {t('manager.taskStateTitle')} ({tasks.length})
         </h3>
 
         <div className="matrix-table-wrapper">
           <table className="matrix-table">
             <thead>
               <tr>
-                <th>TAREA</th>
-                <th>DESARROLLADOR ASIGNADO</th>
-                <th>PROYECTO</th>
-                <th>PRIORIDAD</th>
-                <th>ESTADO ACTUAL</th>
+                <th>{t('manager.taskTitle')}</th>
+                <th>{t('tasks.assignedTo')}</th>
+                <th>{t('projects.title')}</th>
+                <th>{t('manager.priority')}</th>
+                <th>{t('common.status')}</th>
               </tr>
             </thead>
             <tbody>
@@ -236,10 +238,10 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
                         alt=""
                         style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }}
                       />
-                      <span>{task.assignee?.name || 'Desarrollador'}</span>
+                      <span>{task.assignee?.name || 'Dev'}</span>
                     </div>
                   </td>
-                  <td style={{ color: 'var(--cyan)' }}>{task.project?.name || 'Proyecto General'}</td>
+                  <td style={{ color: 'var(--cyan)' }}>{task.project?.name || 'General'}</td>
                   <td>
                     <span className="badge badge-developer">{task.priority}</span>
                   </td>
@@ -261,7 +263,7 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
                             : 'var(--amber)',
                       }}
                     >
-                      ● {task.status}
+                      ● {task.status === 'Completed' ? t('common.completed') : task.status === 'In Progress' ? t('common.inProgress') : t('common.pending')}
                     </span>
                   </td>
                 </tr>
@@ -271,7 +273,7 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
         </div>
       </div>
 
-      {/* Matriz de Roles, Permisos y Privilegios integrada en el Dashboard del Admin / Manager */}
+      {/* Matriz de Roles, Permisos y Privilegios */}
       <div style={{ marginTop: '32px' }}>
         <RolesMatrixView />
       </div>

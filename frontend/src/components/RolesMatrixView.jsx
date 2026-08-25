@@ -1,6 +1,9 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function RolesMatrixView() {
+  const { t } = useLanguage();
+
   const roleMatrix = [
     {
       role: 'Director General / CEO',
@@ -52,9 +55,9 @@ export default function RolesMatrixView() {
   return (
     <div className="animate-fade-in">
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Matriz de Roles, Privilegios, Restricciones y Accesos</h2>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('roles.title')}</h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-          Definición formal de la arquitectura de seguridad basada en roles (RBAC) ajustada al organigrama de la empresa de software.
+          {t('roles.subtitle')}
         </p>
       </div>
 
@@ -62,11 +65,11 @@ export default function RolesMatrixView() {
         <table className="matrix-table">
           <thead>
             <tr>
-              <th>ROL ORGANIZACIONAL</th>
-              <th>PUESTO TÍPICO</th>
-              <th>NIVEL DE ACCESO</th>
-              <th>PRIVILEGIOS CONCEDIDOS</th>
-              <th>RESTRICCIONES OPERATIVAS</th>
+              <th>{t('roles.roleCol')}</th>
+              <th>{t('login.position')}</th>
+              <th>{t('roles.usersCol')}</th>
+              <th>{t('roles.descriptionCol')}</th>
+              <th>{t('roles.restrictionsCol')}</th>
             </tr>
           </thead>
           <tbody>
