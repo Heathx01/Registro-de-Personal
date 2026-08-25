@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ClientDetailModal from './ClientDetailModal';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ClientsView({
   clients,
@@ -9,6 +10,7 @@ export default function ClientsView({
   onDeleteClient,
   onLockAccess,
 }) {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -41,41 +43,41 @@ export default function ClientsView({
       <div className="metrics-grid" style={{ marginBottom: '24px' }}>
         <div className="metric-card">
           <div className="metric-header">
-            <span className="metric-title">TOTAL CLIENTES</span>
+            <span className="metric-title">{t('clients.totalClients')}</span>
             <div className="metric-icon metric-icon-primary">🏢</div>
           </div>
           <div className="metric-value">{totalClients}</div>
-          <div className="metric-subtitle">Cartera de clientes registrados</div>
+          <div className="metric-subtitle">{t('clients.totalSubtitle')}</div>
         </div>
 
         <div className="metric-card">
           <div className="metric-header">
-            <span className="metric-title">CLIENTES ACTIVOS</span>
+            <span className="metric-title">{t('clients.activeClients')}</span>
             <div className="metric-icon metric-icon-emerald">✅</div>
           </div>
           <div className="metric-value">{activeClients}</div>
-          <div className="metric-subtitle">Con proyectos en desarrollo</div>
+          <div className="metric-subtitle">{t('clients.activeSubtitle')}</div>
         </div>
 
         <div className="metric-card">
           <div className="metric-header">
-            <span className="metric-title">PROYECTOS EN CURSO</span>
+            <span className="metric-title">{t('clients.projectsInCourse')}</span>
             <div className="metric-icon metric-icon-cyan">🚀</div>
           </div>
           <div className="metric-value">{totalProjectsAssigned}</div>
-          <div className="metric-subtitle">Proyectos vinculados a clientes</div>
+          <div className="metric-subtitle">{t('clients.projectsSubtitle')}</div>
         </div>
 
         {permissions.can_view_salaries && (
           <div className="metric-card">
             <div className="metric-header">
-              <span className="metric-title">PRESUPUESTO TOTAL</span>
+              <span className="metric-title">{t('clients.totalBudget')}</span>
               <div className="metric-icon metric-icon-purple">💰</div>
             </div>
             <div className="metric-value" style={{ color: 'var(--emerald)' }}>
               ${totalRevenueProjected.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </div>
-            <div className="metric-subtitle">Valor proyectado de cartera</div>
+            <div className="metric-subtitle">{t('clients.budgetSubtitle')}</div>
           </div>
         )}
       </div>
@@ -90,7 +92,7 @@ export default function ClientsView({
             <input
               type="text"
               className="search-input"
-              placeholder="Buscar cliente, contacto o ciudad..."
+              placeholder={t('clients.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -101,11 +103,11 @@ export default function ClientsView({
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
           >
-            <option value="">Todos los Tipos de Empresa</option>
-            <option value="Corporación">Corporación</option>
-            <option value="Startup">Startup</option>
-            <option value="Pyme">Pyme</option>
-            <option value="Independiente">Independiente</option>
+            <option value="">{t('clients.allCompanyTypes')}</option>
+            <option value="Corporación">{t('clients.corporation')}</option>
+            <option value="Startup">{t('clients.startup')}</option>
+            <option value="Pyme">{t('clients.pyme')}</option>
+            <option value="Independiente">{t('clients.independent')}</option>
           </select>
 
           <select
@@ -113,17 +115,17 @@ export default function ClientsView({
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="">Todos los Estados</option>
-            <option value="active">Activo</option>
-            <option value="prospect">Prospecto</option>
-            <option value="inactive">Inactivo</option>
+            <option value="">{t('clients.allStatuses')}</option>
+            <option value="active">{t('common.active')}</option>
+            <option value="prospect">{t('common.prospect')}</option>
+            <option value="inactive">{t('common.inactive')}</option>
           </select>
         </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
           {onLockAccess && (
-            <button className="btn btn-secondary" style={{ color: 'var(--rose)' }} onClick={onLockAccess} title="Bloquear vista de seguridad">
-              🔒 Bloquear Acceso
+            <button className="btn btn-secondary" style={{ color: 'var(--rose)' }} onClick={onLockAccess} title={t('common.lockAccess')}>
+              🔒 {t('common.lockAccess')}
             </button>
           )}
 
@@ -132,7 +134,7 @@ export default function ClientsView({
               <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
               </svg>
-              Registrar Cliente
+              {t('clients.registerClient')}
             </button>
           )}
         </div>
@@ -142,7 +144,7 @@ export default function ClientsView({
       <div className="personnel-grid">
         {filteredClients.length === 0 ? (
           <div className="glass-card" style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            No se encontraron clientes con los criterios de búsqueda.
+            {t('common.all')}
           </div>
         ) : (
           filteredClients.map((client) => {
@@ -169,7 +171,7 @@ export default function ClientsView({
                     {client.company_type || 'Empresa'}
                   </span>
                   <span className={`badge ${client.status === 'active' ? 'badge-active' : 'badge-hr'}`}>
-                    ● {client.status === 'active' ? 'Activo' : client.status === 'prospect' ? 'Prospecto' : 'Inactivo'}
+                    ● {client.status === 'active' ? t('common.active') : client.status === 'prospect' ? t('common.prospect') : t('common.inactive')}
                   </span>
                 </div>
 
@@ -177,18 +179,18 @@ export default function ClientsView({
                 <div>
                   <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-main)' }}>{client.name}</h3>
                   <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                    👤 Contacto: <strong style={{ color: 'var(--text-main)' }}>{client.contact_person || 'No especificado'}</strong>
+                    👤 {t('clients.contactPerson')}: <strong style={{ color: 'var(--text-main)' }}>{client.contact_person || 'N/A'}</strong>
                   </div>
                 </div>
 
                 {/* Footer Compacto de la Tarjeta */}
                 <div style={{ marginTop: 'auto', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
                   <span style={{ color: 'var(--cyan)', fontWeight: 600 }}>
-                    🚀 {projectsCount} {projectsCount === 1 ? 'Proyecto' : 'Proyectos'}
+                    🚀 {projectsCount} {t('clients.projectsCount')}
                   </span>
 
                   <span style={{ color: 'var(--primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    Ver Detalle ➔
+                    {t('clients.viewDetail')}
                   </span>
                 </div>
               </div>

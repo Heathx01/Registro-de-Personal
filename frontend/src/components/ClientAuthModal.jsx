@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ClientAuthModal({ currentUser, onClose, onAuthenticated }) {
+  const { t } = useLanguage();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -12,7 +14,7 @@ export default function ClientAuthModal({ currentUser, onClose, onAuthenticated 
     if (password === 'admin123' || password === 'password123' || (currentUser && currentUser.password && password === currentUser.password)) {
       onAuthenticated();
     } else {
-      setError('🔑 Contraseña o clave de seguridad incorrecta. Acceso denegado.');
+      setError(t('clientAuth.wrongPassword'));
     }
   };
 
@@ -21,9 +23,9 @@ export default function ClientAuthModal({ currentUser, onClose, onAuthenticated 
       <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px', padding: '30px' }}>
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>🔒</div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Autenticación de Seguridad</h3>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{t('clientAuth.title')}</h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '6px' }}>
-            Para acceder a la base de datos de <strong>Clientes y Datos Comerciales</strong>, confirma tu contraseña o clave de acceso.
+            {t('clientAuth.subtitle')}
           </p>
         </div>
 
@@ -35,7 +37,7 @@ export default function ClientAuthModal({ currentUser, onClose, onAuthenticated 
           )}
 
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Contraseña de Administrador / Autorización</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('clientAuth.inputLabel')}</label>
             <input
               type="password"
               required
@@ -50,10 +52,10 @@ export default function ClientAuthModal({ currentUser, onClose, onAuthenticated 
 
           <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
             <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={onClose}>
-              Cancelar
+              {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-              🔓 Desbloquear Acceso
+              {t('clientAuth.unlockBtn')}
             </button>
           </div>
         </form>

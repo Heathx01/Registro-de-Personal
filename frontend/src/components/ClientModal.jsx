@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ClientModal({ client, onClose, onSave }) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     contact_person: '',
@@ -42,10 +44,10 @@ export default function ClientModal({ client, onClose, onSave }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
             <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>
-              {client ? 'Editar Información del Cliente' : 'Registrar Nuevo Cliente'}
+              {client ? t('clientModal.editTitle') : t('clientModal.createTitle')}
             </h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Gestión de clientes, contactos y datos comerciales del proyecto.
+              {t('clientModal.modalSubtitle')}
             </p>
           </div>
           <button className="btn btn-secondary" onClick={onClose}>
@@ -56,7 +58,7 @@ export default function ClientModal({ client, onClose, onSave }) {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Nombre / Razón Social *</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('clientModal.companyName')} *</label>
               <input
                 type="text"
                 required
@@ -68,7 +70,7 @@ export default function ClientModal({ client, onClose, onSave }) {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Persona de Contacto</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('clientModal.contactPerson')}</label>
               <input
                 type="text"
                 className="search-input"
@@ -82,7 +84,7 @@ export default function ClientModal({ client, onClose, onSave }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Correo Electrónico</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('clientModal.email')}</label>
               <input
                 type="email"
                 className="search-input"
@@ -93,7 +95,7 @@ export default function ClientModal({ client, onClose, onSave }) {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Teléfono Directo</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('clientModal.phone')}</label>
               <input
                 type="text"
                 className="search-input"
@@ -107,7 +109,7 @@ export default function ClientModal({ client, onClose, onSave }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Dirección Física</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('clientModal.address')}</label>
               <input
                 type="text"
                 className="search-input"
@@ -118,7 +120,7 @@ export default function ClientModal({ client, onClose, onSave }) {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Ciudad / Región</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('clientModal.city')}</label>
               <input
                 type="text"
                 className="search-input"
@@ -132,22 +134,22 @@ export default function ClientModal({ client, onClose, onSave }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Tipo de Empresa</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('clientModal.companyType')}</label>
               <select
                 className="filter-select"
                 style={{ width: '100%' }}
                 value={formData.company_type}
                 onChange={(e) => setFormData({ ...formData, company_type: e.target.value })}
               >
-                <option value="Startup">Startup</option>
-                <option value="Pyme">Pyme</option>
-                <option value="Corporación">Corporación</option>
-                <option value="Independiente">Independiente</option>
+                <option value="Startup">{t('clients.startup')}</option>
+                <option value="Pyme">{t('clients.pyme')}</option>
+                <option value="Corporación">{t('clients.corporation')}</option>
+                <option value="Independiente">{t('clients.independent')}</option>
               </select>
             </div>
 
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ID Fiscal (RUT/RFC/NIT)</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('clientModal.taxId')}</label>
               <input
                 type="text"
                 className="search-input"
@@ -159,22 +161,22 @@ export default function ClientModal({ client, onClose, onSave }) {
             </div>
 
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Estado Comercial</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('clientModal.status')}</label>
               <select
                 className="filter-select"
                 style={{ width: '100%' }}
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               >
-                <option value="active">Activo</option>
-                <option value="prospect">Prospecto / Lead</option>
-                <option value="inactive">Inactivo</option>
+                <option value="active">{t('common.active')}</option>
+                <option value="prospect">{t('common.prospect')}</option>
+                <option value="inactive">{t('common.inactive')}</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Notas u Observaciones del Cliente</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('clientModal.notes')}</label>
             <textarea
               className="search-input"
               style={{ paddingLeft: '12px', minHeight: '60px' }}
@@ -186,10 +188,10 @@ export default function ClientModal({ client, onClose, onSave }) {
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
             <button type="button" className="btn btn-secondary" onClick={onClose}>
-              Cancelar
+              {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn-primary">
-              {client ? 'Guardar Cambios' : 'Registrar Cliente'}
+              {client ? t('common.saveChanges') : t('clients.registerClient')}
             </button>
           </div>
         </form>
