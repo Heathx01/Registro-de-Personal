@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function OrganigramaView({ users }) {
-  const { t } = useLanguage();
+  const { t, translatePos } = useLanguage();
   const [selectedNode, setSelectedNode] = useState(null);
 
   const ceo = users.filter((u) => u.role === 'admin');
@@ -51,7 +51,7 @@ export default function OrganigramaView({ users }) {
                 {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
               </div>
               <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>{user.name}</h4>
-              <p style={{ fontSize: '0.78rem', color: 'var(--cyan)' }}>{user.position}</p>
+              <p style={{ fontSize: '0.78rem', color: 'var(--cyan)' }}>{translatePos(user.position)}</p>
               <span className="badge badge-admin" style={{ marginTop: '8px' }}>
                 CEO / DIRECTOR
               </span>
@@ -91,7 +91,7 @@ export default function OrganigramaView({ users }) {
                 {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
               </div>
               <h4 style={{ fontSize: '0.9rem', fontWeight: 700 }}>{user.name}</h4>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{user.position}</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{translatePos(user.position)}</p>
               <span className="badge badge-lead" style={{ marginTop: '8px' }}>
                 TECH LEAD
               </span>
@@ -131,7 +131,7 @@ export default function OrganigramaView({ users }) {
                 {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
               </div>
               <h5 style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user.name}</h5>
-              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{user.position}</p>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{translatePos(user.position)}</p>
               <span className="badge badge-developer" style={{ marginTop: '6px' }}>
                 DEV
               </span>
@@ -163,7 +163,7 @@ export default function OrganigramaView({ users }) {
                 {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
               </div>
               <h5 style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user.name}</h5>
-              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{user.position}</p>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{translatePos(user.position)}</p>
               <span className="badge badge-qa" style={{ marginTop: '6px' }}>
                 QA LEAD
               </span>
@@ -203,7 +203,7 @@ export default function OrganigramaView({ users }) {
                 {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
               </div>
               <h5 style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user.name}</h5>
-              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{user.position}</p>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{translatePos(user.position)}</p>
               <span className="badge badge-hr" style={{ marginTop: '6px' }}>
                 HR
               </span>
@@ -236,13 +236,13 @@ export default function OrganigramaView({ users }) {
               </div>
               <div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>{selectedNode.name}</h3>
-                <p style={{ color: 'var(--cyan)' }}>{selectedNode.position}</p>
+                <p style={{ color: 'var(--cyan)' }}>{translatePos(selectedNode.position)}</p>
                 <span className={`badge badge-${selectedNode.role}`}>{selectedNode.role.toUpperCase()}</span>
               </div>
             </div>
 
             <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px', borderRadius: '8px', marginBottom: '16px' }}>
-              <h5 style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px' }}>RESPONSABILITIES</h5>
+              <h5 style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px' }}>RESPONSIBILITIES</h5>
               <p style={{ fontSize: '0.85rem' }}>{selectedNode.bio}</p>
             </div>
 

@@ -36,8 +36,20 @@ export function LanguageProvider({ children }) {
     return current;
   };
 
+  const translateDept = (deptName) => {
+    if (!deptName) return '';
+    const deptMap = translations[language]?.departments || {};
+    return deptMap[deptName] || deptName;
+  };
+
+  const translatePos = (posName) => {
+    if (!posName) return '';
+    const posMap = translations[language]?.positions || {};
+    return posMap[posName] || posName;
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t, translateDept, translatePos }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function PersonnelView({ users, currentUser, permissions, onOpenAddModal, onDeleteUser, onUpdateUser }) {
-  const { t } = useLanguage();
+  const { t, translateDept, translatePos } = useLanguage();
   const [search, setSearch] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
@@ -85,10 +85,10 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
           onChange={(e) => setDepartmentFilter(e.target.value)}
         >
           <option value="">{t('personnel.allDepartments')}</option>
-          <option value="Dirección Ejecutiva">Dirección Ejecutiva</option>
-          <option value="Ingeniería de Software">Ingeniería de Software</option>
-          <option value="Calidad y Seguridad">Calidad y Seguridad</option>
-          <option value="Recursos Humanos">Recursos Humanos</option>
+          <option value="Dirección Ejecutiva">{translateDept('Dirección Ejecutiva')}</option>
+          <option value="Ingeniería de Software">{translateDept('Ingeniería de Software')}</option>
+          <option value="Calidad y Seguridad">{translateDept('Calidad y Seguridad')}</option>
+          <option value="Recursos Humanos">{translateDept('Recursos Humanos')}</option>
         </select>
 
         <select className="filter-select" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
@@ -145,8 +145,8 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
                   </span>
                 </div>
                 <h3>{user.name}</h3>
-                <p style={{ fontWeight: 600, color: 'var(--cyan)', marginTop: '2px' }}>{user.position}</p>
-                <p style={{ fontSize: '0.78rem' }}>{user.department}</p>
+                <p style={{ fontWeight: 600, color: 'var(--cyan)', marginTop: '2px' }}>{translatePos(user.position)}</p>
+                <p style={{ fontSize: '0.78rem' }}>{translateDept(user.department)}</p>
               </div>
             </div>
 
@@ -220,7 +220,7 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
                 </div>
                 <div>
                   <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{selectedUser.name}</h3>
-                  <p style={{ color: 'var(--cyan)', fontWeight: 600 }}>{selectedUser.position}</p>
+                  <p style={{ color: 'var(--cyan)', fontWeight: 600 }}>{translatePos(selectedUser.position)}</p>
                   <span className={`badge badge-${selectedUser.role}`} style={{ marginTop: '6px' }}>
                     {selectedUser.role.toUpperCase()}
                   </span>
@@ -234,18 +234,18 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }}>
               <div className="glass-card" style={{ padding: '12px' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('login.department')}</span>
-                <p style={{ fontWeight: 600 }}>{selectedUser.department}</p>
+                <p style={{ fontWeight: 600 }}>{translateDept(selectedUser.department)}</p>
               </div>
               <div className="glass-card" style={{ padding: '12px' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('common.status')}</span>
                 <p style={{ fontWeight: 600, color: 'var(--emerald)' }}>● {selectedUser.status}</p>
               </div>
               <div className="glass-card" style={{ padding: '12px' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('personnel.email')}</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('clients.email')}</span>
                 <p style={{ fontWeight: 600, fontSize: '0.85rem' }}>{selectedUser.email}</p>
               </div>
               <div className="glass-card" style={{ padding: '12px' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('personnel.phone')}</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('clients.phone')}</span>
                 <p style={{ fontWeight: 600 }}>{selectedUser.phone || 'N/A'}</p>
               </div>
             </div>

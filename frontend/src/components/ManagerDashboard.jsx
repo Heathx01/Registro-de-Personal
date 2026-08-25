@@ -3,7 +3,7 @@ import RolesMatrixView from './RolesMatrixView';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function ManagerDashboard({ users, projects, tasks, currentUser, onUnlockUser, onAssignTask }) {
-  const { t } = useLanguage();
+  const { t, translatePos } = useLanguage();
   const [selectedDev, setSelectedDev] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDesc, setTaskDesc] = useState('');
@@ -95,7 +95,7 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
                   />
                   <div>
                     <h4 style={{ fontSize: '0.92rem', fontWeight: 700 }}>{dev.name}</h4>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--cyan)' }}>{dev.position}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--cyan)' }}>{translatePos(dev.position)}</span>
                   </div>
                 </div>
 
@@ -138,7 +138,7 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
                 <option value="">{t('manager.chooseDev')}</option>
                 {developers.map((dev) => (
                   <option key={dev.id} value={dev.id}>
-                    {dev.name} - {dev.position}
+                    {dev.name} - {translatePos(dev.position)}
                   </option>
                 ))}
               </select>

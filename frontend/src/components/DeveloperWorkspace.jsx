@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskStatus }) {
-  const { t } = useLanguage();
+  const { t, translatePos, translateDept } = useLanguage();
   const [workNote, setWorkNote] = useState('');
   const [loggedHours, setLoggedHours] = useState(4);
   const [logHistory, setLogHistory] = useState([
@@ -46,7 +46,7 @@ export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskSta
           <div className="glass-card" style={{ padding: '24px', marginBottom: '24px' }}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span>🎯 {t('developer.myTasks')} ({myTasks.length})</span>
-              <span className="badge badge-lead">{currentUser.position}</span>
+              <span className="badge badge-lead">{translatePos(currentUser.position)}</span>
             </h3>
 
             {myTasks.length === 0 ? (
@@ -156,7 +156,7 @@ export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskSta
               </div>
               <div>
                 <h4 style={{ fontSize: '1rem', fontWeight: 800 }}>{currentUser.name}</h4>
-                <p style={{ fontSize: '0.78rem', color: 'var(--cyan)' }}>{currentUser.position}</p>
+                <p style={{ fontSize: '0.78rem', color: 'var(--cyan)' }}>{translatePos(currentUser.position)}</p>
                 <span className={`badge badge-${currentUser.role}`} style={{ marginTop: '4px' }}>
                   {currentUser.role.toUpperCase()}
                 </span>
@@ -165,7 +165,7 @@ export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskSta
 
             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <div>📧 {currentUser.email}</div>
-              <div>🏢 Dept: {currentUser.department}</div>
+              <div>🏢 Dept: {translateDept(currentUser.department)}</div>
             </div>
           </div>
 
