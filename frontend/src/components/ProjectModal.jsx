@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 
-export default function ProjectModal({ users, onClose, onSave }) {
+export default function ProjectModal({ users, clients = [], onClose, onSave }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     category: 'Cloud SaaS Platform',
     status: 'Active',
+    client_id: clients[0]?.id || '',
+    project_type: 'Desarrollo Web',
+    budget: 15000,
+    currency: 'USD',
+    billing_status: 'deposit_paid',
     tech_stackText: 'React, Node.js, PostgreSQL',
     lead_id: users[0]?.id || '',
     progress: 10,
@@ -23,9 +28,12 @@ export default function ProjectModal({ users, onClose, onSave }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Crear Nuevo Proyecto de Software</h3>
+          <div>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Crear Nuevo Proyecto de Software</h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Asignación técnica, líder de proyecto y vinculación comercial con cliente.</p>
+          </div>
           <button className="btn btn-secondary" onClick={onClose}>
             ✕
           </button>
@@ -33,7 +41,7 @@ export default function ProjectModal({ users, onClose, onSave }) {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Nombre del Proyecto</label>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Nombre del Proyecto *</label>
             <input
               type="text"
               required
@@ -44,6 +52,41 @@ export default function ProjectModal({ users, onClose, onSave }) {
             />
           </div>
 
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Cliente / Empresa Asociada *</label>
+              <select
+                className="filter-select"
+                style={{ width: '100%' }}
+                value={formData.client_id}
+                onChange={(e) => setFormData({ ...formData, client_id: e.target.value })}
+              >
+                <option value="">-- Sin Cliente Asignado --</option>
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    🏢 {c.name} ({c.company_type})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Tipo de Proyecto</label>
+              <select
+                className="filter-select"
+                style={{ width: '100%' }}
+                value={formData.project_type}
+                onChange={(e) => setFormData({ ...formData, project_type: e.target.value })}
+              >
+                <option value="Desarrollo Web">Desarrollo Web</option>
+                <option value="App Móvil">App Móvil</option>
+                <option value="SaaS Enterprise">SaaS Enterprise</option>
+                <option value="Mantenimiento & Soporte">Mantenimiento & Soporte</option>
+                <option value="Consultoría / Arquitectura">Consultoría / Arquitectura</option>
+              </select>
+            </div>
+          </div>
+
           <div>
             <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Descripción del Producto</label>
             <textarea
@@ -52,6 +95,48 @@ export default function ProjectModal({ users, onClose, onSave }) {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Presupuesto / Costo</label>
+              <input
+                type="number"
+                min="0"
+                step="500"
+                className="search-input"
+                style={{ paddingLeft: '12px' }}
+                value={formData.budget}
+                onChange={(e) => setFormData({ ...formData, budget: Number(e.target.value) })}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Moneda</label>
+              <select
+                className="filter-select"
+                style={{ width: '100%' }}
+                value={formData.currency}
+                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+              >
+                <option value="USD">USD ($)</option>
+                <option value="MXN">MXN ($)</option>
+                <option value="EUR">EUR (€)</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Estado de Cobro</label>
+              <select
+                className="filter-select"
+                style={{ width: '100%' }}
+                value={formData.billing_status}
+                onChange={(e) => setFormData({ ...formData, billing_status: e.target.value })}
+              >
+                <option value="pending">Pendiente</option>
+                <option value="deposit_paid">Anticipo 50% Pagado</option>
+                <option value="invoiced">Facturado</option>
+                <option value="paid">Totalmente Pagado</option>
+              </select>
+            </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>

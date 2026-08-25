@@ -6,10 +6,12 @@ import DeveloperWorkspace from './components/DeveloperWorkspace';
 import PersonnelView from './components/PersonnelView';
 import OrganigramaView from './components/OrganigramaView';
 import ProjectsView from './components/ProjectsView';
+import ClientsView from './components/ClientsView';
 import TasksView from './components/TasksView';
 import RolesMatrixView from './components/RolesMatrixView';
 import EmployeeModal from './components/EmployeeModal';
 import ProjectModal from './components/ProjectModal';
+import ClientModal from './components/ClientModal';
 import TaskModal from './components/TaskModal';
 
 import {
@@ -18,6 +20,10 @@ import {
   updateUser,
   deleteUser,
   unlockUser,
+  getClients,
+  createClient,
+  updateClient,
+  deleteClient,
   getProjects,
   createProject,
   getTasks,
@@ -33,11 +39,14 @@ function App() {
   const [activeTab, setActiveTab] = useState('manager');
 
   const [users, setUsers] = useState([]);
+  const [clients, setClients] = useState([]);
   const [projects, setProjects] = useState([]);
   const [tasks, setTasks] = useState([]);
 
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
+  const [showClientModal, setShowClientModal] = useState(false);
+  const [editingClient, setEditingClient] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
 
   useEffect(() => {
@@ -47,10 +56,12 @@ function App() {
   const loadAllData = async () => {
     try {
       const usersData = await getUsers();
+      const clientsData = await getClients();
       const projectsData = await getProjects();
       const tasksData = await getTasks();
 
       if (Array.isArray(usersData) && usersData.length > 0) setUsers(usersData);
+      if (Array.isArray(clientsData) && clientsData.length > 0) setClients(clientsData);
       if (Array.isArray(projectsData) && projectsData.length > 0) setProjects(projectsData);
       if (Array.isArray(tasksData) && tasksData.length > 0) setTasks(tasksData);
     } catch (err) {
@@ -115,16 +126,50 @@ function App() {
     }
   };
 
+  // --- Gestión de Clientes ---
+  const handleSaveClient = async (clientData) => {
+    try {
+      if (editingClient) {
+        await updateClient(editingClient.id, clientData);
+        setClients(
+          clients.map((c) => (c.id === editingClient.id ? { ...c, ...clientData } : c))
+        );
+      } else {
+        const result = await createClient(clientData);
+        const created = result.client || { id: Date.now(), ...clientData, projects: [] };
+        setClients([created, ...clients]);
+      }
+      setShowClientModal(false);
+      setEditingClient(null);
+    } catch (err) {
+      console.error('Error al guardar cliente:', err);
+    }
+  };
+
+  const handleDeleteClient = async (id) => {
+    if (window.confirm('¿Estás seguro de eliminar este cliente?')) {
+      try {
+        await deleteClient(id);
+        setClients(clients.filter((c) => c.id !== id));
+      } catch (err) {
+        console.error('Error al eliminar cliente:', err);
+      }
+    }
+  };
+
   const handleSaveProject = async (newProjData) => {
     try {
       const result = await createProject(newProjData);
       const created = result.project || { id: Date.now(), ...newProjData };
 
       const leadUser = users.find((u) => String(u.id) === String(created.lead_id));
+      const clientObj = clients.find((c) => String(c.id) === String(created.client_id));
       created.lead = leadUser;
+      created.client = clientObj;
 
       setProjects([created, ...projects]);
       setShowProjectModal(false);
+      loadAllData(); // Recargar relaciones cliente-proyecto
     } catch (err) {
       console.error('Error al crear proyecto:', err);
     }
@@ -205,6 +250,22 @@ function App() {
 
         {activeTab === 'organigrama' && <OrganigramaView users={users} />}
 
+        {activeTab === 'clients' && (
+          <ClientsView
+            clients={clients}
+            permissions={permissions}
+            onOpenAddClient={() => {
+              setEditingClient(null);
+              setShowClientModal(true);
+            }}
+            onOpenEditClient={(client) => {
+              setEditingClient(client);
+              setShowClientModal(true);
+            }}
+            onDeleteClient={handleDeleteClient}
+          />
+        )}
+
         {activeTab === 'projects' && (
           <ProjectsView
             projects={projects}
@@ -245,8 +306,24 @@ function App() {
         <EmployeeModal onClose={() => setShowEmployeeModal(false)} onSave={handleSaveUser} />
       )}
 
+      {showClientModal && (
+        <ClientModal
+          client={editingClient}
+          onClose={() => {
+            setShowClientModal(false);
+            setEditingClient(null);
+          }}
+          onSave={handleSaveClient}
+        />
+      )}
+
       {showProjectModal && (
-        <ProjectModal users={users} onClose={() => setShowProjectModal(false)} onSave={handleSaveProject} />
+        <ProjectModal
+          users={users}
+          clients={clients}
+          onClose={() => setShowProjectModal(false)}
+          onSave={handleSaveProject}
+        />
       )}
 
       {showTaskModal && (

@@ -200,6 +200,9 @@ export function getPermissionsForRole(role) {
         can_manage_users: true,
         can_unlock_users: true,
         can_manage_projects: true,
+        can_manage_clients: true,
+        can_view_clients: true,
+        can_view_salaries: true,
         can_assign_tasks: true,
         can_view_organigrama: true,
         can_delete_records: true,
@@ -211,6 +214,9 @@ export function getPermissionsForRole(role) {
         can_manage_users: false,
         can_unlock_users: true,
         can_manage_projects: true,
+        can_manage_clients: true,
+        can_view_clients: true,
+        can_view_salaries: true,
         can_assign_tasks: true,
         can_view_organigrama: true,
         can_delete_records: false,
@@ -222,6 +228,9 @@ export function getPermissionsForRole(role) {
         can_manage_users: false,
         can_unlock_users: false,
         can_manage_projects: false,
+        can_manage_clients: false,
+        can_view_clients: false,
+        can_view_salaries: false,
         can_assign_tasks: false,
         can_update_task_status: true,
         can_view_organigrama: true,
@@ -234,6 +243,9 @@ export function getPermissionsForRole(role) {
         can_manage_users: false,
         can_unlock_users: false,
         can_manage_projects: false,
+        can_manage_clients: false,
+        can_view_clients: false,
+        can_view_salaries: false,
         can_assign_tasks: true,
         can_update_task_status: true,
         can_view_organigrama: true,
@@ -246,6 +258,9 @@ export function getPermissionsForRole(role) {
         can_manage_users: true,
         can_unlock_users: true,
         can_manage_projects: false,
+        can_manage_clients: false,
+        can_view_clients: false,
+        can_view_salaries: false,
         can_assign_tasks: false,
         can_view_organigrama: true,
         can_delete_records: false,
@@ -255,6 +270,8 @@ export function getPermissionsForRole(role) {
       return {
         label: 'Empleado',
         can_manage_users: false,
+        can_view_clients: false,
+        can_view_salaries: false,
         restrictions: 'Lectura.',
       };
   }
@@ -312,6 +329,31 @@ export function deleteUser(id) {
 
 export function getOrganigrama() {
   return request('/organigrama');
+}
+
+// --- Clientes API (CRM/SaaS) ---
+export function getClients() {
+  return request('/clients');
+}
+
+export function createClient(clientData) {
+  return request('/clients', {
+    method: 'POST',
+    body: JSON.stringify(clientData),
+  });
+}
+
+export function updateClient(id, clientData) {
+  return request(`/clients/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(clientData),
+  });
+}
+
+export function deleteClient(id) {
+  return request(`/clients/${id}`, {
+    method: 'DELETE',
+  });
 }
 
 export function getProjects() {

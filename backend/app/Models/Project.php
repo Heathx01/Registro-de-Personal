@@ -20,6 +20,11 @@ class Project extends Model
         'status',
         'tech_stack',
         'lead_id',
+        'client_id',
+        'project_type',
+        'budget',
+        'currency',
+        'billing_status',
         'progress',
         'deadline',
         'image',
@@ -29,12 +34,18 @@ class Project extends Model
     protected $casts = [
         'tech_stack' => 'array',
         'progress' => 'integer',
+        'budget' => 'float',
         'deadline' => 'date',
     ];
 
     public function lead()
     {
         return $this->belongsTo(User::class, 'lead_id');
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
     }
 
     public function tasks()

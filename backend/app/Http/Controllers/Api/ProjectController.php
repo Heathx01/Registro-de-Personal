@@ -10,7 +10,7 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::with(['lead', 'tasks.assignee'])->latest()->get();
+        $projects = Project::with(['lead', 'client', 'tasks.assignee'])->latest()->get();
         return response()->json($projects);
     }
 
@@ -23,6 +23,11 @@ class ProjectController extends Controller
             'status' => 'nullable|string',
             'tech_stack' => 'nullable|array',
             'lead_id' => 'nullable|exists:users,id',
+            'client_id' => 'nullable|exists:clients,id',
+            'project_type' => 'nullable|string',
+            'budget' => 'nullable|numeric|min:0',
+            'currency' => 'nullable|string',
+            'billing_status' => 'nullable|string',
             'progress' => 'nullable|integer|min:0|max:100',
             'deadline' => 'nullable|date',
         ]);
@@ -38,13 +43,13 @@ class ProjectController extends Controller
 
         return response()->json([
             'message' => 'Proyecto creado exitosamente',
-            'project' => $project
+            'project' => $project->load(['lead', 'client'])
         ], 201);
     }
 
     public function show($id)
     {
-        $project = Project::with(['lead', 'tasks.assignee'])->find($id);
+        $project = Project::with(['lead', 'client', 'tasks.assignee'])->find($id);
 
         if (!$project) {
             return response()->json(['message' => 'Proyecto no encontrado'], 404);
@@ -68,6 +73,11 @@ class ProjectController extends Controller
             'status' => 'nullable|string',
             'tech_stack' => 'nullable|array',
             'lead_id' => 'nullable|exists:users,id',
+            'client_id' => 'nullable|exists:clients,id',
+            'project_type' => 'nullable|string',
+            'budget' => 'nullable|numeric|min:0',
+            'currency' => 'nullable|string',
+            'billing_status' => 'nullable|string',
             'progress' => 'nullable|integer|min:0|max:100',
             'deadline' => 'nullable|date',
         ]);

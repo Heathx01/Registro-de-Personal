@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\UserController;
@@ -15,6 +16,9 @@ Route::get('/me', [AuthController::class, 'me']);
 // Rutas de personal y organigrama
 Route::get('/organigrama', [UserController::class, 'organigrama']);
 Route::apiResource('users', UserController::class);
+
+// Rutas de clientes (CRM/SaaS)
+Route::apiResource('clients', ClientController::class);
 
 // Rutas de proyectos y tareas
 Route::apiResource('projects', ProjectController::class);

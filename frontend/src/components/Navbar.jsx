@@ -62,6 +62,18 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout 
 
           {canManageRoles && (
             <button
+              className={`tab-btn ${activeTab === 'clients' ? 'active' : ''}`}
+              onClick={() => setActiveTab('clients')}
+            >
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0V5a2 2 0 012-2h2a2 2 0 012 2v6" />
+              </svg>
+              Clientes SaaS
+            </button>
+          )}
+
+          {canManageRoles && (
+            <button
               className={`tab-btn ${activeTab === 'roles' ? 'active' : ''}`}
               onClick={() => setActiveTab('roles')}
             >

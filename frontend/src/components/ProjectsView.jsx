@@ -49,8 +49,13 @@ export default function ProjectsView({ projects, permissions, onOpenAddProject }
       <div className="personnel-grid">
         {filteredProjects.map((project) => (
           <div key={project.id} className="glass-card" style={{ padding: '22px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <span className="badge badge-developer">{project.category || 'Software Project'}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                <span className="badge badge-developer">{project.category || 'Software Project'}</span>
+                {project.client && (
+                  <span className="badge badge-cyan">🏢 {project.client.name}</span>
+                )}
+              </div>
               <span className="badge badge-active">● {project.status}</span>
             </div>
 
@@ -60,6 +65,24 @@ export default function ProjectsView({ projects, permissions, onOpenAddProject }
                 {project.description}
               </p>
             </div>
+
+            {/* Ficha Financiera / Comercial (Para Admin / Lead) */}
+            {permissions.can_view_salaries && (project.budget > 0 || project.project_type) && (
+              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px 12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
+                <div>
+                  <span style={{ color: 'var(--text-dim)', fontSize: '0.72rem', display: 'block' }}>TIPO DE SERVICIO</span>
+                  <strong>{project.project_type || 'Desarrollo Web'}</strong>
+                </div>
+                {project.budget > 0 && (
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ color: 'var(--text-dim)', fontSize: '0.72rem', display: 'block' }}>PRESUPUESTO</span>
+                    <strong style={{ color: 'var(--emerald)' }}>
+                      ${Number(project.budget).toLocaleString()} {project.currency || 'USD'}
+                    </strong>
+                  </div>
+                )}
+              </div>
+            )}
 
             {project.lead && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.03)', padding: '8px 12px', borderRadius: '8px' }}>
