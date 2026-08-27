@@ -37,14 +37,6 @@ export default function LoginView({ onLoginSuccess }) {
     }
   };
 
-  const handleQuickFill = (email, pass) => {
-    setLoginEmail(email);
-    setLoginPassword(pass);
-    setErrorMsg('');
-    setSuccessMsg('');
-    setIsLockedAccount(false);
-  };
-
   const handleUnlockClick = async () => {
     setLoading(true);
     setErrorMsg('');
@@ -156,49 +148,6 @@ export default function LoginView({ onLoginSuccess }) {
             </button>
           </div>
         )}
-
-        {/* Acceso Rápido Demo / Pre-llenado de credenciales */}
-        <div style={{ marginBottom: '20px' }}>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block', marginBottom: '8px' }}>
-            ⚡ Accesos Rápido de Demostración:
-          </span>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <button
-              type="button"
-              onClick={() => handleQuickFill('admin@devstudio.com', 'admin123')}
-              style={{
-                padding: '8px 10px',
-                borderRadius: '10px',
-                border: '1px solid rgba(255,255,255,0.12)',
-                background: 'rgba(255,255,255,0.05)',
-                color: 'var(--text-main)',
-                fontSize: '0.78rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                textAlign: 'left',
-              }}
-            >
-              👑 Admin (`admin123`)
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill('sales@devstudio.com', 'password123')}
-              style={{
-                padding: '8px 10px',
-                borderRadius: '10px',
-                border: '1px solid rgba(255,255,255,0.12)',
-                background: 'rgba(255,255,255,0.05)',
-                color: 'var(--text-main)',
-                fontSize: '0.78rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                textAlign: 'left',
-              }}
-            >
-              💼 Ventas (`password123`)
-            </button>
-          </div>
-        </div>
 
         {/* FORMULARIO DE INICIO DE SESIÓN CENTRALIZADO */}
         <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
