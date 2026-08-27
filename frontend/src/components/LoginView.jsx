@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
-import { login, emergencyUnlock } from '../services/api';
+import { login, resetPassword, emergencyUnlock } from '../services/api';
 
 export default function LoginView({ onLoginSuccess }) {
+  // Modo de la pantalla: 'login' o 'reset'
+  const [isResetMode, setIsResetMode] = useState(false);
+
   // Campos de Login
   const [loginEmail, setLoginEmail] = useState('admin@devstudio.com');
   const [loginPassword, setLoginPassword] = useState('admin123');
+
+  // Campos para Cambio / Reestablecimiento de Contraseña
+  const [resetEmail, setResetEmail] = useState('admin@devstudio.com');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
 
   // Estado UI
   const [loading, setLoading] = useState(false);
@@ -12,7 +22,24 @@ export default function LoginView({ onLoginSuccess }) {
   const [successMsg, setSuccessMsg] = useState('');
   const [isLockedAccount, setIsLockedAccount] = useState(false);
 
-  // Submit Login
+  // Fortaleza de la clave
+  const calculateStrength = (pwd) => {
+    if (!pwd) return { score: 0, label: '', color: 'transparent' };
+    let score = 0;
+    if (pwd.length >= 6) score += 1;
+    if (pwd.length >= 10) score += 1;
+    if (/[A-Z]/.test(pwd)) score += 1;
+    if (/[0-9]/.test(pwd)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+
+    if (score <= 2) return { score: 1, label: '⚠️ Débil', color: '#ef4444' };
+    if (score <= 4) return { score: 2, label: '🟡 Aceptable / Media', color: '#f59e0b' };
+    return { score: 3, label: '🟢 Excelente / Muy Segura', color: '#10b981' };
+  };
+
+  const strength = calculateStrength(newPassword);
+
+  // Submit de Login tradicional
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -37,12 +64,50 @@ export default function LoginView({ onLoginSuccess }) {
     }
   };
 
+  // Submit de Cambio de Contraseña (estilo Facebook/Instagram/X)
+  const handleResetSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    if (newPassword.length < 6) {
+      setErrorMsg('⚠️ La nueva contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setErrorMsg('❌ Las contraseñas ingresadas no coinciden.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await resetPassword(resetEmail, null, newPassword, confirmPassword);
+      setSuccessMsg(res.message || '✅ Tu contraseña se ha actualizado correctamente. Ya puedes iniciar sesión.');
+      setNewPassword('');
+      setConfirmPassword('');
+      // Después de 2 segundos volver al formulario de login con la nueva clave prellenada
+      setTimeout(() => {
+        setLoginEmail(resetEmail);
+        setLoginPassword(newPassword);
+        setIsResetMode(false);
+      }, 2000);
+    } catch (err) {
+      setErrorMsg(err.message || 'No se pudo actualizar la contraseña. Verifique el correo electrónico.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Desbloqueo directo de emergencia
   const handleUnlockClick = async () => {
     setLoading(true);
     setErrorMsg('');
     try {
-      const res = await emergencyUnlock(loginEmail);
-      setSuccessMsg(res.message || '✅ Cuenta desbloqueada exitosamente. Intenta iniciar sesión nuevamente.');
+      const targetEmail = isResetMode ? resetEmail : loginEmail;
+      const res = await emergencyUnlock(targetEmail);
+      setSuccessMsg(res.message || '✅ Cuenta desbloqueada exitosamente.');
       setIsLockedAccount(false);
     } catch (err) {
       setErrorMsg('Error al desbloquear la cuenta.');
@@ -82,13 +147,17 @@ export default function LoginView({ onLoginSuccess }) {
           >
             Dev
           </div>
-          <h2 style={{ fontSize: '1.55rem', fontWeight: 800 }}>DevStudio HR Portal</h2>
+          <h2 style={{ fontSize: '1.55rem', fontWeight: 800 }}>
+            {isResetMode ? '🔑 Reestablecer Contraseña' : 'DevStudio HR Portal'}
+          </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '4px' }}>
-            Acceso Corporativo de Personal & Control de Proyectos
+            {isResetMode
+              ? 'Ingresa tu correo corporativo para cambiar tu clave personal de acceso'
+              : 'Acceso Corporativo de Personal & Control de Proyectos'}
           </p>
         </div>
 
-        {/* Mensaje de exito */}
+        {/* Mensaje de éxito */}
         {successMsg && (
           <div
             style={{
@@ -125,7 +194,7 @@ export default function LoginView({ onLoginSuccess }) {
           </div>
         )}
 
-        {/* Botón de desbloqueo de emergencia si la cuenta está bloqueada */}
+        {/* Alerta de cuenta bloqueada */}
         {isLockedAccount && (
           <div style={{ marginBottom: '20px', textAlign: 'center' }}>
             <button
@@ -149,65 +218,235 @@ export default function LoginView({ onLoginSuccess }) {
           </div>
         )}
 
-        {/* FORMULARIO DE INICIO DE SESIÓN CENTRALIZADO */}
-        <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
-              Correo Electrónico Corporativo
-            </label>
-            <input
-              type="email"
-              required
-              className="search-input"
-              style={{ paddingLeft: '14px', borderRadius: '12px' }}
-              placeholder="nombre@devstudio.com"
-              value={loginEmail}
-              onChange={(e) => setLoginEmail(e.target.value)}
-            />
-          </div>
+        {/* VISTA 1: FORMULARIO DE LOGIN TRADICIONAL */}
+        {!isResetMode ? (
+          <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
+                Correo Electrónico Corporativo
+              </label>
+              <input
+                type="email"
+                required
+                className="search-input"
+                style={{ paddingLeft: '14px', borderRadius: '12px' }}
+                placeholder="nombre@devstudio.com"
+                value={loginEmail}
+                onChange={(e) => {
+                  setLoginEmail(e.target.value);
+                  setResetEmail(e.target.value);
+                }}
+              />
+            </div>
 
-          <div>
-            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
-              Contraseña
-            </label>
-            <input
-              type="password"
-              required
-              className="search-input"
-              style={{ paddingLeft: '14px', borderRadius: '12px' }}
-              placeholder="••••••••"
-              value={loginPassword}
-              onChange={(e) => setLoginPassword(e.target.value)}
-            />
-          </div>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', margin: 0 }}>
+                  Contraseña
+                </label>
+                {/* ENLACE ESTILO FACEBOOK/INSTAGRAM/X PARA CAMBIAR O RECUPERAR CONTRASEÑA */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsResetMode(true);
+                    setErrorMsg('');
+                    setSuccessMsg('');
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--indigo-light, #818cf8)',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                  }}
+                >
+                  ¿Olvidaste o quieres cambiar tu contraseña?
+                </button>
+              </div>
+              <input
+                type="password"
+                required
+                className="search-input"
+                style={{ paddingLeft: '14px', borderRadius: '12px' }}
+                placeholder="••••••••"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary"
-            style={{ justifyContent: 'center', padding: '12px', marginTop: '6px', fontSize: '0.95rem', borderRadius: '12px' }}
-          >
-            {loading ? 'Ingresando...' : 'Iniciar Sesión'}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary"
+              style={{ justifyContent: 'center', padding: '12px', marginTop: '6px', fontSize: '0.95rem', borderRadius: '12px', fontWeight: 800 }}
+            >
+              {loading ? 'Ingresando...' : 'Iniciar Sesión'}
+            </button>
 
-        {/* Desbloqueo manual en cualquier momento */}
-        <div style={{ marginTop: '16px', textAlign: 'center' }}>
-          <button
-            type="button"
-            onClick={handleUnlockClick}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-muted)',
-              fontSize: '0.78rem',
-              cursor: 'pointer',
-              textDecoration: 'underline',
-            }}
-          >
-            🔓 Restablecer / Desbloquear credenciales de acceso
-          </button>
-        </div>
+            {/* Enlace secundario en la parte inferior */}
+            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsResetMode(true);
+                  setErrorMsg('');
+                  setSuccessMsg('');
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                }}
+              >
+                🔒 ¿Deseas personalizar o cambiar tu contraseña inicial?
+              </button>
+            </div>
+          </form>
+        ) : (
+          /* VISTA 2: FORMULARIO DE CAMBIO / REESTABLECIMIENTO DE CONTRASEÑA */
+          <form onSubmit={handleResetSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
+                Correo Electrónico de la Cuenta *
+              </label>
+              <input
+                type="email"
+                required
+                className="search-input"
+                style={{ paddingLeft: '14px', borderRadius: '12px' }}
+                placeholder="nombre@devstudio.com"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+              />
+            </div>
+
+            {/* Nueva Contraseña */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
+                Nueva Contraseña *
+              </label>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  type={showNewPass ? 'text' : 'password'}
+                  required
+                  minLength={6}
+                  className="search-input"
+                  style={{ paddingLeft: '14px', paddingRight: '42px', borderRadius: '12px', width: '100%' }}
+                  placeholder="Mínimo 6 caracteres"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPass(!showNewPass)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                  }}
+                >
+                  {showNewPass ? '👁️' : '🔒'}
+                </button>
+              </div>
+
+              {/* Medidor de Fortaleza */}
+              {newPassword && (
+                <div style={{ marginTop: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Fortaleza de la clave:</span>
+                    <strong style={{ color: strength.color }}>{strength.label}</strong>
+                  </div>
+                  <div style={{ height: '5px', width: '100%', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${(strength.score / 3) * 100}%`,
+                        backgroundColor: strength.color,
+                        transition: 'all 0.3s ease',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Confirmar Nueva Contraseña */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
+                Confirmar Nueva Contraseña *
+              </label>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  type={showConfirmPass ? 'text' : 'password'}
+                  required
+                  minLength={6}
+                  className="search-input"
+                  style={{
+                    paddingLeft: '14px',
+                    paddingRight: '42px',
+                    borderRadius: '12px',
+                    width: '100%',
+                    borderColor: confirmPassword && newPassword !== confirmPassword ? '#ef4444' : '',
+                  }}
+                  placeholder="Repite tu nueva contraseña"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPass(!showConfirmPass)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                  }}
+                >
+                  {showConfirmPass ? '👁️' : '🔒'}
+                </button>
+              </div>
+              {confirmPassword && newPassword !== confirmPassword && (
+                <span style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '4px', display: 'block' }}>
+                  ❌ Las contraseñas no coinciden.
+                </span>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary"
+              style={{ justifyContent: 'center', padding: '12px', marginTop: '6px', fontSize: '0.95rem', borderRadius: '12px', fontWeight: 800 }}
+            >
+              {loading ? 'Guardando...' : '🔒 Guardar Nueva Contraseña'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsResetMode(false);
+                setErrorMsg('');
+                setSuccessMsg('');
+              }}
+              className="btn btn-secondary"
+              style={{ justifyContent: 'center', padding: '10px', fontSize: '0.85rem', borderRadius: '12px' }}
+            >
+              ← Volver al Inicio de Sesión
+            </button>
+          </form>
+        )}
 
         {/* Nota de seguridad institucional */}
         <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-glass)', textAlign: 'center' }}>

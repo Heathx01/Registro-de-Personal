@@ -265,6 +265,22 @@ function mockHandler(path, options) {
     };
   }
 
+  if (path === '/reset-password' && method === 'POST') {
+    const body = JSON.parse(options.body || '{}');
+    const user = MOCK_USERS.find(u => u.email.toLowerCase() === (body.email || '').toLowerCase());
+    if (!user) {
+      throw { responseStatus: 404, message: 'El correo electrónico no se encuentra registrado en el sistema.' };
+    }
+    user.password = body.new_password;
+    user.is_locked = false;
+    user.failed_attempts = 0;
+    return {
+      status: 'success',
+      message: '✅ Tu contraseña ha sido actualizada exitosamente. Ya puedes iniciar sesión con tu nueva clave.',
+      user,
+    };
+  }
+
   if (path.startsWith('/users')) {
     if (method === 'GET') return MOCK_USERS;
     if (method === 'POST') {
@@ -601,6 +617,18 @@ export function emergencyUnlock(email) {
   return request('/emergency-unlock', {
     method: 'POST',
     body: JSON.stringify({ email }),
+  });
+}
+
+export function resetPassword(email, currentPassword, newPassword, confirmPassword) {
+  return request('/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({
+      email,
+      current_password: currentPassword,
+      new_password: newPassword,
+      new_password_confirmation: confirmPassword || newPassword,
+    }),
   });
 }
 

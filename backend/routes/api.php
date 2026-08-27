@@ -14,6 +14,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/users/{id}/unlock', [AuthController::class, 'unlock']);
 Route::post('/change-password', [AuthController::class, 'changePassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('/me', [AuthController::class, 'me']);
 
 // Rutas de personal y organigrama
