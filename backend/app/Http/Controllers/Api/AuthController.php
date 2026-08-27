@@ -183,6 +183,45 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Endpoint para que un usuario cambie su propia contraseña.
+     */
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Usuario no encontrado.',
+            ], 404);
+        }
+
+        // Verificar la contraseña actual introducida por el usuario
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => '🔒 La contraseña actual ingresada es incorrecta. Por favor verifíquela.',
+            ], 400);
+        }
+
+        // Actualizar con la nueva contraseña encriptada
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => '✅ Tu contraseña ha sido actualizada exitosamente. Usa tu nueva clave en tu próximo inicio de sesión.',
+            'user' => $user,
+        ]);
+    }
+
     private function getPermissionsForRole($role)
     {
         switch ($role) {

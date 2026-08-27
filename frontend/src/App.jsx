@@ -16,6 +16,7 @@ import ClientModal from './components/ClientModal';
 import ClientAuthModal from './components/ClientAuthModal';
 import TemplateModal from './components/TemplateModal';
 import TemplateDetailModal from './components/TemplateDetailModal';
+import ChangePasswordModal from './components/ChangePasswordModal';
 import TaskModal from './components/TaskModal';
 
 import {
@@ -24,6 +25,7 @@ import {
   updateUser,
   deleteUser,
   unlockUser,
+  changePassword,
   getClients,
   createClient,
   updateClient,
@@ -59,6 +61,7 @@ function App() {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [activeDetailTemplate, setActiveDetailTemplate] = useState(null);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [isClientUnlocked, setIsClientUnlocked] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -286,6 +289,12 @@ function App() {
     }
   };
 
+  const handleChangePassword = async (currentPassword, newPassword, confirmPassword) => {
+    if (!currentUser) return;
+    await changePassword(currentUser.id, currentPassword, newPassword, confirmPassword);
+    setCurrentUser({ ...currentUser, password: newPassword });
+  };
+
   if (!currentUser) {
     return <LoginView onLoginSuccess={handleLoginSuccess} MOCK_USERS={users} />;
   }
@@ -300,6 +309,7 @@ function App() {
         activeTab={activeTab}
         setActiveTab={handleTabSelect}
         onLogout={handleLogout}
+        onOpenChangePassword={() => setShowChangePasswordModal(true)}
       />
 
       <main className="main-content">
@@ -466,6 +476,14 @@ function App() {
           projects={projects}
           onClose={() => setShowTaskModal(false)}
           onSave={handleSaveTask}
+        />
+      )}
+
+      {showChangePasswordModal && (
+        <ChangePasswordModal
+          currentUser={currentUser}
+          onClose={() => setShowChangePasswordModal(false)}
+          onSave={handleChangePassword}
         />
       )}
     </div>

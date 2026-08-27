@@ -5,6 +5,7 @@ const MOCK_USERS = [
     id: 1,
     name: 'Administrador Principal',
     email: 'admin@devstudio.com',
+    password: 'admin123',
     position: 'Administrador de Sistemas / IT',
     department: 'Dirección de TI',
     role: 'admin',
@@ -20,6 +21,7 @@ const MOCK_USERS = [
     id: 2,
     name: 'Carlos Mendoza',
     email: 'sales@devstudio.com',
+    password: 'password123',
     position: 'Ejecutivo de Ventas y BDM',
     department: 'Ventas y Estrategia Comercial',
     role: 'sales',
@@ -188,10 +190,16 @@ function mockHandler(path, options) {
     }
 
     if (user.is_locked) {
-      throw { responseStatus: 423, is_locked: true, message: '🛑 CUENTA BLOQUEADA POR SEGURIDAD. Contacte a su Manager.' };
+      throw { responseStatus: 423, is_locked: true, message: '🛑 CUENTA BLOQUEADA POR SEGURIDAD. Ha acumulado 3 intentos fallidos. Puedes presionar el botón "Desbloquear de Emergencia" abajo para ingresar.' };
     }
 
-    if (body.password !== 'password123' && body.password !== user.password) {
+    const inputPass = body.password || '';
+    const userPass = user.password || (user.role === 'admin' ? 'admin123' : 'password123');
+
+    // Claves válidas: la clave asignada/cambiada, o claves maestras de demo (admin123, password123, 123456)
+    const isValid = inputPass === userPass || inputPass === 'admin123' || inputPass === 'password123' || inputPass === '123456';
+
+    if (!isValid) {
       user.failed_attempts = (user.failed_attempts || 0) + 1;
       if (user.failed_attempts >= 3) {
         user.is_locked = true;
@@ -212,6 +220,23 @@ function mockHandler(path, options) {
     };
   }
 
+  if (path === '/emergency-unlock' && method === 'POST') {
+    const body = JSON.parse(options.body || '{}');
+    const user = MOCK_USERS.find(u => u.email.toLowerCase() === (body.email || '').toLowerCase());
+    if (user) {
+      user.is_locked = false;
+      user.failed_attempts = 0;
+      return { status: 'success', message: `✅ La cuenta de ${user.name} ha sido desbloqueada exitosamente.`, user };
+    } else {
+      // Desbloquear todos si no se pasa correo específico
+      MOCK_USERS.forEach(u => {
+        u.is_locked = false;
+        u.failed_attempts = 0;
+      });
+      return { status: 'success', message: '✅ Todas las cuentas de usuario han sido desbloqueadas.' };
+    }
+  }
+
   if (path.includes('/unlock') && method === 'POST') {
     const userId = parseInt(path.split('/')[2]);
     const user = MOCK_USERS.find(u => u.id === userId);
@@ -220,6 +245,24 @@ function mockHandler(path, options) {
       user.is_locked = false;
       return { message: `La cuenta de ${user.name} ha sido desbloqueada.`, user };
     }
+  }
+
+  if (path === '/change-password' && method === 'POST') {
+    const body = JSON.parse(options.body);
+    const user = MOCK_USERS.find(u => String(u.id) === String(body.user_id));
+    if (!user) {
+      throw { responseStatus: 404, message: 'Usuario no encontrado.' };
+    }
+    const validPass = user.password || 'password123';
+    if (body.current_password !== validPass && body.current_password !== 'password123') {
+      throw { responseStatus: 400, message: '🔒 La contraseña actual ingresada es incorrecta. Por favor verifíquela.' };
+    }
+    user.password = body.new_password;
+    return {
+      status: 'success',
+      message: '✅ Tu contraseña ha sido actualizada exitosamente. Usa tu nueva clave en tu próximo inicio de sesión.',
+      user,
+    };
   }
 
   if (path.startsWith('/users')) {
@@ -539,6 +582,25 @@ export function updateTemplate(id, templateData) {
 export function deleteTemplate(id) {
   return request(`/templates/${id}`, {
     method: 'DELETE',
+  });
+}
+
+export function changePassword(userId, currentPassword, newPassword, newPasswordConfirmation) {
+  return request('/change-password', {
+    method: 'POST',
+    body: JSON.stringify({
+      user_id: userId,
+      current_password: currentPassword,
+      new_password: newPassword,
+      new_password_confirmation: newPasswordConfirmation || newPassword,
+    }),
+  });
+}
+
+export function emergencyUnlock(email) {
+  return request('/emergency-unlock', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
   });
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout }) {
+export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout, onOpenChangePassword }) {
   const { language, toggleLanguage, t, translatePos } = useLanguage();
   const canManageRoles = ['admin', 'lead', 'hr'].includes(currentUser?.role);
   const isDev = currentUser?.role === 'developer' || currentUser?.role === 'qa';
@@ -142,6 +142,14 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout 
             <span className="user-name">{currentUser.name}</span>
             <span className="user-role">{translatePos(currentUser.position)}</span>
           </div>
+          <button
+            className="btn btn-secondary"
+            style={{ padding: '6px 10px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+            onClick={onOpenChangePassword}
+            title="Seguridad & Cambiar Contraseña"
+          >
+            🔒 <span>Seguridad</span>
+          </button>
           <button className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '0.75rem' }} onClick={onLogout}>
             {t('nav.logout')}
           </button>
