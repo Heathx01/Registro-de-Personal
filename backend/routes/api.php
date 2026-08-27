@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Api\TemplateController;
+
 // Rutas de autenticación y registro
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -19,6 +21,9 @@ Route::apiResource('users', UserController::class);
 
 // Rutas de clientes (CRM/SaaS)
 Route::apiResource('clients', ClientController::class);
+
+// Rutas de catálogo de plantillas y modelos
+Route::apiResource('templates', TemplateController::class);
 
 // Rutas de proyectos y tareas
 Route::apiResource('projects', ProjectController::class);

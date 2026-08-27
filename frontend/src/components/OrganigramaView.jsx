@@ -10,6 +10,7 @@ export default function OrganigramaView({ users }) {
   const developers = users.filter((u) => u.role === 'developer');
   const qa = users.filter((u) => u.role === 'qa');
   const hr = users.filter((u) => u.role === 'hr');
+  const sales = users.filter((u) => u.role === 'sales');
 
   return (
     <div className="animate-fade-in">
@@ -175,7 +176,7 @@ export default function OrganigramaView({ users }) {
 
         {/* Tier 4 */}
         <div style={{ textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '1px', color: 'var(--emerald)', fontWeight: 800 }}>
-          {t('organigrama.hr')}
+          {t('organigrama.hr')} & {t('organigrama.sales')}
         </div>
         <div className="org-tier">
           {hr.map((user) => (
@@ -206,6 +207,38 @@ export default function OrganigramaView({ users }) {
               <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{translatePos(user.position)}</p>
               <span className="badge badge-hr" style={{ marginTop: '6px' }}>
                 HR
+              </span>
+            </div>
+          ))}
+
+          {sales.map((user) => (
+            <div
+              key={user.id}
+              className="org-node"
+              style={{ borderTop: '4px solid var(--rose)', cursor: 'pointer' }}
+              onClick={() => setSelectedNode(user)}
+            >
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, var(--rose), var(--purple))',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 800,
+                  fontSize: '1rem',
+                  color: '#ffffff',
+                  margin: '0 auto 6px',
+                }}
+              >
+                {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
+              </div>
+              <h5 style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user.name}</h5>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{translatePos(user.position)}</p>
+              <span className="badge badge-sales" style={{ marginTop: '6px', backgroundColor: 'rgba(244, 63, 94, 0.2)', color: '#f43f5e' }}>
+                SALES BDM
               </span>
             </div>
           ))}

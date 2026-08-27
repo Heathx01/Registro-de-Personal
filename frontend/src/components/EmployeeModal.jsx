@@ -167,6 +167,7 @@ export default function EmployeeModal({ onClose, onSave }) {
                 <option value="Ingeniería de Software">Ingeniería de Software</option>
                 <option value="Calidad y Seguridad">Calidad y Seguridad</option>
                 <option value="Recursos Humanos">Recursos Humanos</option>
+                <option value="Ventas y Estrategia Comercial">Ventas y Estrategia Comercial</option>
               </select>
             </div>
             <div>
@@ -182,6 +183,7 @@ export default function EmployeeModal({ onClose, onSave }) {
                 <option value="developer">Desarrollador (Dev)</option>
                 <option value="qa">QA Specialist</option>
                 <option value="hr">Recursos Humanos (HR)</option>
+                <option value="sales">Ejecutivo de Ventas & BDM (Sales)</option>
               </select>
             </div>
           </div>

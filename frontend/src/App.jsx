@@ -7,12 +7,15 @@ import PersonnelView from './components/PersonnelView';
 import OrganigramaView from './components/OrganigramaView';
 import ProjectsView from './components/ProjectsView';
 import ClientsView from './components/ClientsView';
+import TemplatesView from './components/TemplatesView';
 import TasksView from './components/TasksView';
 import RolesMatrixView from './components/RolesMatrixView';
 import EmployeeModal from './components/EmployeeModal';
 import ProjectModal from './components/ProjectModal';
 import ClientModal from './components/ClientModal';
 import ClientAuthModal from './components/ClientAuthModal';
+import TemplateModal from './components/TemplateModal';
+import TemplateDetailModal from './components/TemplateDetailModal';
 import TaskModal from './components/TaskModal';
 
 import {
@@ -25,6 +28,10 @@ import {
   createClient,
   updateClient,
   deleteClient,
+  getTemplates,
+  createTemplate,
+  updateTemplate,
+  deleteTemplate,
   getProjects,
   createProject,
   getTasks,
@@ -41,6 +48,7 @@ function App() {
 
   const [users, setUsers] = useState([]);
   const [clients, setClients] = useState([]);
+  const [templates, setTemplates] = useState([]);
   const [projects, setProjects] = useState([]);
   const [tasks, setTasks] = useState([]);
 
@@ -48,6 +56,9 @@ function App() {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showClientModal, setShowClientModal] = useState(false);
   const [showClientAuthModal, setShowClientAuthModal] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [activeDetailTemplate, setActiveDetailTemplate] = useState(null);
   const [isClientUnlocked, setIsClientUnlocked] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -60,11 +71,13 @@ function App() {
     try {
       const usersData = await getUsers();
       const clientsData = await getClients();
+      const templatesData = await getTemplates();
       const projectsData = await getProjects();
       const tasksData = await getTasks();
 
       if (Array.isArray(usersData) && usersData.length > 0) setUsers(usersData);
       if (Array.isArray(clientsData) && clientsData.length > 0) setClients(clientsData);
+      if (Array.isArray(templatesData) && templatesData.length > 0) setTemplates(templatesData);
       if (Array.isArray(projectsData) && projectsData.length > 0) setProjects(projectsData);
       if (Array.isArray(tasksData) && tasksData.length > 0) setTasks(tasksData);
     } catch (err) {
@@ -219,6 +232,60 @@ function App() {
     }
   };
 
+  const handleSaveTemplate = async (templateData) => {
+    try {
+      if (editingTemplate) {
+        await updateTemplate(editingTemplate.id, templateData);
+        setTemplates(templates.map((t) => (t.id === editingTemplate.id ? { ...t, ...templateData } : t)));
+      } else {
+        const result = await createTemplate(templateData);
+        const created = result.template || { id: Date.now(), ...templateData };
+        setTemplates([created, ...templates]);
+      }
+      setShowTemplateModal(false);
+      setEditingTemplate(null);
+    } catch (err) {
+      console.error('Error al guardar plantilla:', err);
+    }
+  };
+
+  const handleDeleteTemplate = async (id) => {
+    if (window.confirm('¿Estás seguro de eliminar esta plantilla del catálogo?')) {
+      try {
+        await deleteTemplate(id);
+        setTemplates(templates.filter((t) => t.id !== id));
+      } catch (err) {
+        console.error('Error al eliminar plantilla:', err);
+      }
+    }
+  };
+
+  const handleConfirmCreateProjectFromTemplate = async (template, clientId) => {
+    const clientObj = clients.find((c) => String(c.id) === String(clientId));
+    const newProjData = {
+      name: `Proyecto ${template.title} - ${clientObj ? clientObj.name : 'Cliente'}`,
+      description: template.description,
+      category: template.category,
+      status: 'In Progress',
+      tech_stack: template.tech_stack,
+      client_id: clientId,
+      client: clientObj,
+      budget: template.suggested_price || 0,
+      deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    };
+
+    try {
+      const result = await createProject(newProjData);
+      const created = result.project || { id: Date.now(), ...newProjData };
+      setProjects([created, ...projects]);
+      setActiveDetailTemplate(null);
+      setActiveTab('projects');
+      alert(`🚀 ¡Proyecto creado exitosamente para ${clientObj ? clientObj.name : 'el cliente'} basado en la plantilla "${template.title}"!`);
+    } catch (err) {
+      console.error('Error al crear proyecto desde plantilla:', err);
+    }
+  };
+
   if (!currentUser) {
     return <LoginView onLoginSuccess={handleLoginSuccess} MOCK_USERS={users} />;
   }
@@ -267,6 +334,23 @@ function App() {
         )}
 
         {activeTab === 'organigrama' && <OrganigramaView users={users} />}
+
+        {activeTab === 'templates' && (
+          <TemplatesView
+            templates={templates}
+            permissions={permissions}
+            onOpenAddTemplate={() => {
+              setEditingTemplate(null);
+              setShowTemplateModal(true);
+            }}
+            onOpenEditTemplate={(tmpl) => {
+              setEditingTemplate(tmpl);
+              setShowTemplateModal(true);
+            }}
+            onDeleteTemplate={handleDeleteTemplate}
+            onSelectTemplateForClient={(tmpl) => setActiveDetailTemplate(tmpl)}
+          />
+        )}
 
         {activeTab === 'clients' && (
           <ClientsView
@@ -344,6 +428,26 @@ function App() {
             setEditingClient(null);
           }}
           onSave={handleSaveClient}
+        />
+      )}
+
+      {showTemplateModal && (
+        <TemplateModal
+          template={editingTemplate}
+          onClose={() => {
+            setShowTemplateModal(false);
+            setEditingTemplate(null);
+          }}
+          onSave={handleSaveTemplate}
+        />
+      )}
+
+      {activeDetailTemplate && (
+        <TemplateDetailModal
+          template={activeDetailTemplate}
+          clients={clients}
+          onClose={() => setActiveDetailTemplate(null)}
+          onConfirmCreateProject={handleConfirmCreateProjectFromTemplate}
         />
       )}
 

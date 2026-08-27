@@ -15,6 +15,76 @@ const MOCK_USERS = [
     bio: 'Administrador principal del sistema con potestad exclusiva para crear usuarios, asignar puestos y modificar roles y privilegios.',
     failed_attempts: 0,
     is_locked: false,
+  },
+  {
+    id: 2,
+    name: 'Carlos Mendoza',
+    email: 'sales@devstudio.com',
+    position: 'Ejecutivo de Ventas y BDM',
+    department: 'Ventas y Estrategia Comercial',
+    role: 'sales',
+    phone: '+52 55 8888 9999',
+    status: 'Active',
+    hire_date: '2026-03-15',
+    skills: ['Prospectación de Clientes', 'Presentación de Portafolio', 'Cierre de Cotizaciones', 'Relaciones Comerciales'],
+    bio: 'Encargado de prospección comercial, presentación del catálogo de plantillas a clientes y generación de propuestas de desarrollo.',
+    failed_attempts: 0,
+    is_locked: false,
+  }
+];
+
+const MOCK_TEMPLATES = [
+  {
+    id: 1,
+    title: 'Portal E-Commerce Omni-channel',
+    category: 'E-Commerce',
+    description: 'Plataforma completa de comercio electrónico con pasarela de pagos integrada, catálogo interactivo de productos, control de inventario y panel administrativo.',
+    features: ['Pasarela de Pagos Stripe/PayPal', 'Catálogo con Filtros Avanzados', 'Panel de Inventario y Pedidos', 'Notificaciones por Email/WhatsApp', 'Diseño Responsive Mobile-First'],
+    tech_stack: ['React', 'Laravel API', 'MySQL', 'Tailwind CSS'],
+    estimated_delivery: '2 a 3 semanas',
+    image_url: 'https://images.unsplash.com/photo-1556742049-0a67daf64f42?w=800&auto=format&fit=crop&q=80',
+    demo_url: 'https://demo.devstudio.com/ecommerce',
+    suggested_price: 3500.00,
+    status: 'active',
+  },
+  {
+    id: 2,
+    title: 'Dashboard ERP & CRM Financiero',
+    category: 'ERP / CRM',
+    description: 'Sistema de gestión de recursos empresariales y relaciones con clientes, métricas en tiempo real, cotizador dinámico y módulos contables.',
+    features: ['Gestión de Clientes y Leads', 'Facturación y Cotizaciones', 'Métricas y Gráficos Financieros', 'Roles y Permisos Granulares', 'Exportación a PDF y Excel'],
+    tech_stack: ['React', 'Laravel REST API', 'Chart.js', 'PostgreSQL'],
+    estimated_delivery: '3 a 4 semanas',
+    image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80',
+    demo_url: 'https://demo.devstudio.com/erp',
+    suggested_price: 4800.00,
+    status: 'active',
+  },
+  {
+    id: 3,
+    title: 'App Móvil de Citas y Reservas en Línea',
+    category: 'Mobile App',
+    description: 'Aplicación multiplataforma para reserva de citas, gestión de agenda en tiempo real, recordatorios push y pagos en línea.',
+    features: ['Agenda Dinámica e Interactiva', 'Notificaciones Push Móviles', 'Recordatorios por SMS/Email', 'Perfiles de Especialistas', 'Integración con MercadoPago'],
+    tech_stack: ['React Native / Flutter', 'Node.js', 'Firebase', 'MongoDB'],
+    estimated_delivery: '3 semanas',
+    image_url: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&auto=format&fit=crop&q=80',
+    demo_url: 'https://demo.devstudio.com/booking',
+    suggested_price: 2900.00,
+    status: 'active',
+  },
+  {
+    id: 4,
+    title: 'Portal SaaS & Membresías Recurrentes',
+    category: 'SaaS Platform',
+    description: 'Plataforma multi-tenant para servicios de suscripción mensual/anual con autenticación 2FA, pasarela de suscripciones recurrentes y dashboard del cliente.',
+    features: ['Mapeo de Suscripciones Recurrentes', 'Autenticación 2FA & OAuth', 'Portal de Ajustes y Perfil de Usuario', 'Integración con Stripe Billing', 'Soporte Multilingüe i18n'],
+    tech_stack: ['Next.js / Vite', 'Laravel API', 'Stripe', 'Redis'],
+    estimated_delivery: '4 semanas',
+    image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+    demo_url: 'https://demo.devstudio.com/saas',
+    suggested_price: 5200.00,
+    status: 'active',
   }
 ];
 
@@ -168,7 +238,17 @@ function mockHandler(path, options) {
       desarrollo: MOCK_USERS.filter(u => u.role === 'developer'),
       calidad: MOCK_USERS.filter(u => u.role === 'qa'),
       recursos_humanos: MOCK_USERS.filter(u => u.role === 'hr'),
+      ventas: MOCK_USERS.filter(u => u.role === 'sales'),
     };
+  }
+
+  if (path.startsWith('/templates')) {
+    if (method === 'GET') return MOCK_TEMPLATES;
+    if (method === 'POST') {
+      const newTmpl = { id: Date.now(), status: 'active', ...JSON.parse(options.body) };
+      MOCK_TEMPLATES.unshift(newTmpl);
+      return { message: 'Plantilla creada', template: newTmpl };
+    }
   }
 
   if (path.startsWith('/projects')) {
@@ -202,6 +282,9 @@ export function getPermissionsForRole(role) {
         can_manage_projects: true,
         can_manage_clients: true,
         can_view_clients: true,
+        can_view_templates: true,
+        can_manage_templates: true,
+        can_create_proposal: true,
         can_view_salaries: true,
         can_assign_tasks: true,
         can_view_organigrama: true,
@@ -216,11 +299,31 @@ export function getPermissionsForRole(role) {
         can_manage_projects: true,
         can_manage_clients: true,
         can_view_clients: true,
+        can_view_templates: true,
+        can_manage_templates: true,
+        can_create_proposal: true,
         can_view_salaries: true,
         can_assign_tasks: true,
         can_view_organigrama: true,
         can_delete_records: false,
         restrictions: 'No puede eliminar usuarios ni modificar salarios administrativos.',
+      };
+    case 'sales':
+      return {
+        label: 'Ejecutivo de Ventas & BDM',
+        can_manage_users: false,
+        can_unlock_users: false,
+        can_manage_projects: true,
+        can_manage_clients: true,
+        can_view_clients: true,
+        can_view_templates: true,
+        can_manage_templates: false,
+        can_create_proposal: true,
+        can_view_salaries: false,
+        can_assign_tasks: false,
+        can_view_organigrama: true,
+        can_delete_records: false,
+        restrictions: 'Demostración de catálogo a clientes, alta de clientes y propuestas de proyectos.',
       };
     case 'developer':
       return {
@@ -230,12 +333,15 @@ export function getPermissionsForRole(role) {
         can_manage_projects: false,
         can_manage_clients: false,
         can_view_clients: false,
+        can_view_templates: true,
+        can_manage_templates: false,
+        can_create_proposal: false,
         can_view_salaries: false,
         can_assign_tasks: false,
         can_update_task_status: true,
         can_view_organigrama: true,
         can_delete_records: false,
-        restrictions: 'Gestión de tareas asignadas por el Manager.',
+        restrictions: 'Gestión de tareas asignadas y lectura de catálogo.',
       };
     case 'qa':
       return {
@@ -245,12 +351,15 @@ export function getPermissionsForRole(role) {
         can_manage_projects: false,
         can_manage_clients: false,
         can_view_clients: false,
+        can_view_templates: true,
+        can_manage_templates: false,
+        can_create_proposal: false,
         can_view_salaries: false,
         can_assign_tasks: true,
         can_update_task_status: true,
         can_view_organigrama: true,
         can_delete_records: false,
-        restrictions: 'Pruebas de calidad.',
+        restrictions: 'Pruebas de calidad y lectura de catálogo.',
       };
     case 'hr':
       return {
@@ -260,6 +369,9 @@ export function getPermissionsForRole(role) {
         can_manage_projects: false,
         can_manage_clients: false,
         can_view_clients: false,
+        can_view_templates: false,
+        can_manage_templates: false,
+        can_create_proposal: false,
         can_view_salaries: false,
         can_assign_tasks: false,
         can_view_organigrama: true,
@@ -404,3 +516,29 @@ export function deleteTask(id) {
     method: 'DELETE',
   });
 }
+
+// --- Catálogo de Plantillas API ---
+export function getTemplates() {
+  return request('/templates');
+}
+
+export function createTemplate(templateData) {
+  return request('/templates', {
+    method: 'POST',
+    body: JSON.stringify(templateData),
+  });
+}
+
+export function updateTemplate(id, templateData) {
+  return request(`/templates/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(templateData),
+  });
+}
+
+export function deleteTemplate(id) {
+  return request(`/templates/${id}`, {
+    method: 'DELETE',
+  });
+}
+
