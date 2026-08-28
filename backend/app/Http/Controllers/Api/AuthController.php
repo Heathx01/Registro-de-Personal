@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -186,11 +188,54 @@ class AuthController extends Controller
     /**
      * Endpoint para que un usuario cambie su propia contraseña.
      */
+    public function sendPasswordChangeCode(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'current_password' => 'required|string',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        if (!$user || !Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => '🔒 La contraseña actual ingresada es incorrecta. Por favor verifíquela.',
+            ], 400);
+        }
+
+        $throttleKey = "password-change-code-sent:{$user->id}";
+        if (Cache::has($throttleKey)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Espera un minuto antes de solicitar otro código de verificación.',
+            ], 429);
+        }
+
+        $code = (string) random_int(1000, 9999);
+        Cache::put("password-change-code:{$user->id}", Hash::make($code), now()->addMinutes(10));
+        Cache::put($throttleKey, true, now()->addMinute());
+
+        Mail::raw(
+            "Hola {$user->name},\n\nTu código de verificación para cambiar la contraseña es: {$code}\n\nEste código vence en 10 minutos. Si no solicitaste este cambio, ignora este correo.",
+            function ($message) use ($user) {
+                $message->to($user->email)
+                    ->subject('Código de verificación para cambiar tu contraseña');
+            }
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Se envió un código de verificación a tu correo electrónico.',
+        ]);
+    }
+
     public function changePassword(Request $request)
     {
         $request->validate([
             'user_id' => 'required',
             'current_password' => 'required|string',
+            'verification_code' => 'required|digits:4',
             'new_password' => 'required|string|min:6|confirmed',
         ]);
 
@@ -211,9 +256,20 @@ class AuthController extends Controller
             ], 400);
         }
 
+        $codeKey = "password-change-code:{$user->id}";
+        $storedCode = Cache::get($codeKey);
+        if (!$storedCode || !Hash::check($request->verification_code, $storedCode)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'El código de verificación es incorrecto o ya venció.',
+            ], 400);
+        }
+
         // Actualizar con la nueva contraseña encriptada
         $user->password = Hash::make($request->new_password);
         $user->save();
+        Cache::forget($codeKey);
+        Cache::forget("password-change-code-sent:{$user->id}");
 
         return response()->json([
             'status' => 'success',
@@ -229,6 +285,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
+            'verification_code' => 'required|digits:4',
             'new_password' => 'required|string|min:6|confirmed',
         ]);
 
@@ -239,6 +296,15 @@ class AuthController extends Controller
                 'status' => 'error',
                 'message' => 'El correo electrónico no se encuentra registrado.',
             ], 404);
+        }
+
+        $codeKey = "password-reset-code:{$user->id}";
+        $storedCode = Cache::get($codeKey);
+        if (!$storedCode || !Hash::check($request->verification_code, $storedCode)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'El código de verificación es incorrecto o ya venció.',
+            ], 400);
         }
 
         if ($request->has('current_password') && !empty($request->current_password)) {
@@ -254,11 +320,51 @@ class AuthController extends Controller
         $user->failed_attempts = 0;
         $user->is_locked = false;
         $user->save();
+        Cache::forget($codeKey);
+        Cache::forget("password-reset-code-sent:{$user->id}");
 
         return response()->json([
             'status' => 'success',
             'message' => '✅ Tu contraseña ha sido actualizada exitosamente. Ya puedes iniciar sesión con tu nueva clave.',
             'user' => $user,
+        ]);
+    }
+
+    public function sendPasswordResetCode(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'El correo electrónico no se encuentra registrado.',
+            ], 404);
+        }
+
+        $throttleKey = "password-reset-code-sent:{$user->id}";
+        if (Cache::has($throttleKey)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Espera un minuto antes de solicitar otro código de verificación.',
+            ], 429);
+        }
+
+        $code = (string) random_int(1000, 9999);
+        Cache::put("password-reset-code:{$user->id}", Hash::make($code), now()->addMinutes(10));
+        Cache::put($throttleKey, true, now()->addMinute());
+
+        Mail::raw(
+            "Hola {$user->name},\n\nTu código de verificación para restablecer la contraseña es: {$code}\n\nEste código vence en 10 minutos. Si no solicitaste este cambio, ignora este correo.",
+            function ($message) use ($user) {
+                $message->to($user->email)
+                    ->subject('Código de verificación para restablecer tu contraseña');
+            }
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Revisa tu correo electrónico: te enviamos un código de verificación de 4 dígitos.',
         ]);
     }
 

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
-function ChangePasswordModal({ currentUser, onClose, onSave }) {
+function ChangePasswordModal({ currentUser, onClose, onRequestCode, onSave }) {
   const { t, translatePos } = useLanguage();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
 
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
@@ -38,6 +40,27 @@ function ChangePasswordModal({ currentUser, onClose, onSave }) {
     setErrorMsg('');
     setSuccessMsg('');
 
+    if (!codeSent) {
+      setIsSubmitting(true);
+      try {
+        const response = await onRequestCode(currentPassword);
+        setCodeSent(true);
+        setSuccessMsg(response?.verification_code
+          ? `${response.message} Código demo: ${response.verification_code}`
+          : 'Se envió un código de verificación a tu correo electrónico.');
+      } catch (err) {
+        setErrorMsg(err?.message || 'No se pudo enviar el código de verificación.');
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
+    if (!/^\d{6}$/.test(verificationCode)) {
+      setErrorMsg('Ingresa el código de verificación de 6 dígitos.');
+      return;
+    }
+
     if (newPassword.length < 6) {
       setErrorMsg(t('security.tooShortError'));
       return;
@@ -55,11 +78,12 @@ function ChangePasswordModal({ currentUser, onClose, onSave }) {
 
     setIsSubmitting(true);
     try {
-      await onSave(currentPassword, newPassword, confirmPassword);
+      await onSave(currentPassword, newPassword, confirmPassword, verificationCode);
       setSuccessMsg(t('security.changeSuccess'));
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      setVerificationCode('');
       setTimeout(() => {
         onClose();
       }, 2500);
@@ -228,6 +252,8 @@ function ChangePasswordModal({ currentUser, onClose, onSave }) {
               <button
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
+                aria-label={showCurrent ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                title={showCurrent ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 style={{
                   position: 'absolute',
                   right: '12px',
@@ -238,10 +264,31 @@ function ChangePasswordModal({ currentUser, onClose, onSave }) {
                   fontSize: '1rem',
                 }}
               >
-                {showCurrent ? '👁️' : '🔒'}
+                👁️
               </button>
             </div>
           </div>
+
+          {codeSent && (
+            <div>
+              <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '6px', display: 'block' }}>
+                Código de verificación *
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                required
+                maxLength={4}
+                pattern="[0-9]{4}"
+                className="input-field"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                placeholder="1234"
+                style={{ width: '100%', borderRadius: '12px', letterSpacing: '0.25em' }}
+              />
+            </div>
+          )}
 
           {/* Nueva Contraseña */}
           <div>
@@ -262,6 +309,8 @@ function ChangePasswordModal({ currentUser, onClose, onSave }) {
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
+                aria-label={showNew ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                title={showNew ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 style={{
                   position: 'absolute',
                   right: '12px',
@@ -272,7 +321,7 @@ function ChangePasswordModal({ currentUser, onClose, onSave }) {
                   fontSize: '1rem',
                 }}
               >
-                {showNew ? '👁️' : '🔒'}
+                👁️
               </button>
             </div>
 
@@ -321,6 +370,8 @@ function ChangePasswordModal({ currentUser, onClose, onSave }) {
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
+                aria-label={showConfirm ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                title={showConfirm ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 style={{
                   position: 'absolute',
                   right: '12px',
@@ -331,7 +382,7 @@ function ChangePasswordModal({ currentUser, onClose, onSave }) {
                   fontSize: '1rem',
                 }}
               >
-                {showConfirm ? '👁️' : '🔒'}
+                👁️
               </button>
             </div>
             {confirmPassword && newPassword !== confirmPassword && (
@@ -372,7 +423,7 @@ function ChangePasswordModal({ currentUser, onClose, onSave }) {
               style={{ padding: '10px 24px', borderRadius: '10px', fontWeight: 800 }}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Guardando...' : t('security.submitBtn')}
+              {isSubmitting ? (codeSent ? 'Guardando...' : 'Enviando código...') : (codeSent ? t('security.submitBtn') : 'Enviar código')}
             </button>
           </div>
         </form>

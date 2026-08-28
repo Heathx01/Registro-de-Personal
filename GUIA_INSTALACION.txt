@@ -50,6 +50,23 @@ Abre tu terminal y ejecuta:
 
    *El servidor quedará corriendo en: http://127.0.0.1:8000*
 
+8. Configura el envío real de códigos por correo en backend/.env.
+   MAIL_MAILER=smtp
+   MAIL_HOST=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USERNAME=tu-correo@gmail.com
+   MAIL_PASSWORD=tu-contraseña-de-aplicación
+   MAIL_ENCRYPTION=tls
+   MAIL_FROM_ADDRESS=tu-correo@gmail.com
+   MAIL_FROM_NAME="Registro de Personal"
+
+   En Gmail debes usar una contraseña de aplicación, no tu contraseña normal.
+   Después de cambiar el .env, ejecuta:
+   php artisan config:clear
+
+   Si MAIL_MAILER=log, el código no llegará a un buzón: solo se guardará en
+   backend/storage/logs/laravel.log.
+
 --------------------------------------------------------------------
 4. CONFIGURACIÓN DEL FRONTEND (VITE + REACT)
 --------------------------------------------------------------------

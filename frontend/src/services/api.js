@@ -35,6 +35,8 @@ const MOCK_USERS = [
   }
 ];
 
+const MOCK_PASSWORD_CODES = new Map();
+
 const MOCK_TEMPLATES = [
   {
     id: 1,
@@ -257,11 +259,31 @@ function mockHandler(path, options) {
     if (body.current_password !== validPass && body.current_password !== 'password123') {
       throw { responseStatus: 400, message: '🔒 La contraseña actual ingresada es incorrecta. Por favor verifíquela.' };
     }
+    const code = MOCK_PASSWORD_CODES.get(String(body.user_id));
+    if (!code || body.verification_code !== code) {
+      throw { responseStatus: 400, message: 'El código de verificación es incorrecto o ya venció.' };
+    }
     user.password = body.new_password;
+    MOCK_PASSWORD_CODES.delete(String(body.user_id));
     return {
       status: 'success',
       message: '✅ Tu contraseña ha sido actualizada exitosamente. Usa tu nueva clave en tu próximo inicio de sesión.',
       user,
+    };
+  }
+
+  if (path === '/send-password-change-code' && method === 'POST') {
+    const body = JSON.parse(options.body || '{}');
+    const user = MOCK_USERS.find(u => String(u.id) === String(body.user_id));
+    const validPass = user?.password || 'password123';
+    if (!user || (body.current_password !== validPass && body.current_password !== 'password123')) {
+      throw { responseStatus: 400, message: '🔒 La contraseña actual ingresada es incorrecta. Por favor verifíquela.' };
+    }
+    MOCK_PASSWORD_CODES.set(String(user.id), '1234');
+    return {
+      status: 'success',
+      message: 'Se envió un código de verificación a tu correo electrónico.',
+      verification_code: '1234',
     };
   }
 
@@ -271,13 +293,32 @@ function mockHandler(path, options) {
     if (!user) {
       throw { responseStatus: 404, message: 'El correo electrónico no se encuentra registrado en el sistema.' };
     }
+    const code = MOCK_PASSWORD_CODES.get(`reset:${user.id}`);
+    if (!code || body.verification_code !== code) {
+      throw { responseStatus: 400, message: 'El código de verificación es incorrecto o ya venció.' };
+    }
     user.password = body.new_password;
+    MOCK_PASSWORD_CODES.delete(`reset:${user.id}`);
     user.is_locked = false;
     user.failed_attempts = 0;
     return {
       status: 'success',
       message: '✅ Tu contraseña ha sido actualizada exitosamente. Ya puedes iniciar sesión con tu nueva clave.',
       user,
+    };
+  }
+
+  if (path === '/send-password-reset-code' && method === 'POST') {
+    const body = JSON.parse(options.body || '{}');
+    const user = MOCK_USERS.find(u => u.email.toLowerCase() === (body.email || '').toLowerCase());
+    if (!user) {
+      throw { responseStatus: 404, message: 'El correo electrónico no se encuentra registrado en el sistema.' };
+    }
+    MOCK_PASSWORD_CODES.set(`reset:${user.id}`, '1234');
+    return {
+      status: 'success',
+      message: 'Revisa tu correo electrónico: te enviamos un código de verificación de 4 dígitos.',
+      verification_code: '1234',
     };
   }
 
@@ -601,15 +642,23 @@ export function deleteTemplate(id) {
   });
 }
 
-export function changePassword(userId, currentPassword, newPassword, newPasswordConfirmation) {
+export function changePassword(userId, currentPassword, newPassword, newPasswordConfirmation, verificationCode) {
   return request('/change-password', {
     method: 'POST',
     body: JSON.stringify({
       user_id: userId,
       current_password: currentPassword,
+      verification_code: verificationCode,
       new_password: newPassword,
       new_password_confirmation: newPasswordConfirmation || newPassword,
     }),
+  });
+}
+
+export function sendPasswordChangeCode(userId, currentPassword) {
+  return request('/send-password-change-code', {
+    method: 'POST',
+    body: JSON.stringify({ user_id: userId, current_password: currentPassword }),
   });
 }
 
@@ -620,7 +669,7 @@ export function emergencyUnlock(email) {
   });
 }
 
-export function resetPassword(email, currentPassword, newPassword, confirmPassword) {
+export function resetPassword(email, currentPassword, newPassword, confirmPassword, verificationCode) {
   return request('/reset-password', {
     method: 'POST',
     body: JSON.stringify({
@@ -628,7 +677,15 @@ export function resetPassword(email, currentPassword, newPassword, confirmPasswo
       current_password: currentPassword,
       new_password: newPassword,
       new_password_confirmation: confirmPassword || newPassword,
+      verification_code: verificationCode,
     }),
+  });
+}
+
+export function sendPasswordResetCode(email) {
+  return request('/send-password-reset-code', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
   });
 }
 

@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\TemplateController;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/users/{id}/unlock', [AuthController::class, 'unlock']);
+Route::post('/send-password-change-code', [AuthController::class, 'sendPasswordChangeCode']);
+Route::post('/send-password-reset-code', [AuthController::class, 'sendPasswordResetCode']);
 Route::post('/change-password', [AuthController::class, 'changePassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('/me', [AuthController::class, 'me']);

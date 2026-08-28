@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { login, resetPassword, emergencyUnlock } from '../services/api';
+import { login, resetPassword, sendPasswordResetCode, emergencyUnlock } from '../services/api';
 
 export default function LoginView({ onLoginSuccess }) {
   // Modo de la pantalla: 'login' o 'reset'
@@ -13,8 +13,11 @@ export default function LoginView({ onLoginSuccess }) {
   const [resetEmail, setResetEmail] = useState('admin@devstudio.com');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [resetCodeSent, setResetCodeSent] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
+  const [showLoginPass, setShowLoginPass] = useState(false);
 
   // Estado UI
   const [loading, setLoading] = useState(false);
@@ -70,6 +73,25 @@ export default function LoginView({ onLoginSuccess }) {
     setErrorMsg('');
     setSuccessMsg('');
 
+    if (!resetCodeSent) {
+      setLoading(true);
+      try {
+        const res = await sendPasswordResetCode(resetEmail);
+        setResetCodeSent(true);
+        setSuccessMsg(res.message || 'Revisa tu correo electrónico para ver tu código de verificación.');
+      } catch (err) {
+        setErrorMsg(err.message || 'No se pudo enviar el código de verificación.');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    if (!/^\d{4}$/.test(verificationCode)) {
+      setErrorMsg('Ingresa el código de verificación de 4 dígitos que recibiste en tu correo.');
+      return;
+    }
+
     if (newPassword.length < 6) {
       setErrorMsg('⚠️ La nueva contraseña debe tener al menos 6 caracteres.');
       return;
@@ -83,10 +105,12 @@ export default function LoginView({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      const res = await resetPassword(resetEmail, null, newPassword, confirmPassword);
+      const res = await resetPassword(resetEmail, null, newPassword, confirmPassword, verificationCode);
       setSuccessMsg(res.message || '✅ Tu contraseña se ha actualizado correctamente. Ya puedes iniciar sesión.');
       setNewPassword('');
       setConfirmPassword('');
+      setVerificationCode('');
+      setResetCodeSent(false);
       // Después de 2 segundos volver al formulario de login con la nueva clave prellenada
       setTimeout(() => {
         setLoginEmail(resetEmail);
@@ -240,40 +264,39 @@ export default function LoginView({ onLoginSuccess }) {
             </div>
 
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <div style={{ marginBottom: '6px' }}>
                 <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', margin: 0 }}>
                   Contraseña
                 </label>
-                {/* ENLACE ESTILO FACEBOOK/INSTAGRAM/X PARA CAMBIAR O RECUPERAR CONTRASEÑA */}
+              </div>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  type={showLoginPass ? 'text' : 'password'}
+                  required
+                  className="search-input"
+                  style={{ paddingLeft: '14px', paddingRight: '42px', borderRadius: '12px', width: '100%' }}
+                  placeholder="••••••••"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                />
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsResetMode(true);
-                    setErrorMsg('');
-                    setSuccessMsg('');
-                  }}
+                  onClick={() => setShowLoginPass(!showLoginPass)}
+                  aria-label={showLoginPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  title={showLoginPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   style={{
+                    position: 'absolute',
+                    right: '12px',
                     background: 'none',
                     border: 'none',
-                    color: 'var(--indigo-light, #818cf8)',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
+                    color: 'var(--text-muted)',
                     cursor: 'pointer',
-                    textDecoration: 'none',
+                    fontSize: '1rem',
                   }}
                 >
-                  ¿Olvidaste o quieres cambiar tu contraseña?
+                  👁️
                 </button>
               </div>
-              <input
-                type="password"
-                required
-                className="search-input"
-                style={{ paddingLeft: '14px', borderRadius: '12px' }}
-                placeholder="••••••••"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-              />
             </div>
 
             <button
@@ -325,6 +348,30 @@ export default function LoginView({ onLoginSuccess }) {
               />
             </div>
 
+            {resetCodeSent && (
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
+                  Código recibido por correo *
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  required
+                  maxLength={4}
+                  pattern="[0-9]{4}"
+                  className="search-input"
+                  style={{ paddingLeft: '14px', borderRadius: '12px', width: '100%', letterSpacing: '0.25em' }}
+                  placeholder="1234"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                />
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: '6px 0 0' }}>
+                  Revisa tu correo electrónico e ingresa el código de 4 dígitos.
+                </p>
+              </div>
+            )}
+
             {/* Nueva Contraseña */}
             <div>
               <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
@@ -333,7 +380,7 @@ export default function LoginView({ onLoginSuccess }) {
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <input
                   type={showNewPass ? 'text' : 'password'}
-                  required
+                  required={resetCodeSent}
                   minLength={6}
                   className="search-input"
                   style={{ paddingLeft: '14px', paddingRight: '42px', borderRadius: '12px', width: '100%' }}
@@ -344,6 +391,8 @@ export default function LoginView({ onLoginSuccess }) {
                 <button
                   type="button"
                   onClick={() => setShowNewPass(!showNewPass)}
+                  aria-label={showNewPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  title={showNewPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   style={{
                     position: 'absolute',
                     right: '12px',
@@ -354,7 +403,7 @@ export default function LoginView({ onLoginSuccess }) {
                     fontSize: '1rem',
                   }}
                 >
-                  {showNewPass ? '👁️' : '🔒'}
+                  👁️
                 </button>
               </div>
 
@@ -387,7 +436,7 @@ export default function LoginView({ onLoginSuccess }) {
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <input
                   type={showConfirmPass ? 'text' : 'password'}
-                  required
+                  required={resetCodeSent}
                   minLength={6}
                   className="search-input"
                   style={{
@@ -404,6 +453,8 @@ export default function LoginView({ onLoginSuccess }) {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPass(!showConfirmPass)}
+                  aria-label={showConfirmPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  title={showConfirmPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   style={{
                     position: 'absolute',
                     right: '12px',
@@ -414,7 +465,7 @@ export default function LoginView({ onLoginSuccess }) {
                     fontSize: '1rem',
                   }}
                 >
-                  {showConfirmPass ? '👁️' : '🔒'}
+                  👁️
                 </button>
               </div>
               {confirmPassword && newPassword !== confirmPassword && (
@@ -430,7 +481,7 @@ export default function LoginView({ onLoginSuccess }) {
               className="btn btn-primary"
               style={{ justifyContent: 'center', padding: '12px', marginTop: '6px', fontSize: '0.95rem', borderRadius: '12px', fontWeight: 800 }}
             >
-              {loading ? 'Guardando...' : '🔒 Guardar Nueva Contraseña'}
+              {loading ? (resetCodeSent ? 'Guardando...' : 'Enviando código...') : (resetCodeSent ? '🔒 Guardar Nueva Contraseña' : '📧 Enviar código al correo')}
             </button>
 
             <button

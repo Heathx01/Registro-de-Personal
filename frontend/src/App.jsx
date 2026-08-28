@@ -26,6 +26,7 @@ import {
   deleteUser,
   unlockUser,
   changePassword,
+  sendPasswordChangeCode,
   getClients,
   createClient,
   updateClient,
@@ -289,10 +290,15 @@ function App() {
     }
   };
 
-  const handleChangePassword = async (currentPassword, newPassword, confirmPassword) => {
+  const handleChangePassword = async (currentPassword, newPassword, confirmPassword, verificationCode) => {
     if (!currentUser) return;
-    await changePassword(currentUser.id, currentPassword, newPassword, confirmPassword);
+    await changePassword(currentUser.id, currentPassword, newPassword, confirmPassword, verificationCode);
     setCurrentUser({ ...currentUser, password: newPassword });
+  };
+
+  const handleSendPasswordChangeCode = (currentPassword) => {
+    if (!currentUser) return Promise.reject(new Error('Usuario no autenticado.'));
+    return sendPasswordChangeCode(currentUser.id, currentPassword);
   };
 
   if (!currentUser) {
@@ -483,6 +489,7 @@ function App() {
         <ChangePasswordModal
           currentUser={currentUser}
           onClose={() => setShowChangePasswordModal(false)}
+          onRequestCode={handleSendPasswordChangeCode}
           onSave={handleChangePassword}
         />
       )}
