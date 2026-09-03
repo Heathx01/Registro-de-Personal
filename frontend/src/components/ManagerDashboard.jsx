@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import DashboardCharts from './DashboardCharts';
 
 export default function ManagerDashboard({ users, projects, tasks, currentUser, onUnlockUser, onAssignTask }) {
   const { t, translatePos } = useLanguage();
@@ -64,6 +65,34 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
           {successMsg}
         </div>
       )}
+
+      {/* KPI Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '30px' }}>
+        <div className="glass-card" style={{ padding: '20px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(59,130,246,0.1), rgba(16,185,129,0.1))' }}>
+          <h4 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '5px' }}>Total Tareas</h4>
+          <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-main)' }}>{tasks.length}</div>
+        </div>
+        <div className="glass-card" style={{ padding: '20px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(6,182,212,0.1))' }}>
+          <h4 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '5px' }}>Completadas</h4>
+          <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--emerald)' }}>
+            {tasks.filter(t => t.status === 'Completed').length}
+          </div>
+        </div>
+        <div className="glass-card" style={{ padding: '20px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(139,92,246,0.1), rgba(236,72,153,0.1))' }}>
+          <h4 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '5px' }}>Proyectos Activos</h4>
+          <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--purple)' }}>
+            {projects.filter(p => p.status === 'Active' || p.status === 'In Progress').length}
+          </div>
+        </div>
+        <div className="glass-card" style={{ padding: '20px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(245,158,11,0.1), rgba(244,63,94,0.1))' }}>
+          <h4 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '5px' }}>Tareas Críticas</h4>
+          <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--rose)' }}>
+            {tasks.filter(t => t.priority === 'Critical' && t.status !== 'Completed').length}
+          </div>
+        </div>
+      </div>
+
+      <DashboardCharts tasks={tasks} projects={projects} users={users} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '30px' }}>
         {/* Columna 1: Equipo a Cargo y Control de Seguridad */}

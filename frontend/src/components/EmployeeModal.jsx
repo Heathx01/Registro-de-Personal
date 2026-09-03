@@ -21,9 +21,7 @@ export default function EmployeeModal({ onClose, onSave }) {
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
-      if (window.confirm('¿Deseas salir? Los datos no guardados en el formulario se perderán.')) {
-        onClose();
-      }
+      onClose();
     }
   };
 

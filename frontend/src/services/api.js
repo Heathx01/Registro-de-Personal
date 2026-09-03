@@ -372,3 +372,16 @@ export function getPermissionsForRole(role) {
       };
   }
 }
+
+// === TIME TRACKING ===
+export function getTimeEntries(userId = null) {
+  const url = userId ? `/time-entries?user_id=${userId}` : '/time-entries';
+  return request(url);
+}
+
+export function logTimeEntry(data) {
+  return request('/time-entries', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}

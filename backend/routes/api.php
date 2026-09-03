@@ -24,6 +24,7 @@ Route::get('/prueba', function () {
 
 // Rutas protegidas
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/users/{id}/unlock', [AuthController::class, 'unlock'])->middleware('role:admin,lead,hr');
     Route::post('/send-password-change-code', [AuthController::class, 'sendPasswordChangeCode']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
@@ -43,4 +44,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('projects', ProjectController::class);
     Route::apiResource('tasks', TaskController::class);
     Route::patch('/tasks/{id}/status', [TaskController::class, 'updateStatus']);
+    
+    // Rutas de log de horas (timetracking)
+    Route::get('/time-entries', [\App\Http\Controllers\TimeEntryController::class, 'index']);
+    Route::post('/time-entries', [\App\Http\Controllers\TimeEntryController::class, 'store']);
 });

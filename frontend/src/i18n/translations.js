@@ -10,6 +10,8 @@ export const translations = {
       clients: 'Clientes',
       templates: 'Catálogo de Plantillas',
       rolesMatrix: 'Matriz de Roles',
+      projects: 'Proyectos',
+      tasks: 'Tareas (Kanban)',
       logout: 'Cerrar Sesión',
     },
     // Common Actions & Badges
@@ -375,6 +377,8 @@ export const translations = {
       clients: 'Clients',
       templates: 'Templates Catalog',
       rolesMatrix: 'Roles Matrix',
+      projects: 'Projects',
+      tasks: 'Tasks (Kanban)',
       logout: 'Log Out',
     },
     // Common Actions & Badges

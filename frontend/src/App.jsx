@@ -18,6 +18,7 @@ import TemplateModal from './components/TemplateModal';
 import TemplateDetailModal from './components/TemplateDetailModal';
 import ChangePasswordModal from './components/ChangePasswordModal';
 import TaskModal from './components/TaskModal';
+import ConfirmModal from './components/ConfirmModal';
 
 import {
   getUsers,
@@ -80,6 +81,13 @@ function App() {
   const [editingClient, setEditingClient] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState(null);
+
+  const showConfirm = (title, message, onConfirm) => {
+    setConfirmDialog({ title, message, onConfirm });
+  };
+
+  const closeConfirm = () => setConfirmDialog(null);
 
   useEffect(() => {
     loadAllData();
@@ -157,9 +165,10 @@ function App() {
       setUsers(
         users.map((u) => (u.id === id ? { ...u, is_locked: false, failed_attempts: 0 } : u))
       );
-      alert('🔓 Cuenta desbloqueada exitosamente por el Manager.');
+      showToast('🔓 Cuenta desbloqueada exitosamente por el Manager.', 'success');
     } catch (err) {
       console.error('Error al desbloquear usuario:', err);
+      showToast('Error al desbloquear usuario', 'error');
     }
   };
 
@@ -176,14 +185,17 @@ function App() {
   };
 
   const handleDeleteUser = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar este registro de personal?')) {
+    showConfirm('Eliminar Personal', '¿Estás seguro de eliminar este registro de personal?', async () => {
       try {
         await deleteUser(id);
         setUsers(users.filter((u) => u.id !== id));
+        showToast('Empleado eliminado correctamente', 'info');
       } catch (err) {
         console.error('Error al eliminar usuario:', err);
+        showToast('Error al eliminar usuario', 'error');
       }
-    }
+      closeConfirm();
+    });
   };
 
   const handleUpdateUser = async (id, updatedFields) => {
@@ -216,14 +228,17 @@ function App() {
   };
 
   const handleDeleteClient = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar este cliente?')) {
+    showConfirm('Eliminar Cliente', '¿Estás seguro de eliminar este cliente?', async () => {
       try {
         await deleteClient(id);
         setClients(clients.filter((c) => c.id !== id));
+        showToast('Cliente eliminado correctamente', 'info');
       } catch (err) {
         console.error('Error al eliminar cliente:', err);
+        showToast('Error al eliminar cliente', 'error');
       }
-    }
+      closeConfirm();
+    });
   };
 
   const handleSaveProject = async (newProjData) => {
@@ -254,7 +269,7 @@ function App() {
   };
 
   const handleDeleteProject = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar este proyecto?')) {
+    showConfirm('Eliminar Proyecto', '¿Estás seguro de eliminar este proyecto?', async () => {
       try {
         await deleteProject(id);
         setProjects(projects.filter((p) => p.id !== id));
@@ -263,7 +278,8 @@ function App() {
         console.error('Error al eliminar proyecto:', err);
         showToast('Error al eliminar el proyecto', 'error');
       }
-    }
+      closeConfirm();
+    });
   };
 
   const handleSaveTask = async (newTaskData) => {
@@ -293,7 +309,7 @@ function App() {
   };
 
   const handleDeleteTask = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar esta tarea?')) {
+    showConfirm('Eliminar Tarea', '¿Estás seguro de eliminar esta tarea?', async () => {
       try {
         await deleteTask(id);
         setTasks(tasks.filter((t) => t.id !== id));
@@ -302,7 +318,8 @@ function App() {
         console.error('Error al eliminar tarea:', err);
         showToast('Error al eliminar la tarea', 'error');
       }
-    }
+      closeConfirm();
+    });
   };
 
   const handleUpdateTaskStatus = async (taskId, newStatus) => {
@@ -334,14 +351,17 @@ function App() {
   };
 
   const handleDeleteTemplate = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar esta plantilla del catálogo?')) {
+    showConfirm('Eliminar Plantilla', '¿Estás seguro de eliminar esta plantilla del catálogo?', async () => {
       try {
         await deleteTemplate(id);
         setTemplates(templates.filter((t) => t.id !== id));
+        showToast('Plantilla eliminada exitosamente', 'info');
       } catch (err) {
         console.error('Error al eliminar plantilla:', err);
+        showToast('Error al eliminar plantilla', 'error');
       }
-    }
+      closeConfirm();
+    });
   };
 
   const handleConfirmCreateProjectFromTemplate = async (template, clientId) => {
@@ -364,9 +384,10 @@ function App() {
       setProjects([created, ...projects]);
       setActiveDetailTemplate(null);
       setActiveTab('projects');
-      alert(`🚀 ¡Proyecto creado exitosamente para ${clientObj ? clientObj.name : 'el cliente'} basado en la plantilla "${template.title}"!`);
+      showToast(`🚀 ¡Proyecto creado exitosamente para ${clientObj ? clientObj.name : 'el cliente'} basado en la plantilla "${template.title}"!`, 'success');
     } catch (err) {
       console.error('Error al crear proyecto desde plantilla:', err);
+      showToast('Error al crear el proyecto desde plantilla', 'error');
     }
   };
 
@@ -414,113 +435,113 @@ function App() {
               />
             )}
 
-        {activeTab === 'developer' && (
-          <DeveloperWorkspace
-            tasks={tasks}
-            currentUser={currentUser}
-            onUpdateTaskStatus={handleUpdateTaskStatus}
-          />
-        )}
+            {activeTab === 'developer' && (
+              <DeveloperWorkspace
+                tasks={tasks}
+                currentUser={currentUser}
+                onUpdateTaskStatus={handleUpdateTaskStatus}
+              />
+            )}
 
-        {activeTab === 'personnel' && (
-          <PersonnelView
-            users={users}
-            currentUser={currentUser}
-            permissions={permissions}
-            onOpenAddModal={() => setShowEmployeeModal(true)}
-            onDeleteUser={handleDeleteUser}
-            onUpdateUser={handleUpdateUser}
-          />
-        )}
+            {activeTab === 'personnel' && (
+              <PersonnelView
+                users={users}
+                currentUser={currentUser}
+                permissions={permissions}
+                onOpenAddModal={() => setShowEmployeeModal(true)}
+                onDeleteUser={handleDeleteUser}
+                onUpdateUser={handleUpdateUser}
+              />
+            )}
 
-        {activeTab === 'organigrama' && <OrganigramaView users={users} />}
+            {activeTab === 'organigrama' && <OrganigramaView users={users} />}
 
-        {activeTab === 'templates' && (
-          <TemplatesView
-            templates={templates}
-            permissions={permissions}
-            onOpenAddTemplate={() => {
-              setEditingTemplate(null);
-              setShowTemplateModal(true);
-            }}
-            onOpenEditTemplate={(tmpl) => {
-              setEditingTemplate(tmpl);
-              setShowTemplateModal(true);
-            }}
-            onDeleteTemplate={handleDeleteTemplate}
-            onSelectTemplateForClient={(tmpl) => setActiveDetailTemplate(tmpl)}
-          />
-        )}
+            {activeTab === 'templates' && (
+              <TemplatesView
+                templates={templates}
+                permissions={permissions}
+                onOpenAddTemplate={() => {
+                  setEditingTemplate(null);
+                  setShowTemplateModal(true);
+                }}
+                onOpenEditTemplate={(tmpl) => {
+                  setEditingTemplate(tmpl);
+                  setShowTemplateModal(true);
+                }}
+                onDeleteTemplate={handleDeleteTemplate}
+                onSelectTemplateForClient={(tmpl) => setActiveDetailTemplate(tmpl)}
+              />
+            )}
 
-        {activeTab === 'clients' && (
-          <ClientsView
-            clients={clients}
-            permissions={permissions}
-            onOpenAddClient={() => {
-              setEditingClient(null);
-              setShowClientModal(true);
-            }}
-            onOpenEditClient={(client) => {
-              setEditingClient(client);
-              setShowClientModal(true);
-            }}
-            onDeleteClient={handleDeleteClient}
-            onLockAccess={() => {
-              setIsClientUnlocked(false);
-              setActiveTab('manager');
-            }}
-          />
-        )}
+            {activeTab === 'clients' && (
+              <ClientsView
+                clients={clients}
+                permissions={permissions}
+                onOpenAddClient={() => {
+                  setEditingClient(null);
+                  setShowClientModal(true);
+                }}
+                onOpenEditClient={(client) => {
+                  setEditingClient(client);
+                  setShowClientModal(true);
+                }}
+                onDeleteClient={handleDeleteClient}
+                onLockAccess={() => {
+                  setIsClientUnlocked(false);
+                  setActiveTab('manager');
+                }}
+              />
+            )}
 
-        {activeTab === 'projects' && (
-          <ProjectsView
-            projects={projects}
-            permissions={permissions}
-            onOpenAddProject={() => {
-              setEditingProject(null);
-              setShowProjectModal(true);
-            }}
-            onEditProject={(proj) => {
-              setEditingProject(proj);
-              setShowProjectModal(true);
-            }}
-            onDeleteProject={handleDeleteProject}
-          />
-        )}
+            {activeTab === 'projects' && (
+              <ProjectsView
+                projects={projects}
+                permissions={permissions}
+                onOpenAddProject={() => {
+                  setEditingProject(null);
+                  setShowProjectModal(true);
+                }}
+                onEditProject={(proj) => {
+                  setEditingProject(proj);
+                  setShowProjectModal(true);
+                }}
+                onDeleteProject={handleDeleteProject}
+              />
+            )}
 
-        {activeTab === 'tasks' && (
-          <TasksView
-            tasks={tasks}
-            users={users}
-            currentUser={currentUser}
-            permissions={permissions}
-            onUpdateTaskStatus={handleUpdateTaskStatus}
-            onOpenAddTask={() => {
-              setEditingTask(null);
-              setShowTaskModal(true);
-            }}
-            onEditTask={(task) => {
-              setEditingTask(task);
-              setShowTaskModal(true);
-            }}
-            onDeleteTask={handleDeleteTask}
-          />
-        )}
+            {activeTab === 'tasks' && (
+              <TasksView
+                tasks={tasks}
+                users={users}
+                currentUser={currentUser}
+                permissions={permissions}
+                onUpdateTaskStatus={handleUpdateTaskStatus}
+                onOpenAddTask={() => {
+                  setEditingTask(null);
+                  setShowTaskModal(true);
+                }}
+                onEditTask={(task) => {
+                  setEditingTask(task);
+                  setShowTaskModal(true);
+                }}
+                onDeleteTask={handleDeleteTask}
+              />
+            )}
 
-        {activeTab === 'roles' && (
-          canManageRoles ? (
-            <RolesMatrixView />
-          ) : (
-            <div className="glass-card animate-fade-in" style={{ padding: '40px', textAlign: 'center', margin: '40px auto', maxWidth: '540px' }}>
-              <h3 style={{ color: 'var(--rose)', fontSize: '1.25rem', marginBottom: '10px' }}>
-                🛑 Acceso Restringido
-              </h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                La Matriz de Roles y Permisos sólo está disponible para Administradores y Líderes encargados de asignar privilegios de seguridad.
-              </p>
-            </div>
-          )
-        )}
+            {activeTab === 'roles' && (
+              canManageRoles ? (
+                <RolesMatrixView />
+              ) : (
+                <div className="glass-card animate-fade-in" style={{ padding: '40px', textAlign: 'center', margin: '40px auto', maxWidth: '540px' }}>
+                  <h3 style={{ color: 'var(--rose)', fontSize: '1.25rem', marginBottom: '10px' }}>
+                    🛑 Acceso Restringido
+                  </h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    La Matriz de Roles y Permisos sólo está disponible para Administradores y Líderes encargados de asignar privilegios de seguridad.
+                  </p>
+                </div>
+              )
+            )}
           </>
         )}
       </main>
@@ -601,6 +622,15 @@ function App() {
           onClose={() => setShowChangePasswordModal(false)}
           onRequestCode={handleSendPasswordChangeCode}
           onSave={handleChangePassword}
+        />
+      )}
+
+      {confirmDialog && (
+        <ConfirmModal
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={closeConfirm}
         />
       )}
     </div>

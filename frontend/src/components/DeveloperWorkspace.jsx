@@ -1,27 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
+import { getTimeEntries, logTimeEntry } from '../services/api';
 
 export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskStatus }) {
   const { t, translatePos, translateDept } = useLanguage();
+  const { showToast } = useToast();
   const [workNote, setWorkNote] = useState('');
   const [loggedHours, setLoggedHours] = useState(4);
-  const [logHistory, setLogHistory] = useState([
-    { id: 1, text: 'Endpoints REST AuthController', hours: 4, time: '10:30 AM' },
-    { id: 2, text: 'Unit tests & code review', hours: 2, time: '02:15 PM' },
-  ]);
+  const [logHistory, setLogHistory] = useState([]);
+  const [selectedTask, setSelectedTask] = useState('');
 
   // Filtrar exclusivamente las tareas asignadas a este desarrollador
   const myTasks = tasks.filter((t) => String(t.assigned_to) === String(currentUser.id));
 
-  const handleAddLog = (e) => {
+  useEffect(() => {
+    loadTimeEntries();
+  }, [currentUser.id]);
+
+  const loadTimeEntries = async () => {
+    try {
+      const entries = await getTimeEntries(currentUser.id);
+      setLogHistory(entries);
+    } catch (err) {
+      console.error('Error cargando logs de horas:', err);
+    }
+  };
+
+  const handleAddLog = async (e) => {
     e.preventDefault();
     if (!workNote) return;
 
-    setLogHistory([
-      { id: Date.now(), text: workNote, hours: loggedHours, time: new Date().toLocaleTimeString() },
-      ...logHistory,
-    ]);
-    setWorkNote('');
+    try {
+      const data = {
+        description: workNote,
+        hours: loggedHours,
+        logged_at: new Date().toISOString().split('T')[0],
+        task_id: selectedTask || null,
+      };
+      const result = await logTimeEntry(data);
+      setLogHistory([result.entry, ...logHistory]);
+      setWorkNote('');
+      showToast('Horas registradas correctamente', 'success');
+    } catch (err) {
+      console.error('Error al registrar horas:', err);
+      showToast('Error al registrar horas', 'error');
+    }
   };
 
   return (
@@ -175,12 +199,24 @@ export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskSta
             </h4>
 
             <form onSubmit={handleAddLog} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <select
+                className="search-input"
+                style={{ paddingLeft: '10px', fontSize: '0.82rem' }}
+                value={selectedTask}
+                onChange={(e) => setSelectedTask(e.target.value)}
+              >
+                <option value="">Seleccionar Tarea (Opcional)</option>
+                {myTasks.map(t => (
+                  <option key={t.id} value={t.id}>{t.title}</option>
+                ))}
+              </select>
+
               <input
                 type="text"
                 required
                 className="search-input"
                 style={{ paddingLeft: '10px', fontSize: '0.82rem' }}
-                placeholder="..."
+                placeholder="¿En qué trabajaste?"
                 value={workNote}
                 onChange={(e) => setWorkNote(e.target.value)}
               />
@@ -188,7 +224,8 @@ export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskSta
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <input
                   type="number"
-                  min="1"
+                  min="0.5"
+                  step="0.5"
                   max="12"
                   className="search-input"
                   style={{ paddingLeft: '10px', width: '70px', fontSize: '0.82rem' }}
@@ -196,10 +233,29 @@ export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskSta
                   onChange={(e) => setLoggedHours(Number(e.target.value))}
                 />
                 <button type="submit" className="btn btn-secondary" style={{ flex: 1, fontSize: '0.78rem' }}>
-                  + Log
+                  + Registrar Horas
                 </button>
               </div>
             </form>
+
+            <div style={{ marginTop: '20px' }}>
+              <h5 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '10px' }}>Historial Reciente</h5>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                {logHistory.length === 0 ? (
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', textAlign: 'center' }}>Sin registros hoy</div>
+                ) : (
+                  logHistory.map(log => (
+                    <div key={log.id} style={{ background: 'rgba(255,255,255,0.03)', padding: '8px', borderRadius: '6px', fontSize: '0.78rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', marginBottom: '4px' }}>
+                        <span>{new Date(log.logged_at).toLocaleDateString()}</span>
+                        <span style={{ color: 'var(--cyan)' }}>{log.hours}h</span>
+                      </div>
+                      <div style={{ color: 'var(--text-main)' }}>{log.description}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
