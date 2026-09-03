@@ -281,14 +281,14 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
                           task.status === 'Completed'
                             ? 'rgba(16,185,129,0.2)'
                             : task.status === 'In Progress'
-                            ? 'rgba(6,182,212,0.2)'
-                            : 'rgba(245,158,11,0.2)',
+                              ? 'rgba(6,182,212,0.2)'
+                              : 'rgba(245,158,11,0.2)',
                         color:
                           task.status === 'Completed'
                             ? 'var(--emerald)'
                             : task.status === 'In Progress'
-                            ? 'var(--cyan)'
-                            : 'var(--amber)',
+                              ? 'var(--cyan)'
+                              : 'var(--amber)',
                       }}
                     >
                       ● {task.status === 'Completed' ? t('common.completed') : task.status === 'In Progress' ? t('common.inProgress') : t('common.pending')}
