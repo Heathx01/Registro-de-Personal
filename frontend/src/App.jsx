@@ -53,10 +53,13 @@ import { useToast } from './context/ToastContext';
 
 import './App.css';
 
+import LoadingSpinner from './components/LoadingSpinner';
+
 function App() {
   const { showToast } = useToast();
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState('manager');
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   const [users, setUsers] = useState([]);
   const [clients, setClients] = useState([]);
@@ -98,6 +101,7 @@ function App() {
   };
 
   const loadAllData = async () => {
+    setIsLoadingData(true);
     try {
       const usersData = await getUsers();
       const clientsData = await getClients();
@@ -112,6 +116,9 @@ function App() {
       if (Array.isArray(tasksData)) setTasks(tasksData);
     } catch (err) {
       console.error('Error cargando datos del sistema:', err);
+      showToast('Error cargando datos del backend', 'error');
+    } finally {
+      setIsLoadingData(false);
     }
   };
 
@@ -392,16 +399,20 @@ function App() {
       />
 
       <main className="main-content">
-        {activeTab === 'manager' && (
-          <ManagerDashboard
-            users={users}
-            projects={projects}
-            tasks={tasks}
-            currentUser={currentUser}
-            onUnlockUser={handleUnlockUser}
-            onAssignTask={handleSaveTask}
-          />
-        )}
+        {isLoadingData ? (
+          <LoadingSpinner message="Sincronizando información del servidor..." />
+        ) : (
+          <>
+            {activeTab === 'manager' && (
+              <ManagerDashboard
+                users={users}
+                projects={projects}
+                tasks={tasks}
+                currentUser={currentUser}
+                onUnlockUser={handleUnlockUser}
+                onAssignTask={handleSaveTask}
+              />
+            )}
 
         {activeTab === 'developer' && (
           <DeveloperWorkspace
@@ -509,6 +520,8 @@ function App() {
               </p>
             </div>
           )
+        )}
+          </>
         )}
       </main>
 

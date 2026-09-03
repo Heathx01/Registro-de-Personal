@@ -32,7 +32,16 @@ async function request(path, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw { responseStatus: response.status, ...data };
+    if (response.status === 401 && path !== '/login') {
+      setToken(null);
+    }
+    let errorMessage = data.message || `Error en el servidor (${response.status})`;
+    if (response.status === 422 && data.errors) {
+      errorMessage = Object.values(data.errors).flat().join(' ');
+    } else if (response.status === 403) {
+      errorMessage = data.message || 'No estás autorizado para realizar esta acción';
+    }
+    throw { responseStatus: response.status, message: errorMessage, ...data };
   }
 
   return data;

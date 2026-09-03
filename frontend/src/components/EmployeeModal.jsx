@@ -4,7 +4,7 @@ export default function EmployeeModal({ onClose, onSave }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: 'password123',
+    password: '',
     position: 'Junior Fullstack Engineer',
     department: 'Ingeniería de Software',
     role: 'developer',
