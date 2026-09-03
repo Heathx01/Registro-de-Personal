@@ -366,15 +366,14 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
-/* Responsive queries */
-@media (max-width: 900px) {
-  .navbar-inner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+/* Keyframe Animations & Mobile Utilities */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-  .demo-banner {
-    flex-direction: column;
-    align-items: flex-start;
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
   }
 }

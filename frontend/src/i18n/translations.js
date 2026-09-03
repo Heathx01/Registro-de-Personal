@@ -13,6 +13,10 @@ export const translations = {
       projects: 'Proyectos',
       tasks: 'Tareas (Kanban)',
       logout: 'Cerrar Sesión',
+      menu: 'Menú Navegación',
+      catManagement: 'Gestión & Analítica',
+      catHr: 'Recursos Humanos',
+      catProjects: 'Proyectos & Operaciones',
     },
     // Common Actions & Badges
     common: {
@@ -380,6 +384,10 @@ export const translations = {
       projects: 'Projects',
       tasks: 'Tasks (Kanban)',
       logout: 'Log Out',
+      menu: 'Navigation Menu',
+      catManagement: 'Management & Analytics',
+      catHr: 'Human Resources',
+      catProjects: 'Projects & Operations',
     },
     // Common Actions & Badges
     common: {
