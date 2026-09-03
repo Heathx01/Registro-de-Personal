@@ -24,9 +24,13 @@ class TaskController extends Controller
             $query->where('project_id', $request->project_id);
         }
 
-        $tasks = $query->latest()->get();
+        $query->latest();
 
-        return response()->json($tasks);
+        if ($request->has('per_page') || $request->has('page')) {
+            return response()->json($query->paginate($request->get('per_page', 15)));
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(Request $request)
@@ -49,6 +53,33 @@ class TaskController extends Controller
             'message' => 'Tarea asignada correctamente',
             'task' => $task
         ], 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $task = Task::find($id);
+
+        if (!$task) {
+            return response()->json(['message' => 'Tarea no encontrada'], 404);
+        }
+
+        $validated = $request->validate([
+            'project_id' => 'nullable|exists:projects,id',
+            'assigned_to' => 'nullable|exists:users,id',
+            'title' => 'sometimes|string|max:255',
+            'description' => 'nullable|string',
+            'priority' => 'sometimes|in:Low,Medium,High,Critical',
+            'status' => 'sometimes|in:Pending,In Progress,In Review,Completed',
+            'due_date' => 'nullable|date',
+        ]);
+
+        $task->update($validated);
+        $task->load(['project', 'assignee']);
+
+        return response()->json([
+            'message' => 'Tarea actualizada correctamente',
+            'task' => $task
+        ]);
     }
 
     public function updateStatus(Request $request, $id)

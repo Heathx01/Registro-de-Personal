@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function ProjectModal({ users, clients = [], onClose, onSave }) {
+export default function ProjectModal({ users, clients = [], editingProject = null, onClose, onSave }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -17,6 +17,28 @@ export default function ProjectModal({ users, clients = [], onClose, onSave }) {
     deadline: '2026-12-31',
   });
 
+  useEffect(() => {
+    if (editingProject) {
+      setFormData({
+        name: editingProject.name || '',
+        description: editingProject.description || '',
+        category: editingProject.category || 'Cloud SaaS Platform',
+        status: editingProject.status || 'Active',
+        client_id: editingProject.client_id || (clients[0]?.id || ''),
+        project_type: editingProject.project_type || 'Desarrollo Web',
+        budget: editingProject.budget || 0,
+        currency: editingProject.currency || 'USD',
+        billing_status: editingProject.billing_status || 'deposit_paid',
+        tech_stackText: Array.isArray(editingProject.tech_stack)
+          ? editingProject.tech_stack.join(', ')
+          : 'React, Node.js',
+        lead_id: editingProject.lead_id || (users[0]?.id || ''),
+        progress: editingProject.progress || 0,
+        deadline: editingProject.deadline || '2026-12-31',
+      });
+    }
+  }, [editingProject, clients, users]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const tech_stack = formData.tech_stackText.split(',').map((s) => s.trim()).filter(Boolean);
@@ -31,8 +53,12 @@ export default function ProjectModal({ users, clients = [], onClose, onSave }) {
       <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Crear Nuevo Proyecto de Software</h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Asignación técnica, líder de proyecto y vinculación comercial con cliente.</p>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>
+              {editingProject ? 'Editar Proyecto de Software' : 'Crear Nuevo Proyecto de Software'}
+            </h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              Asignación técnica, líder de proyecto y vinculación comercial con cliente.
+            </p>
           </div>
           <button className="btn btn-secondary" onClick={onClose}>
             ✕
@@ -184,7 +210,7 @@ export default function ProjectModal({ users, clients = [], onClose, onSave }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Avance Inicial (%)</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Avance (%)</label>
               <input
                 type="number"
                 min="0"
@@ -212,7 +238,7 @@ export default function ProjectModal({ users, clients = [], onClose, onSave }) {
               Cancelar
             </button>
             <button type="submit" className="btn btn-primary">
-              Crear Proyecto
+              {editingProject ? 'Guardar Cambios' : 'Crear Proyecto'}
             </button>
           </div>
         </form>

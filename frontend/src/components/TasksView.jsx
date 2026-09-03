@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 
-export default function TasksView({ tasks, users, currentUser, permissions, onUpdateTaskStatus, onOpenAddTask }) {
+export default function TasksView({
+  tasks,
+  users,
+  currentUser,
+  permissions,
+  onUpdateTaskStatus,
+  onOpenAddTask,
+  onEditTask,
+  onDeleteTask,
+}) {
   const [filterUser, setFilterUser] = useState('');
 
   const filteredTasks = tasks.filter((t) => (filterUser ? String(t.assigned_to) === String(filterUser) : true));
@@ -88,9 +97,33 @@ export default function TasksView({ tasks, users, currentUser, permissions, onUp
                       >
                         Prioridad: {task.priority}
                       </span>
+                      {permissions.can_assign_tasks && (
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          {onEditTask && (
+                            <button
+                              className="role-switch-btn"
+                              style={{ padding: '2px 5px', fontSize: '0.65rem' }}
+                              title="Editar Tarea"
+                              onClick={() => onEditTask(task)}
+                            >
+                              ✏️
+                            </button>
+                          )}
+                          {onDeleteTask && (
+                            <button
+                              className="role-switch-btn"
+                              style={{ padding: '2px 5px', fontSize: '0.65rem', background: 'rgba(244,63,94,0.2)', color: 'var(--rose)' }}
+                              title="Eliminar Tarea"
+                              onClick={() => onDeleteTask(task.id)}
+                            >
+                              🗑️
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    <h4 style={{ fontSize: '0.92rem', fontWeight: 700, lineHeight: 1.3 }}>{task.title}</h4>
+                    <h4 style={{ fontSize: '0.92rem', fontWeight: 700, lineHeight: 1.3, marginTop: '4px' }}>{task.title}</h4>
                     <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{task.description}</p>
 
                     {task.assignee && (

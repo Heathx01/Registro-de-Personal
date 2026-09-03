@@ -31,9 +31,13 @@ class UserController extends Controller
             $query->where('role', $request->role);
         }
 
-        $users = $query->withCount(['assignedTasks', 'ledProjects'])->latest()->get();
+        $query->withCount(['assignedTasks', 'ledProjects'])->latest();
 
-        return response()->json($users);
+        if ($request->has('per_page') || $request->has('page')) {
+            return response()->json($query->paginate($request->get('per_page', 15)));
+        }
+
+        return response()->json($query->get());
     }
 
     public function show($id)

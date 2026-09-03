@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function TaskModal({ users, projects, onClose, onSave }) {
+export default function TaskModal({ users, projects, editingTask = null, onClose, onSave }) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -8,8 +8,22 @@ export default function TaskModal({ users, projects, onClose, onSave }) {
     assigned_to: users[0]?.id || '',
     priority: 'High',
     status: 'Pending',
-    due_date: '2026-08-30',
+    due_date: '2026-12-31',
   });
+
+  useEffect(() => {
+    if (editingTask) {
+      setFormData({
+        title: editingTask.title || '',
+        description: editingTask.description || '',
+        project_id: editingTask.project_id || (projects[0]?.id || ''),
+        assigned_to: editingTask.assigned_to || (users[0]?.id || ''),
+        priority: editingTask.priority || 'High',
+        status: editingTask.status || 'Pending',
+        due_date: editingTask.due_date || '2026-12-31',
+      });
+    }
+  }, [editingTask, projects, users]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -20,7 +34,9 @@ export default function TaskModal({ users, projects, onClose, onSave }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Asignar Tarea Diaria al Personal</h3>
+          <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>
+            {editingTask ? 'Editar Tarea Asignada' : 'Asignar Tarea Diaria al Personal'}
+          </h3>
           <button className="btn btn-secondary" onClick={onClose}>
             ✕
           </button>
@@ -84,7 +100,7 @@ export default function TaskModal({ users, projects, onClose, onSave }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Nivel de Nivel Prioridad</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Nivel de Prioridad</label>
               <select
                 className="filter-select"
                 style={{ width: '100%' }}
@@ -114,7 +130,7 @@ export default function TaskModal({ users, projects, onClose, onSave }) {
               Cancelar
             </button>
             <button type="submit" className="btn btn-primary">
-              Asignar Tarea
+              {editingTask ? 'Guardar Cambios' : 'Asignar Tarea'}
             </button>
           </div>
         </form>

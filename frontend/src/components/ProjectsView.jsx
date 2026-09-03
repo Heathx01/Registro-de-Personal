@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 
-export default function ProjectsView({ projects, permissions, onOpenAddProject }) {
+export default function ProjectsView({
+  projects,
+  permissions,
+  onOpenAddProject,
+  onEditProject,
+  onDeleteProject,
+}) {
   const [filterStatus, setFilterStatus] = useState('');
 
   const filteredProjects = projects.filter((p) => (filterStatus ? p.status === filterStatus : true));
@@ -56,7 +62,33 @@ export default function ProjectsView({ projects, permissions, onOpenAddProject }
                   <span className="badge badge-cyan">🏢 {project.client.name}</span>
                 )}
               </div>
-              <span className="badge badge-active">● {project.status}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="badge badge-active">● {project.status}</span>
+                {permissions.can_manage_projects && (
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {onEditProject && (
+                      <button
+                        className="role-switch-btn"
+                        style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                        title="Editar Proyecto"
+                        onClick={() => onEditProject(project)}
+                      >
+                        ✏️
+                      </button>
+                    )}
+                    {permissions.can_delete_records && onDeleteProject && (
+                      <button
+                        className="role-switch-btn"
+                        style={{ padding: '4px 8px', fontSize: '0.75rem', background: 'rgba(244,63,94,0.2)', color: 'var(--rose)' }}
+                        title="Eliminar Proyecto"
+                        onClick={() => onDeleteProject(project.id)}
+                      >
+                        🗑️
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>

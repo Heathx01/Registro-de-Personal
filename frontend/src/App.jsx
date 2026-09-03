@@ -37,18 +37,24 @@ import {
   deleteTemplate,
   getProjects,
   createProject,
+  updateProject,
+  deleteProject,
   getTasks,
   createTask,
+  updateTask,
   updateTaskStatus,
+  deleteTask,
   getPermissionsForRole,
   getMe,
   getToken,
   logout as apiLogout,
 } from './services/api';
+import { useToast } from './context/ToastContext';
 
 import './App.css';
 
 function App() {
+  const { showToast } = useToast();
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState('manager');
 
@@ -60,6 +66,7 @@ function App() {
 
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
   const [showClientModal, setShowClientModal] = useState(false);
   const [showClientAuthModal, setShowClientAuthModal] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -69,6 +76,7 @@ function App() {
   const [isClientUnlocked, setIsClientUnlocked] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
 
   useEffect(() => {
     loadAllData();
@@ -213,36 +221,80 @@ function App() {
 
   const handleSaveProject = async (newProjData) => {
     try {
-      const result = await createProject(newProjData);
-      const created = result.project || { id: Date.now(), ...newProjData };
+      if (editingProject) {
+        await updateProject(editingProject.id, newProjData);
+        setProjects(projects.map((p) => (p.id === editingProject.id ? { ...p, ...newProjData } : p)));
+        showToast('Proyecto actualizado exitosamente', 'success');
+      } else {
+        const result = await createProject(newProjData);
+        const created = result.project || { id: Date.now(), ...newProjData };
 
-      const leadUser = users.find((u) => String(u.id) === String(created.lead_id));
-      const clientObj = clients.find((c) => String(c.id) === String(created.client_id));
-      created.lead = leadUser;
-      created.client = clientObj;
+        const leadUser = users.find((u) => String(u.id) === String(created.lead_id));
+        const clientObj = clients.find((c) => String(c.id) === String(created.client_id));
+        created.lead = leadUser;
+        created.client = clientObj;
 
-      setProjects([created, ...projects]);
+        setProjects([created, ...projects]);
+        showToast('Proyecto creado exitosamente', 'success');
+      }
       setShowProjectModal(false);
-      loadAllData(); // Recargar relaciones cliente-proyecto
+      setEditingProject(null);
+      loadAllData();
     } catch (err) {
-      console.error('Error al crear proyecto:', err);
+      console.error('Error al guardar proyecto:', err);
+      showToast('Error al guardar el proyecto', 'error');
+    }
+  };
+
+  const handleDeleteProject = async (id) => {
+    if (window.confirm('¿Estás seguro de eliminar este proyecto?')) {
+      try {
+        await deleteProject(id);
+        setProjects(projects.filter((p) => p.id !== id));
+        showToast('Proyecto eliminado', 'info');
+      } catch (err) {
+        console.error('Error al eliminar proyecto:', err);
+        showToast('Error al eliminar el proyecto', 'error');
+      }
     }
   };
 
   const handleSaveTask = async (newTaskData) => {
     try {
-      const result = await createTask(newTaskData);
-      const created = result.task || { id: Date.now(), ...newTaskData };
+      if (editingTask) {
+        await updateTask(editingTask.id, newTaskData);
+        setTasks(tasks.map((t) => (t.id === editingTask.id ? { ...t, ...newTaskData } : t)));
+        showToast('Tarea actualizada exitosamente', 'success');
+      } else {
+        const result = await createTask(newTaskData);
+        const created = result.task || { id: Date.now(), ...newTaskData };
 
-      const assigneeUser = users.find((u) => String(u.id) === String(created.assigned_to));
-      const projectObj = projects.find((p) => String(p.id) === String(created.project_id));
-      created.assignee = assigneeUser;
-      created.project = projectObj;
+        const assigneeUser = users.find((u) => String(u.id) === String(created.assigned_to));
+        const projectObj = projects.find((p) => String(p.id) === String(created.project_id));
+        created.assignee = assigneeUser;
+        created.project = projectObj;
 
-      setTasks([created, ...tasks]);
+        setTasks([created, ...tasks]);
+        showToast('Tarea asignada exitosamente', 'success');
+      }
       setShowTaskModal(false);
+      setEditingTask(null);
     } catch (err) {
-      console.error('Error al asignar tarea:', err);
+      console.error('Error al guardar tarea:', err);
+      showToast('Error al guardar la tarea', 'error');
+    }
+  };
+
+  const handleDeleteTask = async (id) => {
+    if (window.confirm('¿Estás seguro de eliminar esta tarea?')) {
+      try {
+        await deleteTask(id);
+        setTasks(tasks.filter((t) => t.id !== id));
+        showToast('Tarea eliminada', 'info');
+      } catch (err) {
+        console.error('Error al eliminar tarea:', err);
+        showToast('Error al eliminar la tarea', 'error');
+      }
     }
   };
 
@@ -250,8 +302,10 @@ function App() {
     try {
       await updateTaskStatus(taskId, newStatus);
       setTasks(tasks.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)));
+      showToast(`Estado cambiado a ${newStatus}`, 'info');
     } catch (err) {
       console.error('Error al actualizar estado de la tarea:', err);
+      showToast('Error al actualizar estado', 'error');
     }
   };
 
@@ -411,7 +465,15 @@ function App() {
           <ProjectsView
             projects={projects}
             permissions={permissions}
-            onOpenAddProject={() => setShowProjectModal(true)}
+            onOpenAddProject={() => {
+              setEditingProject(null);
+              setShowProjectModal(true);
+            }}
+            onEditProject={(proj) => {
+              setEditingProject(proj);
+              setShowProjectModal(true);
+            }}
+            onDeleteProject={handleDeleteProject}
           />
         )}
 
@@ -422,7 +484,15 @@ function App() {
             currentUser={currentUser}
             permissions={permissions}
             onUpdateTaskStatus={handleUpdateTaskStatus}
-            onOpenAddTask={() => setShowTaskModal(true)}
+            onOpenAddTask={() => {
+              setEditingTask(null);
+              setShowTaskModal(true);
+            }}
+            onEditTask={(task) => {
+              setEditingTask(task);
+              setShowTaskModal(true);
+            }}
+            onDeleteTask={handleDeleteTask}
           />
         )}
 
@@ -490,7 +560,11 @@ function App() {
         <ProjectModal
           users={users}
           clients={clients}
-          onClose={() => setShowProjectModal(false)}
+          editingProject={editingProject}
+          onClose={() => {
+            setShowProjectModal(false);
+            setEditingProject(null);
+          }}
           onSave={handleSaveProject}
         />
       )}
@@ -499,7 +573,11 @@ function App() {
         <TaskModal
           users={users}
           projects={projects}
-          onClose={() => setShowTaskModal(false)}
+          editingTask={editingTask}
+          onClose={() => {
+            setShowTaskModal(false);
+            setEditingTask(null);
+          }}
           onSave={handleSaveTask}
         />
       )}

@@ -8,10 +8,15 @@ use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $projects = Project::with(['lead', 'client', 'tasks.assignee'])->latest()->get();
-        return response()->json($projects);
+        $query = Project::with(['lead', 'client', 'tasks.assignee'])->latest();
+
+        if ($request->has('per_page') || $request->has('page')) {
+            return response()->json($query->paginate($request->get('per_page', 15)));
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(Request $request)

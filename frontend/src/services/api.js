@@ -167,6 +167,13 @@ export function createTask(taskData) {
   });
 }
 
+export function updateTask(id, taskData) {
+  return request(`/tasks/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(taskData),
+  });
+}
+
 export function updateTaskStatus(id, status) {
   return request(`/tasks/${id}/status`, {
     method: 'PATCH',

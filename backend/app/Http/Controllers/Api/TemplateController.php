@@ -8,10 +8,15 @@ use Illuminate\Http\Request;
 
 class TemplateController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $templates = Template::where('status', 'active')->latest()->get();
-        return response()->json($templates);
+        $query = Template::where('status', 'active')->latest();
+
+        if ($request->has('per_page') || $request->has('page')) {
+            return response()->json($query->paginate($request->get('per_page', 15)));
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(Request $request)
