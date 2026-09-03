@@ -41,6 +41,9 @@ import {
   createTask,
   updateTaskStatus,
   getPermissionsForRole,
+  getMe,
+  getToken,
+  logout as apiLogout,
 } from './services/api';
 
 import './App.css';
@@ -69,7 +72,22 @@ function App() {
 
   useEffect(() => {
     loadAllData();
+    checkSession();
   }, []);
+
+  const checkSession = async () => {
+    if (getToken()) {
+      try {
+        const response = await getMe();
+        if (response.user) {
+          handleLoginSuccess(response.user);
+        }
+      } catch (err) {
+        console.error('Session expired or invalid', err);
+        apiLogout();
+      }
+    }
+  };
 
   const loadAllData = async () => {
     try {
@@ -79,11 +97,11 @@ function App() {
       const projectsData = await getProjects();
       const tasksData = await getTasks();
 
-      if (Array.isArray(usersData) && usersData.length > 0) setUsers(usersData);
-      if (Array.isArray(clientsData) && clientsData.length > 0) setClients(clientsData);
-      if (Array.isArray(templatesData) && templatesData.length > 0) setTemplates(templatesData);
-      if (Array.isArray(projectsData) && projectsData.length > 0) setProjects(projectsData);
-      if (Array.isArray(tasksData) && tasksData.length > 0) setTasks(tasksData);
+      if (Array.isArray(usersData)) setUsers(usersData);
+      if (Array.isArray(clientsData)) setClients(clientsData);
+      if (Array.isArray(templatesData)) setTemplates(templatesData);
+      if (Array.isArray(projectsData)) setProjects(projectsData);
+      if (Array.isArray(tasksData)) setTasks(tasksData);
     } catch (err) {
       console.error('Error cargando datos del sistema:', err);
     }
@@ -113,6 +131,7 @@ function App() {
   };
 
   const handleLogout = () => {
+    apiLogout();
     setCurrentUser(null);
     setIsClientUnlocked(false);
   };

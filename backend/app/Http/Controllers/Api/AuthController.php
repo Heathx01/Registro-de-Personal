@@ -62,7 +62,7 @@ class AuthController extends Controller
                 'is_locked' => false,
             ],
             'permissions' => $permissions,
-            'token' => 'bearer_token_sec_' . $user->id . '_' . time()
+            'token' => $user->createToken('auth_token')->plainTextToken
         ], 201);
     }
 
@@ -143,7 +143,7 @@ class AuthController extends Controller
                 'is_locked' => false,
             ],
             'permissions' => $permissions,
-            'token' => 'bearer_token_sec_' . $user->id . '_' . time()
+            'token' => $user->createToken('auth_token')->plainTextToken
         ]);
     }
 
@@ -169,12 +169,7 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        $userId = $request->header('X-User-Id');
-        if (!$userId) {
-            return response()->json(['message' => 'No autenticado'], 401);
-        }
-
-        $user = User::find($userId);
+        $user = $request->user();
         if (!$user) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
         }
@@ -308,7 +303,7 @@ class AuthController extends Controller
         }
 
         if ($request->has('current_password') && !empty($request->current_password)) {
-            if (!Hash::check($request->current_password, $user->password) && $request->current_password !== 'password123' && $request->current_password !== 'admin123') {
+            if (!Hash::check($request->current_password, $user->password)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => '🔒 La contraseña actual ingresada es incorrecta.',

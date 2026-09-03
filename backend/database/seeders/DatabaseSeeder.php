@@ -136,5 +136,51 @@ class DatabaseSeeder extends Seeder
                 'due_date' => '2026-08-30',
             ]
         );
+
+        // 5. Catálogo de Plantillas Iniciales
+        \App\Models\Template::updateOrCreate(
+            ['title' => 'Portal E-Commerce Omni-channel'],
+            [
+                'category' => 'E-Commerce',
+                'description' => 'Plataforma completa de comercio electrónico con pasarela de pagos integrada, catálogo interactivo de productos, control de inventario y panel administrativo.',
+                'features' => ['Pasarela de Pagos Stripe/PayPal', 'Catálogo con Filtros Avanzados', 'Panel de Inventario y Pedidos', 'Notificaciones por Email/WhatsApp', 'Diseño Responsive Mobile-First'],
+                'tech_stack' => ['React', 'Laravel API', 'MySQL', 'Tailwind CSS'],
+                'estimated_delivery' => '2 a 3 semanas',
+                'image_url' => 'https://images.unsplash.com/photo-1556742049-0a67daf64f42?w=800&auto=format&fit=crop&q=80',
+                'demo_url' => 'https://demo.devstudio.com/ecommerce',
+                'suggested_price' => 3500.00,
+                'status' => 'active',
+            ]
+        );
+
+        \App\Models\Template::updateOrCreate(
+            ['title' => 'Dashboard ERP & CRM Financiero'],
+            [
+                'category' => 'ERP / CRM',
+                'description' => 'Sistema de gestión de recursos empresariales y relaciones con clientes, métricas en tiempo real, cotizador dinámico y módulos contables.',
+                'features' => ['Gestión de Clientes y Leads', 'Facturación y Cotizaciones', 'Métricas y Gráficos Financieros', 'Roles y Permisos Granulares', 'Exportación a PDF y Excel'],
+                'tech_stack' => ['React', 'Laravel REST API', 'Chart.js', 'PostgreSQL'],
+                'estimated_delivery' => '3 a 4 semanas',
+                'image_url' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80',
+                'demo_url' => 'https://demo.devstudio.com/erp',
+                'suggested_price' => 4800.00,
+                'status' => 'active',
+            ]
+        );
+
+        \App\Models\Template::updateOrCreate(
+            ['title' => 'App Móvil de Citas y Reservas en Línea'],
+            [
+                'category' => 'Mobile App',
+                'description' => 'Aplicación multiplataforma para reserva de citas, gestión de agenda en tiempo real, recordatorios push y pagos en línea.',
+                'features' => ['Agenda Dinámica e Interactiva', 'Notificaciones Push Móviles', 'Recordatorios por SMS/Email', 'Perfiles de Especialistas', 'Integración con MercadoPago'],
+                'tech_stack' => ['React Native / Flutter', 'Node.js', 'Firebase', 'MongoDB'],
+                'estimated_delivery' => '3 semanas',
+                'image_url' => 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&auto=format&fit=crop&q=80',
+                'demo_url' => 'https://demo.devstudio.com/booking',
+                'suggested_price' => 2900.00,
+                'status' => 'active',
+            ]
+        );
     }
 }

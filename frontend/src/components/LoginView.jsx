@@ -6,11 +6,11 @@ export default function LoginView({ onLoginSuccess }) {
   const [isResetMode, setIsResetMode] = useState(false);
 
   // Campos de Login
-  const [loginEmail, setLoginEmail] = useState('admin@devstudio.com');
-  const [loginPassword, setLoginPassword] = useState('admin123');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
   // Campos para Cambio / Reestablecimiento de Contraseña
-  const [resetEmail, setResetEmail] = useState('admin@devstudio.com');
+  const [resetEmail, setResetEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
