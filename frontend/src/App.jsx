@@ -156,7 +156,14 @@ function App() {
       setShowClientAuthModal(true);
       return;
     }
-    setActiveTab(tab);
+    if (tab === activeTab) return;
+    if (typeof document !== 'undefined' && document.startViewTransition) {
+      document.startViewTransition(() => {
+        setActiveTab(tab);
+      });
+    } else {
+      setActiveTab(tab);
+    }
   };
 
   const handleClientAuthSuccess = () => {
@@ -436,7 +443,7 @@ function App() {
         {isLoadingData ? (
           <LoadingSpinner message="Sincronizando información del servidor..." />
         ) : (
-          <>
+          <div key={activeTab} className="view-container animate-view-enter">
             {activeTab === 'manager' && (
               canManageRoles ? (
                 <ManagerDashboard
@@ -611,7 +618,7 @@ function App() {
                 </div>
               )
             )}
-          </>
+          </div>
         )}
       </main>
 
