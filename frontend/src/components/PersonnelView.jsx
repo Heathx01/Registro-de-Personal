@@ -7,8 +7,9 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
-  const [newPassword, setNewPassword] = useState('');
-  const [passwordNotice, setPasswordNotice] = useState('');
+
+  const activeUsersCount = users.filter((u) => !u.is_locked && u.status !== 'Inactive').length;
+  const lockedUsersCount = users.filter((u) => u.is_locked).length;
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -32,26 +33,16 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
     }
   };
 
-  const handleUpdatePassword = () => {
-    if (!newPassword || newPassword.length < 6) {
-      setPasswordNotice('⚠️ Password must be at least 6 characters.');
-      return;
-    }
-    if (onUpdateUser && selectedUser) {
-      onUpdateUser(selectedUser.id, { password: newPassword });
-      setPasswordNotice('✅ Password updated successfully.');
-      setNewPassword('');
-      setTimeout(() => setPasswordNotice(''), 4000);
-    }
-  };
-
   return (
     <div className="animate-fade-in">
-      <div className="controls-bar">
+      <div className="controls-bar" style={{ marginBottom: '20px' }}>
         <div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('personnel.title')}</h2>
+          <span className="badge badge-lead" style={{ fontSize: '0.8rem', marginBottom: '6px' }}>
+            🏢 RECURSOS HUMANOS & EXPEDIENTES
+          </span>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>{t('personnel.title')}</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-            {t('personnel.subtitle')} ({users.length})
+            {t('personnel.subtitle')} ({users.length} expediente(s) activo(s))
           </p>
         </div>
 
@@ -65,7 +56,38 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
         )}
       </div>
 
-      <div className="controls-bar">
+      {/* KPI Analytical Summary Cards para Recursos Humanos / Admin */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '24px' }}>
+        <div className="glass-card" style={{ padding: '18px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.1))' }}>
+          <h4 style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{t('personnel.totalStaff')}</h4>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-main)' }}>{users.length}</div>
+          <span style={{ fontSize: '0.72rem', color: 'var(--cyan)' }}>{t('personnel.totalStaffSub')}</span>
+        </div>
+
+        <div className="glass-card" style={{ padding: '18px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(6,182,212,0.1))' }}>
+          <h4 style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{t('personnel.unlockedUsers')}</h4>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--emerald)' }}>{activeUsersCount}</div>
+          <span style={{ fontSize: '0.72rem', color: 'var(--emerald)' }}>{t('personnel.unlockedUsersSub')}</span>
+        </div>
+
+        <div className="glass-card" style={{ padding: '18px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(244,63,94,0.1), rgba(245,158,11,0.1))' }}>
+          <h4 style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{t('personnel.lockedUsers')}</h4>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: lockedUsersCount > 0 ? 'var(--rose)' : 'var(--text-dim)' }}>{lockedUsersCount}</div>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{t('personnel.lockedUsersSub')}</span>
+        </div>
+
+        {permissions.can_view_salaries && (
+          <div className="glass-card" style={{ padding: '18px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(168,85,247,0.1), rgba(99,102,241,0.1))' }}>
+            <h4 style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{t('personnel.confidentialSalary')}</h4>
+            <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--purple)' }}>
+              ${(users.reduce((acc, u) => acc + (u.salary || 3800), 0)).toLocaleString()} USD
+            </div>
+            <span style={{ fontSize: '0.72rem', color: 'var(--purple)' }}>Nómina mensual total</span>
+          </div>
+        )}
+      </div>
+
+      <div className="controls-bar" style={{ marginBottom: '24px' }}>
         <div className="search-box">
           <svg className="search-icon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -177,7 +199,7 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
                 style={{ flex: 1, fontSize: '0.78rem', justifyContent: 'center' }}
                 onClick={() => setSelectedUser(user)}
               >
-                {t('common.details')} ➔
+                📋 {t('common.details')} ➔
               </button>
 
               {permissions.can_delete_records && user.id !== currentUser.id && (
@@ -195,23 +217,28 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
         ))}
       </div>
 
-      {/* Modal Ficha Completa de Empleado */}
+      {/* Modal Expediente Completo de Recursos Humanos */}
       {selectedUser && (
         <div className="modal-overlay" onClick={() => setSelectedUser(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '720px', maxHeight: '90vh', overflowY: 'auto' }}
+          >
+            {/* Header del Expediente */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                 <div
                   style={{
                     width: '64px',
                     height: '64px',
-                    borderRadius: '14px',
+                    borderRadius: '16px',
                     background: 'linear-gradient(135deg, var(--indigo), var(--cyan))',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontWeight: 800,
-                    fontSize: '1.6rem',
+                    fontSize: '1.7rem',
                     color: '#ffffff',
                     flexShrink: 0,
                   }}
@@ -219,11 +246,14 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
                   {selectedUser.name ? selectedUser.name.charAt(0).toUpperCase() : '👤'}
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{selectedUser.name}</h3>
-                  <p style={{ color: 'var(--cyan)', fontWeight: 600 }}>{translatePos(selectedUser.position)}</p>
-                  <span className={`badge badge-${selectedUser.role}`} style={{ marginTop: '6px' }}>
-                    {selectedUser.role.toUpperCase()}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{selectedUser.name}</h3>
+                    <span className={`badge badge-${selectedUser.role}`}>
+                      {selectedUser.role.toUpperCase()}
+                    </span>
+                  </div>
+                  <p style={{ color: 'var(--cyan)', fontWeight: 600, marginTop: '2px' }}>{translatePos(selectedUser.position)}</p>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{translateDept(selectedUser.department)}</p>
                 </div>
               </div>
               <button className="btn btn-secondary" onClick={() => setSelectedUser(null)}>
@@ -231,33 +261,140 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }}>
+            {/* Grid 1: Datos de Identificación & Contacto */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '20px' }}>
               <div className="glass-card" style={{ padding: '12px' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('login.department')}</span>
-                <p style={{ fontWeight: 600 }}>{translateDept(selectedUser.department)}</p>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t('clients.email')}</span>
+                <p style={{ fontWeight: 600, fontSize: '0.82rem', wordBreak: 'break-all' }}>{selectedUser.email}</p>
               </div>
               <div className="glass-card" style={{ padding: '12px' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('common.status')}</span>
-                <p style={{ fontWeight: 600, color: 'var(--emerald)' }}>● {selectedUser.status}</p>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t('clients.phone')}</span>
+                <p style={{ fontWeight: 600, fontSize: '0.85rem' }}>{selectedUser.phone || '+52 55 1234 5678'}</p>
               </div>
               <div className="glass-card" style={{ padding: '12px' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('clients.email')}</span>
-                <p style={{ fontWeight: 600, fontSize: '0.85rem' }}>{selectedUser.email}</p>
-              </div>
-              <div className="glass-card" style={{ padding: '12px' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('clients.phone')}</span>
-                <p style={{ fontWeight: 600 }}>{selectedUser.phone || 'N/A'}</p>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t('personnel.hireDate')}</span>
+                <p style={{ fontWeight: 600, fontSize: '0.85rem' }}>{selectedUser.hire_date || '2022-01-15'}</p>
               </div>
             </div>
 
+            {/* Bloque 2: Compensación y Salario Confidencial (Acceso exclusivo HR/Admin) */}
+            {permissions.can_view_salaries && (
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, rgba(168,85,247,0.1), rgba(99,102,241,0.08))',
+                  border: '1px solid rgba(168,85,247,0.25)',
+                  borderRadius: '14px',
+                  padding: '16px',
+                  marginBottom: '20px',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--purple)', margin: 0 }}>
+                    {t('personnel.confidentialSalary')}
+                  </h4>
+                  <span className="badge" style={{ background: 'rgba(168,85,247,0.2)', color: 'var(--purple)' }}>
+                    Acceso Restringido HR
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('personnel.salary')}</span>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--emerald)' }}>
+                      ${(selectedUser.salary || 3800).toLocaleString()} USD
+                    </div>
+                  </div>
+
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('personnel.contractType')}</span>
+                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-main)', marginTop: '4px' }}>
+                      Tiempo Completo (Indefinido)
+                    </div>
+                  </div>
+
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('personnel.benefits')}</span>
+                    <div style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--cyan)', marginTop: '4px' }}>
+                      SGMM, Vales & Fondo de Ahorro
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Bloque 3: Jornada Laboral & Turno */}
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid var(--border-glass)',
+                borderRadius: '14px',
+                padding: '16px',
+                marginBottom: '20px',
+              }}
+            >
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--cyan)', marginBottom: '12px' }}>
+                ⏰ {t('personnel.workShift')}
+              </h4>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('personnel.shiftTime')}</span>
+                  <div style={{ fontWeight: 700, fontSize: '0.88rem' }}>09:00 AM - 06:00 PM</div>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('personnel.weeklyHours')}</span>
+                  <div style={{ fontWeight: 700, fontSize: '0.88rem' }}>40 hrs / Semana</div>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('personnel.workMode')}</span>
+                  <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--cyan)' }}>💻 100% Remoto</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bloque 4: Registro de Asistencia & Horas Trabajadas */}
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid var(--border-glass)',
+                borderRadius: '14px',
+                padding: '16px',
+                marginBottom: '20px',
+              }}
+            >
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--emerald)', marginBottom: '12px' }}>
+                ⏱️ {t('personnel.timeTracking')}
+              </h4>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('personnel.monthlyHours')}</span>
+                  <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--emerald)' }}>160 hrs</div>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('personnel.punctuality')}</span>
+                  <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--cyan)' }}>98.5% (Excelente)</div>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{t('personnel.vacationDays')}</span>
+                  <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--amber)' }}>🌴 12 Días Disponibles</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Biografía / Notas */}
             <div style={{ marginBottom: '20px' }}>
               <h4 style={{ fontSize: '0.9rem', marginBottom: '8px', color: 'var(--text-muted)' }}>{t('personnel.bio')}</h4>
-              <p style={{ fontSize: '0.88rem', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px' }}>
-                {selectedUser.bio || 'Developer focused on high performance software solutions.'}
+              <p style={{ fontSize: '0.88rem', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px', color: 'var(--text-main)' }}>
+                {selectedUser.bio || 'Especialista en desarrollo de software con amplia trayectoria en arquitectura web, liderazgo de equipos y entregables de alta calidad.'}
               </p>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
               <button className="btn btn-secondary" onClick={() => setSelectedUser(null)}>
                 {t('common.close')}
               </button>

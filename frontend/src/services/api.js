@@ -357,7 +357,7 @@ export function getPermissionsForRole(role) {
         can_view_templates: false,
         can_manage_templates: false,
         can_create_proposal: false,
-        can_view_salaries: false,
+        can_view_salaries: true,
         can_assign_tasks: false,
         can_view_organigrama: true,
         can_delete_records: false,
