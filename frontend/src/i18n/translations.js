@@ -369,6 +369,19 @@ export const translations = {
       submitBtn: '🔒 Actualizar Contraseña',
       securityHint: '💡 Consejo de Seguridad: No compartas tu clave privada. Los administradores nunca te solicitarán tu contraseña.',
     },
+    // Centro de Notificaciones
+    notifications: {
+      title: 'Centro de Notificaciones',
+      unreadBadge: 'sin leer',
+      markAllRead: 'Marcar leídas',
+      clearAll: 'Limpiar',
+      tabAll: 'Todas',
+      tabUnread: 'No leídas',
+      tabSystem: 'Sistema',
+      empty: 'No tienes notificaciones en este momento.',
+      emptyUnread: 'No tienes notificaciones sin leer.',
+      systemSync: 'Sincronizado con DevStudio Cloud',
+    },
   },
   en: {
     // Navigation
@@ -739,6 +752,19 @@ export const translations = {
       changeSuccess: '✅ Your password has been updated successfully. Use your new password on your next login.',
       submitBtn: '🔒 Update Password',
       securityHint: '💡 Security Tip: Never share your private password. Admins will never ask for your password.',
+    },
+    // Notification Center
+    notifications: {
+      title: 'Notifications Center',
+      unreadBadge: 'unread',
+      markAllRead: 'Mark read',
+      clearAll: 'Clear all',
+      tabAll: 'All',
+      tabUnread: 'Unread',
+      tabSystem: 'System',
+      empty: 'You have no notifications right now.',
+      emptyUnread: 'You have no unread notifications.',
+      systemSync: 'Synced with DevStudio Cloud',
     },
   },
 };

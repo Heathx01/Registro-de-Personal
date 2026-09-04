@@ -1,9 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import NotificationDropdown from './NotificationDropdown';
 
 export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout, onOpenChangePassword }) {
   const { language, toggleLanguage, t, translatePos } = useLanguage();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(3);
+
+  const storageKey = `devstudio_notifications_${currentUser?.id || 'guest'}`;
+
+  useEffect(() => {
+    const checkUnread = () => {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          const list = JSON.parse(saved);
+          const count = list.filter((n) => !n.read).length;
+          setUnreadCount(count);
+        } else {
+          setUnreadCount(3);
+        }
+      } catch {
+        setUnreadCount(0);
+      }
+    };
+    checkUnread();
+    const interval = setInterval(checkUnread, 1000);
+    return () => clearInterval(interval);
+  }, [storageKey, isNotificationOpen]);
 
   const canManageRoles = ['admin', 'lead', 'hr'].includes(currentUser?.role);
   const isDev = currentUser?.role === 'developer' || currentUser?.role === 'qa';
@@ -141,29 +166,54 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
               <span style={{ opacity: language === 'en' ? 1 : 0.4 }}>🇺🇸 EN</span>
             </button>
 
-            {/* Notification Bell */}
-            <div
-              style={{
-                position: 'relative',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '6px',
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid var(--border-glass)',
-              }}
-              title="Notificaciones"
-            >
-              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-              <span style={{
-                position: 'absolute', top: '-2px', right: '-2px', background: 'var(--rose)', color: 'white',
-                fontSize: '0.58rem', fontWeight: 'bold', padding: '2px 5px', borderRadius: '10px'
-              }}>
-                3
-              </span>
+            {/* Notification Bell & Dropdown */}
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                style={{
+                  position: 'relative',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '7px',
+                  borderRadius: '50%',
+                  background: isNotificationOpen ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255,255,255,0.04)',
+                  border: isNotificationOpen ? '1px solid var(--cyan)' : '1px solid var(--border-glass)',
+                  color: isNotificationOpen ? 'var(--cyan)' : 'var(--text-main)',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isNotificationOpen ? '0 0 12px rgba(6, 182, 212, 0.3)' : 'none',
+                }}
+                title={t('notifications.title') || 'Notificaciones'}
+              >
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {unreadCount > 0 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '-2px',
+                      right: '-2px',
+                      background: 'linear-gradient(135deg, var(--rose), #e11d48)',
+                      color: 'white',
+                      fontSize: '0.58rem',
+                      fontWeight: 'bold',
+                      padding: '2px 5px',
+                      borderRadius: '10px',
+                      boxShadow: '0 0 8px rgba(244, 63, 94, 0.6)',
+                    }}
+                  >
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              <NotificationDropdown
+                currentUser={currentUser}
+                isOpen={isNotificationOpen}
+                onClose={() => setIsNotificationOpen(false)}
+                setActiveTab={setActiveTab}
+              />
             </div>
 
             {/* User Avatar & Details */}
