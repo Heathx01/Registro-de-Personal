@@ -19,6 +19,10 @@ import TemplateDetailModal from './components/TemplateDetailModal';
 import ChangePasswordModal from './components/ChangePasswordModal';
 import TaskModal from './components/TaskModal';
 import ConfirmModal from './components/ConfirmModal';
+import ScrollProgressBar from './components/ScrollProgressBar';
+import ScrollToTop from './components/ScrollToTop';
+import { useScrollReveal } from './hooks/useScrollReveal';
+import { useSpotlight } from './hooks/useSpotlight';
 
 import {
   getUsers,
@@ -58,6 +62,8 @@ import LoadingSpinner from './components/LoadingSpinner';
 
 function App() {
   const { showToast } = useToast();
+  useScrollReveal();
+  useSpotlight();
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState('manager');
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -417,6 +423,7 @@ function App() {
 
   return (
     <div className="app-container">
+      <ScrollProgressBar />
       <Navbar
         currentUser={currentUser}
         activeTab={activeTab}
@@ -696,6 +703,8 @@ function App() {
           onCancel={closeConfirm}
         />
       )}
+
+      <ScrollToTop />
     </div>
   );
 }

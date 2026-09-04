@@ -39,6 +39,10 @@
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg-dark);
@@ -69,6 +73,99 @@ body {
   background: var(--primary);
 }
 
+/* Scroll Progress Bar */
+.scroll-progress-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: transparent;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.scroll-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--cyan) 50%, var(--purple) 100%);
+  width: 0%;
+  transition: width 0.08s ease-out;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.8), 0 0 5px rgba(6, 182, 212, 0.8);
+}
+
+/* Scroll to Top Floating Button */
+.scroll-to-top-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(18, 24, 38, 0.85);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--border-glass-accent);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px) scale(0.9);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.scroll-to-top-btn.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.scroll-to-top-btn:hover {
+  background: var(--primary);
+  color: #ffffff;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 20px var(--primary-glow);
+  border-color: transparent;
+}
+
+/* Scroll Reveal Animations */
+.scroll-init {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-init.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-slide-left.scroll-init {
+  transform: translateX(-30px);
+}
+.scroll-slide-left.scroll-init.is-revealed {
+  transform: translateX(0);
+}
+
+.scroll-slide-right.scroll-init {
+  transform: translateX(30px);
+}
+.scroll-slide-right.scroll-init.is-revealed {
+  transform: translateX(0);
+}
+
+.scroll-scale.scroll-init {
+  transform: scale(0.94);
+}
+.scroll-scale.scroll-init.is-revealed {
+  transform: scale(1);
+}
+
 /* Utility Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -84,7 +181,32 @@ body {
   animation: fadeIn 0.35s ease-out forwards;
 }
 
-/* Glass Card */
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .scroll-init {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .scroll-progress-bar {
+    transition: none !important;
+  }
+}
+
+/* Glass Card & Spotlight Glowing Effect */
+.glass-card,
+.metric-card,
+.employee-card,
+.task-card,
+.org-node,
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+
 .glass-card {
   background: var(--bg-card);
   backdrop-filter: var(--backdrop-blur);
@@ -96,6 +218,49 @@ body {
 
 .glass-card:hover {
   border-color: var(--border-glass-accent);
+}
+
+/* Spotlight Glowing Overlay */
+.glass-card::before,
+.metric-card::before,
+.employee-card::before,
+.task-card::before,
+.org-node::before,
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    420px circle at var(--mouse-x, -500px) var(--mouse-y, -500px),
+    rgba(99, 102, 241, 0.18),
+    rgba(6, 182, 212, 0.08) 35%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glass-card:hover::before,
+.metric-card:hover::before,
+.employee-card:hover::before,
+.task-card:hover::before,
+.org-node:hover::before,
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+/* Ensure contents sit gracefully above the spotlight layer */
+.glass-card > *,
+.metric-card > *,
+.employee-card > *,
+.task-card > *,
+.org-node > *,
+.spotlight-card > * {
+  position: relative;
+  z-index: 2;
 }
 
 /* Buttons */
