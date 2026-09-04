@@ -437,6 +437,7 @@ function App() {
                   projects={projects}
                   tasks={tasks}
                   currentUser={currentUser}
+                  permissions={permissions}
                   onUnlockUser={handleUnlockUser}
                   onAssignTask={handleSaveTask}
                 />
@@ -485,20 +486,31 @@ function App() {
             {activeTab === 'organigrama' && <OrganigramaView users={users} />}
 
             {activeTab === 'templates' && (
-              <TemplatesView
-                templates={templates}
-                permissions={permissions}
-                onOpenAddTemplate={() => {
-                  setEditingTemplate(null);
-                  setShowTemplateModal(true);
-                }}
-                onOpenEditTemplate={(tmpl) => {
-                  setEditingTemplate(tmpl);
-                  setShowTemplateModal(true);
-                }}
-                onDeleteTemplate={handleDeleteTemplate}
-                onSelectTemplateForClient={(tmpl) => setActiveDetailTemplate(tmpl)}
-              />
+              ['admin', 'lead', 'developer', 'sales'].includes(currentUser.role) ? (
+                <TemplatesView
+                  templates={templates}
+                  permissions={permissions}
+                  onOpenAddTemplate={() => {
+                    setEditingTemplate(null);
+                    setShowTemplateModal(true);
+                  }}
+                  onOpenEditTemplate={(tmpl) => {
+                    setEditingTemplate(tmpl);
+                    setShowTemplateModal(true);
+                  }}
+                  onDeleteTemplate={handleDeleteTemplate}
+                  onSelectTemplateForClient={(tmpl) => setActiveDetailTemplate(tmpl)}
+                />
+              ) : (
+                <div className="glass-card animate-fade-in" style={{ padding: '40px', textAlign: 'center', margin: '40px auto', maxWidth: '540px' }}>
+                  <h3 style={{ color: 'var(--rose)', fontSize: '1.25rem', marginBottom: '10px' }}>
+                    🛑 Acceso Restringido
+                  </h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    El catálogo de plantillas está reservado para equipos técnicos y de ventas.
+                  </p>
+                </div>
+              )
             )}
 
             {activeTab === 'clients' && (
@@ -522,38 +534,60 @@ function App() {
             )}
 
             {activeTab === 'projects' && (
-              <ProjectsView
-                projects={projects}
-                permissions={permissions}
-                onOpenAddProject={() => {
-                  setEditingProject(null);
-                  setShowProjectModal(true);
-                }}
-                onEditProject={(proj) => {
-                  setEditingProject(proj);
-                  setShowProjectModal(true);
-                }}
-                onDeleteProject={handleDeleteProject}
-              />
+              ['admin', 'lead', 'developer'].includes(currentUser.role) ? (
+                <ProjectsView
+                  projects={projects}
+                  permissions={permissions}
+                  onOpenAddProject={() => {
+                    setEditingProject(null);
+                    setShowProjectModal(true);
+                  }}
+                  onEditProject={(proj) => {
+                    setEditingProject(proj);
+                    setShowProjectModal(true);
+                  }}
+                  onDeleteProject={handleDeleteProject}
+                />
+              ) : (
+                <div className="glass-card animate-fade-in" style={{ padding: '40px', textAlign: 'center', margin: '40px auto', maxWidth: '540px' }}>
+                  <h3 style={{ color: 'var(--rose)', fontSize: '1.25rem', marginBottom: '10px' }}>
+                    🛑 Acceso Restringido
+                  </h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    La gestión de proyectos está restringida a los equipos de desarrollo y directivos.
+                  </p>
+                </div>
+              )
             )}
 
             {activeTab === 'tasks' && (
-              <TasksView
-                tasks={tasks}
-                users={users}
-                currentUser={currentUser}
-                permissions={permissions}
-                onUpdateTaskStatus={handleUpdateTaskStatus}
-                onOpenAddTask={() => {
-                  setEditingTask(null);
-                  setShowTaskModal(true);
-                }}
-                onEditTask={(task) => {
-                  setEditingTask(task);
-                  setShowTaskModal(true);
-                }}
-                onDeleteTask={handleDeleteTask}
-              />
+              ['admin', 'lead', 'developer', 'qa'].includes(currentUser.role) ? (
+                <TasksView
+                  tasks={tasks}
+                  users={users}
+                  currentUser={currentUser}
+                  permissions={permissions}
+                  onUpdateTaskStatus={handleUpdateTaskStatus}
+                  onOpenAddTask={() => {
+                    setEditingTask(null);
+                    setShowTaskModal(true);
+                  }}
+                  onEditTask={(task) => {
+                    setEditingTask(task);
+                    setShowTaskModal(true);
+                  }}
+                  onDeleteTask={handleDeleteTask}
+                />
+              ) : (
+                <div className="glass-card animate-fade-in" style={{ padding: '40px', textAlign: 'center', margin: '40px auto', maxWidth: '540px' }}>
+                  <h3 style={{ color: 'var(--rose)', fontSize: '1.25rem', marginBottom: '10px' }}>
+                    🛑 Acceso Restringido
+                  </h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    El tablero de tareas de desarrollo es de uso exclusivo para equipos de ingeniería y QA.
+                  </p>
+                </div>
+              )
             )}
 
             {activeTab === 'roles' && (

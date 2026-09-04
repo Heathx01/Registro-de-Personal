@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import DashboardCharts from './DashboardCharts';
 
-export default function ManagerDashboard({ users, projects, tasks, currentUser, onUnlockUser, onAssignTask }) {
+export default function ManagerDashboard({ users, projects, tasks, currentUser, permissions, onUnlockUser, onAssignTask }) {
   const { t, translatePos } = useLanguage();
   const [selectedDev, setSelectedDev] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
@@ -153,85 +153,95 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
             <span style={{ color: 'var(--primary)' }}>✍️</span> {t('manager.assignTask')}
           </h3>
 
-          <form onSubmit={handleAssign} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.selectDev')}</label>
-              <select
-                required
-                className="filter-select"
-                style={{ width: '100%' }}
-                value={selectedDev}
-                onChange={(e) => setSelectedDev(e.target.value)}
-              >
-                <option value="">{t('manager.chooseDev')}</option>
-                {developers.map((dev) => (
-                  <option key={dev.id} value={dev.id}>
-                    {dev.name} - {translatePos(dev.position)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.taskTitle')}</label>
-              <input
-                type="text"
-                required
-                className="search-input"
-                style={{ paddingLeft: '12px' }}
-                placeholder="ej. Implementar JWT & OAuth2..."
-                value={taskTitle}
-                onChange={(e) => setTaskTitle(e.target.value)}
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          {permissions?.can_assign_tasks !== false ? (
+            <form onSubmit={handleAssign} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.project')}</label>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.selectDev')}</label>
                 <select
+                  required
                   className="filter-select"
                   style={{ width: '100%' }}
-                  value={selectedProj}
-                  onChange={(e) => setSelectedProj(e.target.value)}
+                  value={selectedDev}
+                  onChange={(e) => setSelectedDev(e.target.value)}
                 >
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
+                  <option value="">{t('manager.chooseDev')}</option>
+                  {developers.map((dev) => (
+                    <option key={dev.id} value={dev.id}>
+                      {dev.name} - {translatePos(dev.position)}
                     </option>
                   ))}
                 </select>
               </div>
+
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.priority')}</label>
-                <select
-                  className="filter-select"
-                  style={{ width: '100%' }}
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                >
-                  <option value="Low">{t('manager.low')}</option>
-                  <option value="Medium">{t('manager.medium')}</option>
-                  <option value="High">{t('manager.high')}</option>
-                  <option value="Critical">{t('manager.critical')}</option>
-                </select>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.taskTitle')}</label>
+                <input
+                  type="text"
+                  required
+                  className="search-input"
+                  style={{ paddingLeft: '12px' }}
+                  placeholder="ej. Implementar JWT & OAuth2..."
+                  value={taskTitle}
+                  onChange={(e) => setTaskTitle(e.target.value)}
+                />
               </div>
-            </div>
 
-            <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.instructions')}</label>
-              <textarea
-                className="search-input"
-                style={{ paddingLeft: '12px', minHeight: '60px' }}
-                placeholder="..."
-                value={taskDesc}
-                onChange={(e) => setTaskDesc(e.target.value)}
-              />
-            </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.project')}</label>
+                  <select
+                    className="filter-select"
+                    style={{ width: '100%' }}
+                    value={selectedProj}
+                    onChange={(e) => setSelectedProj(e.target.value)}
+                  >
+                    {projects.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.priority')}</label>
+                  <select
+                    className="filter-select"
+                    style={{ width: '100%' }}
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value)}
+                  >
+                    <option value="Low">{t('manager.low')}</option>
+                    <option value="Medium">{t('manager.medium')}</option>
+                    <option value="High">{t('manager.high')}</option>
+                    <option value="Critical">{t('manager.critical')}</option>
+                  </select>
+                </div>
+              </div>
 
-            <button type="submit" className="btn btn-primary" style={{ justifyContent: 'center', padding: '12px' }}>
-              {t('manager.assignBtn')}
-            </button>
-          </form>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('manager.instructions')}</label>
+                <textarea
+                  className="search-input"
+                  style={{ paddingLeft: '12px', minHeight: '60px' }}
+                  placeholder="..."
+                  value={taskDesc}
+                  onChange={(e) => setTaskDesc(e.target.value)}
+                />
+              </div>
+
+              <button type="submit" className="btn btn-primary" style={{ justifyContent: 'center', padding: '12px' }}>
+                {t('manager.assignBtn')}
+              </button>
+            </form>
+          ) : (
+            <div style={{ padding: '20px', textAlign: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+              <span style={{ fontSize: '1.8rem', display: 'block', marginBottom: '8px' }}>🔒</span>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '6px' }}>Asignación Reservada</h4>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                La creación y asignación de tareas a desarrolladores es una función técnica gestionada exclusivamente por los Líderes de Proyecto y Administradores.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
