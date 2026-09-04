@@ -204,50 +204,52 @@ function TemplateDetailModal({ template, clients = [], onClose, onConfirmCreateP
           )}
 
           {/* Sección de Acción Comercial: Asignar a Cliente */}
-          <div
-            style={{
-              padding: '20px',
-              borderRadius: '16px',
-              backgroundColor: 'rgba(99, 102, 241, 0.08)',
-              border: '1px solid rgba(99, 102, 241, 0.2)',
-            }}
-          >
-            <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '6px' }}>
-              🤝 {t('templates.selectClientModalTitle')}
-            </h4>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '16px' }}>
-              {t('templates.selectClientModalSub')}
-            </p>
-
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <select
-                className="input-field"
-                value={selectedClientId}
-                onChange={(e) => setSelectedClientId(e.target.value)}
-                style={{ flex: 1, minWidth: '220px', borderRadius: '12px', height: '46px' }}
-              >
-                <option value="">{t('templates.chooseClient')}</option>
-                {clients.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    🏢 {c.name} ({c.contact_person || 'Contacto'})
-                  </option>
-                ))}
-              </select>
-
-              <button
-                onClick={handleConfirm}
-                className="btn-primary"
-                style={{
-                  padding: '12px 24px',
-                  borderRadius: '12px',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
-                }}
-              >
-                {t('templates.generateProposalBtn')}
-              </button>
+          {permissions?.can_manage_projects && (
+            <div
+              style={{
+                padding: '20px',
+                borderRadius: '16px',
+                backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                border: '1px solid rgba(99, 102, 241, 0.2)',
+              }}
+            >
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '6px' }}>
+                🤝 {t('templates.selectClientModalTitle')}
+              </h4>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '16px' }}>
+                {t('templates.selectClientModalSub')}
+              </p>
+  
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <select
+                  className="input-field"
+                  value={selectedClientId}
+                  onChange={(e) => setSelectedClientId(e.target.value)}
+                  style={{ flex: 1, minWidth: '220px', borderRadius: '12px', height: '46px' }}
+                >
+                  <option value="">{t('templates.chooseClient')}</option>
+                  {clients.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      🏢 {c.name} ({c.contact_person || 'Contacto'})
+                    </option>
+                  ))}
+                </select>
+  
+                <button
+                  onClick={handleConfirm}
+                  className="btn-primary"
+                  style={{
+                    padding: '12px 24px',
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                  }}
+                >
+                  {t('templates.generateProposalBtn')}
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

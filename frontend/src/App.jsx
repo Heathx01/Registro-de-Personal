@@ -132,10 +132,16 @@ function App() {
 
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
-    if (user.role === 'developer') {
-      setActiveTab('developer');
-    } else {
+    if (['admin', 'lead', 'hr'].includes(user.role)) {
       setActiveTab('manager');
+    } else if (user.role === 'developer') {
+      setActiveTab('developer');
+    } else if (user.role === 'qa') {
+      setActiveTab('tasks');
+    } else if (user.role === 'sales') {
+      setActiveTab('clients');
+    } else {
+      setActiveTab('personnel'); // default fallback
     }
   };
 
@@ -425,14 +431,25 @@ function App() {
         ) : (
           <>
             {activeTab === 'manager' && (
-              <ManagerDashboard
-                users={users}
-                projects={projects}
-                tasks={tasks}
-                currentUser={currentUser}
-                onUnlockUser={handleUnlockUser}
-                onAssignTask={handleSaveTask}
-              />
+              canManageRoles ? (
+                <ManagerDashboard
+                  users={users}
+                  projects={projects}
+                  tasks={tasks}
+                  currentUser={currentUser}
+                  onUnlockUser={handleUnlockUser}
+                  onAssignTask={handleSaveTask}
+                />
+              ) : (
+                <div className="glass-card animate-fade-in" style={{ padding: '40px', textAlign: 'center', margin: '40px auto', maxWidth: '540px' }}>
+                  <h3 style={{ color: 'var(--rose)', fontSize: '1.25rem', marginBottom: '10px' }}>
+                    🛑 Acceso Restringido
+                  </h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    Este panel es de uso exclusivo para Administradores y Líderes Técnicos.
+                  </p>
+                </div>
+              )
             )}
 
             {activeTab === 'developer' && (
@@ -585,6 +602,7 @@ function App() {
         <TemplateDetailModal
           template={activeDetailTemplate}
           clients={clients}
+          permissions={permissions}
           onClose={() => setActiveDetailTemplate(null)}
           onConfirmCreateProject={handleConfirmCreateProjectFromTemplate}
         />
