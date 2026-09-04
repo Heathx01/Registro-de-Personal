@@ -75,6 +75,8 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
         return { label: t('nav.clients'), icon: '🏢' };
       case 'roles':
         return { label: t('nav.rolesMatrix'), icon: '🛡️' };
+      case 'leave':
+        return { label: t('nav.leaveRequests'), icon: '🏖️' };
       default:
         return { label: '', icon: '📌' };
     }
@@ -438,6 +440,13 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
                 label={t('nav.organigrama')}
                 isActive={activeTab === 'organigrama'}
                 onClick={() => handleTabClick('organigrama')}
+              />
+
+              <SidebarMenuItem
+                icon={<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
+                label={t('nav.leaveRequests')}
+                isActive={activeTab === 'leave'}
+                onClick={() => handleTabClick('leave')}
               />
 
               {canManageRoles && (

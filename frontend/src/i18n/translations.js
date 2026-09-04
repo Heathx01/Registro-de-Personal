@@ -17,6 +17,7 @@ export const translations = {
       catManagement: 'Gestión & Analítica',
       catHr: 'Recursos Humanos',
       catProjects: 'Proyectos & Operaciones',
+      leaveRequests: 'Solicitud de Permisos',
     },
     // Common Actions & Badges
     common: {
@@ -411,6 +412,7 @@ export const translations = {
       catManagement: 'Management & Analytics',
       catHr: 'Human Resources',
       catProjects: 'Projects & Operations',
+      leaveRequests: 'Leave Requests',
     },
     // Common Actions & Badges
     common: {

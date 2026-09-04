@@ -10,6 +10,7 @@ import ClientsView from './components/ClientsView';
 import TemplatesView from './components/TemplatesView';
 import TasksView from './components/TasksView';
 import RolesMatrixView from './components/RolesMatrixView';
+import LeaveRequestView from './components/LeaveRequestView';
 import EmployeeModal from './components/EmployeeModal';
 import ProjectModal from './components/ProjectModal';
 import ClientModal from './components/ClientModal';
@@ -617,6 +618,14 @@ function App() {
                   </p>
                 </div>
               )
+            )}
+
+            {activeTab === 'leave' && (
+              <LeaveRequestView
+                currentUser={currentUser}
+                users={users}
+                permissions={permissions}
+              />
             )}
           </div>
         )}
