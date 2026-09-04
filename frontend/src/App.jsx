@@ -461,14 +461,25 @@ function App() {
             )}
 
             {activeTab === 'personnel' && (
-              <PersonnelView
-                users={users}
-                currentUser={currentUser}
-                permissions={permissions}
-                onOpenAddModal={() => setShowEmployeeModal(true)}
-                onDeleteUser={handleDeleteUser}
-                onUpdateUser={handleUpdateUser}
-              />
+              ['admin', 'lead', 'hr'].includes(currentUser.role) ? (
+                <PersonnelView
+                  users={users}
+                  currentUser={currentUser}
+                  permissions={permissions}
+                  onOpenAddModal={() => setShowEmployeeModal(true)}
+                  onDeleteUser={handleDeleteUser}
+                  onUpdateUser={handleUpdateUser}
+                />
+              ) : (
+                <div className="glass-card animate-fade-in" style={{ padding: '40px', textAlign: 'center', margin: '40px auto', maxWidth: '540px' }}>
+                  <h3 style={{ color: 'var(--rose)', fontSize: '1.25rem', marginBottom: '10px' }}>
+                    🛑 Acceso Restringido
+                  </h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    La Base de Datos de Personal es de acceso confidencial exclusivo para Recursos Humanos, Directores y Líderes de Área.
+                  </p>
+                </div>
+              )
             )}
 
             {activeTab === 'organigrama' && <OrganigramaView users={users} />}
