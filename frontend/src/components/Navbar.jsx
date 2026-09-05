@@ -91,9 +91,12 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
       <header className="navbar">
         <div className="navbar-inner">
           {/* Left section: Hamburger button & Brand */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div className="navbar-left" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <button
+              type="button"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              aria-expanded={isSidebarOpen}
+              aria-controls="main-navigation"
               className="btn btn-secondary"
               style={{
                 padding: '8px 12px',
@@ -119,6 +122,9 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
 
             <div
               className="brand"
+              role="button"
+              tabIndex="0"
+              aria-label="Ir al panel principal"
               style={{ cursor: 'pointer' }}
               onClick={() => {
                 if (canManageRoles) handleTabClick('manager');
@@ -127,6 +133,12 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
                 else if (currentUser?.role === 'sales') handleTabClick('clients');
                 else if (canViewPersonnel) handleTabClick('personnel');
                 else handleTabClick('organigrama');
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  event.currentTarget.click();
+                }
               }}
             >
               <div className="brand-logo" translate="no">Dev</div>
@@ -186,7 +198,10 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
             {/* Notification Bell & Dropdown */}
             <div style={{ position: 'relative' }}>
               <button
+                type="button"
                 onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                aria-label={t('notifications.title') || 'Notificaciones'}
+                aria-expanded={isNotificationOpen}
                 style={{
                   position: 'relative',
                   cursor: 'pointer',
@@ -281,6 +296,7 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
       {/* Backdrop overlay for sidebar */}
       {isSidebarOpen && (
         <div
+          aria-hidden="true"
           onClick={() => setIsSidebarOpen(false)}
           style={{
             position: 'fixed',
@@ -295,6 +311,10 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
 
       {/* Collapsible Slide-over Sidebar Drawer */}
       <aside
+        id="main-navigation"
+        aria-label="Navegación principal"
+        aria-hidden={!isSidebarOpen}
+        inert={!isSidebarOpen}
         style={{
           position: 'fixed',
           top: 0,
@@ -331,6 +351,8 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
           </div>
 
           <button
+            type="button"
+            aria-label="Cerrar menú de navegación"
             onClick={() => setIsSidebarOpen(false)}
             style={{
               background: 'rgba(255,255,255,0.05)',
@@ -499,6 +521,8 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
 
           <div style={{ display: 'flex', gap: '4px' }}>
             <button
+              type="button"
+              aria-label="Cambiar contraseña"
               onClick={onOpenChangePassword}
               style={{
                 background: 'rgba(255,255,255,0.05)',
@@ -523,6 +547,8 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
 function SidebarMenuItem({ icon, label, isActive, onClick }) {
   return (
     <button
+      type="button"
+      aria-label={label}
       onClick={onClick}
       style={{
         width: '100%',

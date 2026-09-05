@@ -418,4 +418,67 @@
   .hide-mobile {
     display: none !important;
   }
+
+  .main-content {
+    padding: 20px 14px;
+  }
+
+  .navbar {
+    padding: 12px 14px;
+  }
+
+  .navbar-inner {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .navbar-left {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .brand-text h1,
+  .brand-text p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .user-widget {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    padding: 6px 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .search-box {
+    min-width: 100%;
+  }
+
+  .personnel-grid,
+  .kanban-board,
+  .metrics-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kanban-col {
+    min-height: auto;
+  }
+
+  .modal-overlay {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .modal-content {
+    max-height: calc(100vh - 24px);
+    padding: 20px 16px;
+  }
 }

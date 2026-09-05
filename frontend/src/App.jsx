@@ -471,6 +471,7 @@ function App() {
 
   return (
     <div className="app-container">
+      <a className="skip-link" href="#main-content">Saltar al contenido principal</a>
       {apiRequestCount > 0 && <div className="api-progress-bar" aria-label="Procesando solicitud" />}
       <ScrollProgressBar />
       <Navbar
@@ -481,7 +482,7 @@ function App() {
         onOpenChangePassword={() => setShowChangePasswordModal(true)}
       />
 
-      <main className="main-content">
+      <main id="main-content" className="main-content" tabIndex="-1">
         {isLoadingData ? (
           <LoadingSpinner message="Sincronizando información del servidor..." />
         ) : dataLoadError ? (
