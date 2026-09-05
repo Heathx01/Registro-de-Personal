@@ -68,6 +68,8 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState('manager');
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [dataLoadError, setDataLoadError] = useState('');
+  const [apiRequestCount, setApiRequestCount] = useState(0);
 
   const [users, setUsers] = useState([]);
   const [clients, setClients] = useState([]);
@@ -98,6 +100,26 @@ function App() {
 
   useEffect(() => {
     checkSession();
+
+    const handleRequestStart = () => setApiRequestCount((count) => count + 1);
+    const handleRequestEnd = () => setApiRequestCount((count) => Math.max(0, count - 1));
+    const handleSessionExpired = () => {
+      apiLogout();
+      setCurrentUser(null);
+      setIsClientUnlocked(false);
+      setDataLoadError('');
+      showToast('Tu sesión expiró. Inicia sesión nuevamente.', 'warning');
+    };
+
+    window.addEventListener('api:request-start', handleRequestStart);
+    window.addEventListener('api:request-end', handleRequestEnd);
+    window.addEventListener('auth:expired', handleSessionExpired);
+
+    return () => {
+      window.removeEventListener('api:request-start', handleRequestStart);
+      window.removeEventListener('api:request-end', handleRequestEnd);
+      window.removeEventListener('auth:expired', handleSessionExpired);
+    };
   }, []);
 
   const checkSession = async () => {
@@ -122,6 +144,7 @@ function App() {
 
   const loadAllData = async () => {
     setIsLoadingData(true);
+    setDataLoadError('');
     try {
       const usersData = await getUsers();
       const clientsData = await getClients();
@@ -136,6 +159,7 @@ function App() {
       if (Array.isArray(tasksData)) setTasks(tasksData);
     } catch (err) {
       console.error('Error cargando datos del sistema:', err);
+      setDataLoadError(err.message || 'No se pudo sincronizar la información del servidor.');
       showToast('Error cargando datos del backend', 'error');
     } finally {
       setIsLoadingData(false);
@@ -434,7 +458,12 @@ function App() {
   };
 
   if (!currentUser) {
-    return <LoginView onLoginSuccess={handleLoginSuccess} MOCK_USERS={users} />;
+    return (
+      <>
+        {apiRequestCount > 0 && <div className="api-progress-bar" aria-label="Procesando solicitud" />}
+        <LoginView onLoginSuccess={handleLoginSuccess} MOCK_USERS={users} />
+      </>
+    );
   }
 
   const permissions = getPermissionsForRole(currentUser.role);
@@ -442,6 +471,7 @@ function App() {
 
   return (
     <div className="app-container">
+      {apiRequestCount > 0 && <div className="api-progress-bar" aria-label="Procesando solicitud" />}
       <ScrollProgressBar />
       <Navbar
         currentUser={currentUser}
@@ -454,6 +484,14 @@ function App() {
       <main className="main-content">
         {isLoadingData ? (
           <LoadingSpinner message="Sincronizando información del servidor..." />
+        ) : dataLoadError ? (
+          <div className="glass-card data-error-state animate-fade-in" role="alert">
+            <h3>No se pudo cargar la información</h3>
+            <p>{dataLoadError}</p>
+            <button type="button" className="btn btn-primary" onClick={loadAllData}>
+              Reintentar
+            </button>
+          </div>
         ) : (
           <div key={activeTab} className="view-container animate-view-enter">
             {activeTab === 'manager' && (

@@ -5,6 +5,40 @@
   min-height: 100vh;
 }
 
+.api-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1100;
+  width: 35%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--cyan));
+  box-shadow: 0 0 12px var(--primary-glow);
+  animation: apiProgress 1.1s ease-in-out infinite;
+}
+
+.data-error-state {
+  max-width: 560px;
+  margin: 48px auto;
+  padding: 36px;
+  text-align: center;
+}
+
+.data-error-state h3 {
+  margin-bottom: 10px;
+  color: var(--rose);
+}
+
+.data-error-state p {
+  margin-bottom: 22px;
+  color: var(--text-muted);
+}
+
+@keyframes apiProgress {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(310%); }
+}
+
 .main-content {
   flex: 1;
   padding: 30px;

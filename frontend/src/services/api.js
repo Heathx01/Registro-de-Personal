@@ -1,5 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
+function dispatchApiEvent(name, detail = {}) {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(name, { detail }));
+  }
+}
+
 export function getToken() {
   return localStorage.getItem('auth_token');
 }
@@ -24,27 +30,34 @@ async function request(path, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  dispatchApiEvent('api:request-start');
 
-  const data = await response.json().catch(() => ({}));
+  try {
+    const response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers,
+    });
 
-  if (!response.ok) {
-    if (response.status === 401 && path !== '/login') {
-      setToken(null);
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      if (response.status === 401 && path !== '/login') {
+        setToken(null);
+        dispatchApiEvent('auth:expired');
+      }
+      let errorMessage = data.message || `Error en el servidor (${response.status})`;
+      if (response.status === 422 && data.errors) {
+        errorMessage = Object.values(data.errors).flat().join(' ');
+      } else if (response.status === 403) {
+        errorMessage = data.message || 'No estás autorizado para realizar esta acción';
+      }
+      throw { responseStatus: response.status, message: errorMessage, ...data };
     }
-    let errorMessage = data.message || `Error en el servidor (${response.status})`;
-    if (response.status === 422 && data.errors) {
-      errorMessage = Object.values(data.errors).flat().join(' ');
-    } else if (response.status === 403) {
-      errorMessage = data.message || 'No estás autorizado para realizar esta acción';
-    }
-    throw { responseStatus: response.status, message: errorMessage, ...data };
+
+    return data;
+  } finally {
+    dispatchApiEvent('api:request-end');
   }
-
-  return data;
 }
 
 export async function login(email, password) {
