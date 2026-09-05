@@ -31,6 +31,8 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
   }, [storageKey, isNotificationOpen]);
 
   const canManageRoles = ['admin', 'lead', 'hr'].includes(currentUser?.role);
+  // Cada variable controla la visibilidad de un módulo de navegación según el rol.
+  // Esto mejora la experiencia, pero la autorización definitiva está en el backend.
   const isDev = currentUser?.role === 'developer' || currentUser?.role === 'qa';
   const canViewProjects = ['admin', 'lead', 'developer'].includes(currentUser?.role);
   const canViewTasks = ['admin', 'lead', 'developer', 'qa'].includes(currentUser?.role);

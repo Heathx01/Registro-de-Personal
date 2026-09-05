@@ -97,21 +97,26 @@ function App() {
   const closeConfirm = () => setConfirmDialog(null);
 
   useEffect(() => {
-    loadAllData();
     checkSession();
   }, []);
 
   const checkSession = async () => {
-    if (getToken()) {
-      try {
-        const response = await getMe();
-        if (response.user) {
-          handleLoginSuccess(response.user);
-        }
-      } catch (err) {
-        console.error('Session expired or invalid', err);
-        apiLogout();
+    // Las rutas de datos están protegidas. Sin token solo mostramos el login
+    // y evitamos peticiones que terminarían en errores 401.
+    if (!getToken()) {
+      setIsLoadingData(false);
+      return;
+    }
+
+    try {
+      const response = await getMe();
+      if (response.user) {
+        await handleLoginSuccess(response.user);
       }
+    } catch (err) {
+      console.error('Session expired or invalid', err);
+      apiLogout();
+      setIsLoadingData(false);
     }
   };
 
@@ -137,7 +142,9 @@ function App() {
     }
   };
 
-  const handleLoginSuccess = (user) => {
+  const handleLoginSuccess = async (user) => {
+    // El usuario autenticado trae su rol. Ese rol decide la pantalla inicial
+    // y los permisos que se comparten con las demás vistas.
     setCurrentUser(user);
     if (['admin', 'lead', 'hr'].includes(user.role)) {
       setActiveTab('manager');
@@ -150,6 +157,10 @@ function App() {
     } else {
       setActiveTab('personnel'); // default fallback
     }
+
+    // Los datos se solicitan después de confirmar la identidad del usuario;
+    // así las peticiones incluyen el token de autenticación.
+    await loadAllData();
   };
 
   const handleTabSelect = (tab) => {

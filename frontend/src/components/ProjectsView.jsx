@@ -21,6 +21,7 @@ export default function ProjectsView({
           </p>
         </div>
 
+        {/* Crear proyectos es una acción de gestión y no una función de lectura. */}
         {permissions.can_manage_projects && (
           <button className="btn btn-primary" onClick={onOpenAddProject}>
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,6 +100,7 @@ export default function ProjectsView({
             </div>
 
             {/* Ficha Financiera / Comercial (Para Admin / Lead) */}
+            {/* El presupuesto solo se muestra a roles autorizados para ver datos económicos. */}
             {permissions.can_view_salaries && (project.budget > 0 || project.project_type) && (
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px 12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
                 <div>

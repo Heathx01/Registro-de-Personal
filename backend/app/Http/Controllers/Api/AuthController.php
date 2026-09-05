@@ -32,7 +32,9 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
             'position' => $validated['position'] ?? 'Desarrollador de Software',
             'department' => $validated['department'] ?? 'Ingeniería de Software',
-            'role' => 'developer', // Autoregistro restringido a rol base; el Administrador asigna privilegios
+            // El registro público siempre empieza como developer. Así nadie puede
+            // registrarse directamente con un rol administrativo.
+            'role' => 'developer',
             'phone' => $validated['phone'] ?? null,
             'status' => 'Active',
             'hire_date' => now()->format('Y-m-d'),
@@ -40,6 +42,8 @@ class AuthController extends Controller
             'bio' => 'Nuevo integrante del equipo de software.',
         ]);
 
+        // Se envían los permisos del rol para que el frontend sepa qué mostrar.
+        // La protección real de los endpoints se aplica con Sanctum y middleware.
         $permissions = $this->getPermissionsForRole($user->role);
 
         return response()->json([
@@ -371,8 +375,11 @@ class AuthController extends Controller
 
     private function getPermissionsForRole($role)
     {
+        // Esta matriz es la versión del backend del sistema RBAC:
+        // cada rol se convierte en capacidades concretas del usuario.
         switch ($role) {
             case 'admin':
+                // El administrador puede gestionar personal, proyectos y tareas.
                 return [
                     'label' => 'Director General / CEO',
                     'can_manage_users' => true,
@@ -384,6 +391,7 @@ class AuthController extends Controller
                     'restrictions' => 'Sin restricciones.',
                 ];
             case 'lead':
+                // El líder coordina el trabajo, pero no elimina usuarios.
                 return [
                     'label' => 'Líder Técnico / Manager',
                     'can_manage_users' => false,
@@ -395,6 +403,7 @@ class AuthController extends Controller
                     'restrictions' => 'No puede eliminar usuarios ni modificar salarios administrativos.',
                 ];
             case 'developer':
+                // El desarrollador puede actualizar el avance de sus tareas.
                 return [
                     'label' => 'Desarrollador de Software',
                     'can_manage_users' => false,
@@ -407,6 +416,7 @@ class AuthController extends Controller
                     'restrictions' => 'Gestión de tareas asignadas por el Manager.',
                 ];
             case 'qa':
+                // QA puede actualizar tareas relacionadas con las pruebas.
                 return [
                     'label' => 'QA Automation Lead',
                     'can_manage_users' => false,
@@ -419,6 +429,7 @@ class AuthController extends Controller
                     'restrictions' => 'Pruebas de calidad y reporte de bugs.',
                 ];
             case 'hr':
+                // HR administra información del personal, no el trabajo técnico.
                 return [
                     'label' => 'Recursos Humanos (HR)',
                     'can_manage_users' => true,
@@ -430,6 +441,7 @@ class AuthController extends Controller
                     'restrictions' => 'Gestión de personal.',
                 ];
             default:
+                // Ante un rol no reconocido, se devuelven capacidades mínimas.
                 return [
                     'label' => 'Empleado',
                     'can_manage_users' => false,

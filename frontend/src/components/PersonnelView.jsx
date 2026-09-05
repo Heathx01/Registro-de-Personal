@@ -46,6 +46,7 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
           </p>
         </div>
 
+        {/* Solo los perfiles con permiso de gestión pueden crear empleados. */}
         {permissions.can_manage_users && (
           <button className="btn btn-primary" onClick={onOpenAddModal}>
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,6 +147,7 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
               </div>
               <div className="card-details" style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  {/* Si no puede gestionar usuarios, el rol se muestra sin permitir cambios. */}
                   {permissions.can_manage_users ? (
                     <select
                       className="filter-select"
@@ -202,6 +204,7 @@ export default function PersonnelView({ users, currentUser, permissions, onOpenA
                 📋 {t('common.details')} ➔
               </button>
 
+              {/* Además del permiso, se evita que una persona elimine su propia cuenta. */}
               {permissions.can_delete_records && user.id !== currentUser.id && (
                 <button
                   className="btn btn-danger"

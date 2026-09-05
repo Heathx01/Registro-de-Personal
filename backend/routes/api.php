@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\TemplateController;
 
-// Rutas públicas
+// Rutas públicas: permiten iniciar sesión o solicitar recuperación de acceso.
+// No deben usarse para consultar ni modificar información interna.
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/send-password-reset-code', [AuthController::class, 'sendPasswordResetCode']);
@@ -22,14 +23,18 @@ Route::get('/prueba', function () {
     ]);
 });
 
-// Rutas protegidas
+// Todas las rutas siguientes requieren un token válido de Sanctum.
+// Así no basta con ocultar botones: el backend también rechaza usuarios no autenticados.
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    // Solo admin, lead y HR pueden desbloquear cuentas de otros empleados.
     Route::post('/users/{id}/unlock', [AuthController::class, 'unlock'])->middleware('role:admin,lead,hr');
     Route::post('/send-password-change-code', [AuthController::class, 'sendPasswordChangeCode']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::get('/me', [AuthController::class, 'me']);
     
+    // El acceso a estas operaciones se complementa con las reglas de rol
+    // definidas en los controladores y el middleware de autorización.
     // Rutas de personal y organigrama
     Route::get('/organigrama', [UserController::class, 'organigrama']);
     Route::apiResource('users', UserController::class);

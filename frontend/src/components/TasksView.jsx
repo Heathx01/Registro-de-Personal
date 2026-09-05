@@ -46,6 +46,7 @@ export default function TasksView({
             ))}
           </select>
 
+          {/* Asignar tareas modifica el trabajo de otras personas. */}
           {permissions.can_assign_tasks && (
             <button className="btn btn-primary" onClick={onOpenAddTask}>
               <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">

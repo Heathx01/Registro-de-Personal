@@ -261,8 +261,12 @@ export function sendPasswordResetCode(email) {
 }
 
 export function getPermissionsForRole(role) {
+  // Convierte el rol guardado del usuario en permisos fáciles de consultar.
+  // Por ejemplo, can_manage_users indica si puede administrar empleados.
+  // Estos permisos controlan la interfaz; el backend también debe proteger sus rutas.
   switch (role) {
     case 'admin':
+      // El administrador tiene acceso completo a la gestión de la empresa.
       return {
         label: 'Director General / CEO',
         can_manage_users: true,
@@ -280,6 +284,7 @@ export function getPermissionsForRole(role) {
         restrictions: 'Sin restricciones.',
       };
     case 'lead':
+      // El líder coordina proyectos, clientes y tareas, pero no elimina usuarios.
       return {
         label: 'Líder Técnico / Manager',
         can_manage_users: false,
@@ -297,6 +302,7 @@ export function getPermissionsForRole(role) {
         restrictions: 'No puede eliminar usuarios.',
       };
     case 'sales':
+      // Ventas trabaja con clientes, propuestas y plantillas, sin acceso a salarios.
       return {
         label: 'Ejecutivo de Ventas & BDM',
         can_manage_users: false,
@@ -313,6 +319,8 @@ export function getPermissionsForRole(role) {
         can_delete_records: false,
       };
     case 'developer':
+      // Desarrollo consulta plantillas y actualiza el estado de sus tareas,
+      // pero no administra personal, clientes ni presupuestos.
       return {
         label: 'Desarrollador de Software',
         can_manage_users: false,
@@ -330,6 +338,7 @@ export function getPermissionsForRole(role) {
         can_delete_records: false,
       };
     case 'qa':
+      // QA participa en el seguimiento de tareas y pruebas, con permisos limitados.
       return {
         label: 'QA Automation Lead',
         can_manage_users: false,
@@ -347,6 +356,8 @@ export function getPermissionsForRole(role) {
         can_delete_records: false,
       };
     case 'hr':
+      // Recursos Humanos administra empleados y puede consultar información salarial,
+      // pero no gestiona proyectos ni tareas técnicas.
       return {
         label: 'Recursos Humanos (HR)',
         can_manage_users: true,
@@ -363,6 +374,7 @@ export function getPermissionsForRole(role) {
         can_delete_records: false,
       };
     default:
+      // Un rol desconocido recibe solo permisos mínimos de lectura.
       return {
         label: 'Empleado',
         can_manage_users: false,
