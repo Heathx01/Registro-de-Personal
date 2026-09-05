@@ -2,15 +2,20 @@ import React, { useState } from 'react';
 import { login, resetPassword, sendPasswordResetCode, emergencyUnlock } from '../services/api';
 
 export default function LoginView({ onLoginSuccess }) {
+  // En desarrollo local se precargan las credenciales del administrador creado
+  // por el seeder de Laravel. En producción los campos permanecen vacíos.
+  const defaultAdminEmail = import.meta.env.DEV ? 'admin@devstudio.com' : '';
+  const defaultAdminPassword = import.meta.env.DEV ? 'admin123' : '';
+
   // Modo de la pantalla: 'login' o 'reset'
   const [isResetMode, setIsResetMode] = useState(false);
 
   // Campos de Login
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
+  const [loginEmail, setLoginEmail] = useState(defaultAdminEmail);
+  const [loginPassword, setLoginPassword] = useState(defaultAdminPassword);
 
   // Campos para Cambio / Reestablecimiento de Contraseña
-  const [resetEmail, setResetEmail] = useState('');
+  const [resetEmail, setResetEmail] = useState(defaultAdminEmail);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
