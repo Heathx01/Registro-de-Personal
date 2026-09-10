@@ -99,7 +99,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="app-layout" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-container">
       <ScrollProgressBar />
 
       {/* Header y Sidebar de Navegación */}
@@ -112,8 +112,10 @@ export default function DashboardLayout() {
       />
 
       {/* Área principal donde se renderizan las rutas hijas mediante <Outlet /> (Paso 8 - Sección 5) */}
-      <main className="main-content" style={{ flex: 1, position: 'relative', zIndex: 1 }}>
-        <Outlet />
+      <main className="main-content">
+        <div key={location.pathname} className="view-container animate-view-enter">
+          <Outlet />
+        </div>
       </main>
 
       {/* Modal de cambio de contraseña */}

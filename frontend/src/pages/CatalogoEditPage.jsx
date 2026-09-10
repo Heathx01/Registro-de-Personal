@@ -68,30 +68,31 @@ export default function CatalogoEditPage() {
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '1.5rem' }}>
+    <div className="animate-fade-in" style={{ maxWidth: '850px', margin: '0 auto', padding: '10px 0' }}>
       {/* Navegación y encabezado */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <Link
-          to="/catalogos"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            color: '#a5b4fc',
-            textDecoration: 'none',
-            fontSize: '0.9rem',
-            marginBottom: '0.75rem',
-            fontWeight: 500,
-          }}
-        >
-          ← Volver al Catálogo
-        </Link>
-        <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 700, color: '#f8fafc' }}>
-          Editar Elemento #{id}
-        </h1>
-        <p style={{ margin: '0.25rem 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>
-          Ruta dinámica con parámetro <code>:id</code> y precarga de datos con useEffect.
-        </p>
+      <div className="controls-bar" style={{ marginBottom: '24px' }}>
+        <div>
+          <Link
+            to="/catalogos"
+            className="role-switch-btn"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              textDecoration: 'none',
+              marginBottom: '10px',
+              fontSize: '0.85rem',
+            }}
+          >
+            ← Volver al Catálogo
+          </Link>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>
+            Editar Registro de Catálogo #{id}
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+            Ruta dinámica con parámetro <code>:id</code> y precarga de datos con useEffect (Secciones 5 y 6).
+          </p>
+        </div>
       </div>
 
       {error && <Alert type="error" message={error} />}
@@ -99,18 +100,10 @@ export default function CatalogoEditPage() {
       {loading ? (
         <div style={{ padding: '3rem', textAlign: 'center' }}>
           <LoadingSpinner />
-          <p style={{ marginTop: '1rem', color: '#94a3b8' }}>Cargando información del registro...</p>
+          <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>Cargando información del registro...</p>
         </div>
       ) : item ? (
-        <div
-          style={{
-            background: 'rgba(30, 41, 59, 0.6)',
-            borderRadius: '16px',
-            border: '1px solid rgba(148, 163, 184, 0.15)',
-            padding: '2rem',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
-          }}
-        >
+        <div className="glass-card" style={{ padding: '32px', borderRadius: '20px' }}>
           <CatalogoForm
             initialData={item}
             onSubmit={handleUpdateSubmit}
@@ -120,7 +113,7 @@ export default function CatalogoEditPage() {
           />
         </div>
       ) : (
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+        <div className="glass-card" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
           El registro #{id} no fue encontrado o no está disponible.
         </div>
       )}

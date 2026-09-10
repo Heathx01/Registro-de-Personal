@@ -69,28 +69,28 @@ export default function CatalogoForm({
 
   const inputStyle = (fieldName) => ({
     width: '100%',
-    padding: '0.65rem 0.85rem',
-    borderRadius: '8px',
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-    border: `1px solid ${errors[fieldName] ? '#ef4444' : 'rgba(148, 163, 184, 0.2)'}`,
-    color: '#ffffff',
+    padding: '10px 14px',
+    borderRadius: '10px',
+    backgroundColor: 'var(--bg-card)',
+    border: `1px solid ${errors[fieldName] ? 'var(--rose)' : 'var(--border-glass)'}`,
+    color: 'var(--text-main)',
     fontSize: '0.9rem',
     outline: 'none',
     boxSizing: 'border-box',
-    transition: 'border-color 0.2s',
+    transition: 'all 0.2s ease',
   });
 
   const labelStyle = {
     display: 'block',
-    marginBottom: '0.35rem',
-    fontSize: '0.85rem',
-    fontWeight: 500,
-    color: '#cbd5e1',
+    marginBottom: '6px',
+    fontSize: '0.84rem',
+    fontWeight: 600,
+    color: 'var(--text-muted)',
   };
 
   return (
     <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '16px' }}>
         {/* Campo Título */}
         <div>
           <label style={labelStyle}>Título del Catálogo / Modelo *</label>
@@ -99,12 +99,13 @@ export default function CatalogoForm({
             name="title"
             value={form.title}
             onChange={handleChange}
+            className="search-input"
             placeholder="Ej: SaaS ERP de Finanzas"
             style={inputStyle('title')}
           />
           {/* Mensaje de error 422 junto al campo (Paso 11) */}
           {errors.title && (
-            <small className="error" style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '0.3rem', display: 'block' }}>
+            <small className="error" style={{ color: 'var(--rose)', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
               ⚠️ {errors.title[0]}
             </small>
           )}
@@ -117,6 +118,7 @@ export default function CatalogoForm({
             name="category"
             value={form.category}
             onChange={handleChange}
+            className="filter-select"
             style={inputStyle('category')}
           >
             <option value="web">Desarrollo Web & SaaS</option>
@@ -126,7 +128,7 @@ export default function CatalogoForm({
             <option value="ai">Inteligencia Artificial & Datos</option>
           </select>
           {errors.category && (
-            <small className="error" style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '0.3rem', display: 'block' }}>
+            <small className="error" style={{ color: 'var(--rose)', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
               ⚠️ {errors.category[0]}
             </small>
           )}
@@ -134,7 +136,7 @@ export default function CatalogoForm({
       </div>
 
       {/* Campo Descripción */}
-      <div style={{ marginBottom: '1rem' }}>
+      <div style={{ marginBottom: '16px' }}>
         <label style={labelStyle}>Descripción detallada *</label>
         <textarea
           name="description"
@@ -145,13 +147,13 @@ export default function CatalogoForm({
           style={{ ...inputStyle('description'), resize: 'vertical' }}
         />
         {errors.description && (
-          <small className="error" style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '0.3rem', display: 'block' }}>
+          <small className="error" style={{ color: 'var(--rose)', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
             ⚠️ {errors.description[0]}
           </small>
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
         {/* Campo Precio */}
         <div>
           <label style={labelStyle}>Precio Sugerido ($ USD)</label>
@@ -165,7 +167,7 @@ export default function CatalogoForm({
             style={inputStyle('suggested_price')}
           />
           {errors.suggested_price && (
-            <small className="error" style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '0.3rem', display: 'block' }}>
+            <small className="error" style={{ color: 'var(--rose)', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
               ⚠️ {errors.suggested_price[0]}
             </small>
           )}
@@ -179,14 +181,9 @@ export default function CatalogoForm({
             name="estimated_delivery"
             value={form.estimated_delivery}
             onChange={handleChange}
-            placeholder="Ej: 3-4 semanas"
+            placeholder="Ej: 2 a 3 semanas"
             style={inputStyle('estimated_delivery')}
           />
-          {errors.estimated_delivery && (
-            <small className="error" style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '0.3rem', display: 'block' }}>
-              ⚠️ {errors.estimated_delivery[0]}
-            </small>
-          )}
         </div>
 
         {/* Campo Estado */}
@@ -196,6 +193,7 @@ export default function CatalogoForm({
             name="status"
             value={form.status}
             onChange={handleChange}
+            className="filter-select"
             style={inputStyle('status')}
           >
             <option value="active">Activo (Disponible)</option>
@@ -205,21 +203,13 @@ export default function CatalogoForm({
       </div>
 
       {/* Botones de acción */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
         {onCancel && (
           <button
             type="button"
             disabled={isSaving}
             onClick={onCancel}
-            style={{
-              padding: '0.65rem 1.25rem',
-              borderRadius: '8px',
-              border: '1px solid rgba(148, 163, 184, 0.2)',
-              backgroundColor: 'transparent',
-              color: '#94a3b8',
-              cursor: isSaving ? 'not-allowed' : 'pointer',
-              fontWeight: 500,
-            }}
+            className="btn btn-secondary"
           >
             Cancelar
           </button>
@@ -227,19 +217,7 @@ export default function CatalogoForm({
         <button
           type="submit"
           disabled={isSaving}
-          style={{
-            padding: '0.65rem 1.5rem',
-            borderRadius: '8px',
-            border: 'none',
-            background: isSaving ? '#4338ca' : 'linear-gradient(135deg, #4f46e5, #6366f1)',
-            color: '#ffffff',
-            fontWeight: 600,
-            cursor: isSaving ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-          }}
+          className="btn btn-primary"
         >
           {isSaving ? 'Guardando cambios...' : initialData ? 'Actualizar Registro' : 'Crear Registro'}
         </button>
