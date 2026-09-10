@@ -25,11 +25,9 @@ export default function DashboardPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [usersData, projectsData, tasksData] = await Promise.all([
-        getUsers().catch(() => []),
-        getProjects().catch(() => []),
-        getTasks().catch(() => []),
-      ]);
+      const usersData = await getUsers().catch(() => []);
+      const projectsData = await getProjects().catch(() => []);
+      const tasksData = await getTasks().catch(() => []);
       setUsers(Array.isArray(usersData) ? usersData : []);
       setProjects(Array.isArray(projectsData) ? projectsData : []);
       setTasks(Array.isArray(tasksData) ? tasksData : []);
@@ -95,7 +93,7 @@ export default function DashboardPage() {
         tasks={tasks}
         permissions={permissions}
         onUnlockUser={handleUnlockUser}
-        onQuickAssignTask={handleQuickAssignTask}
+        onAssignTask={handleQuickAssignTask}
       />
     );
   }
@@ -105,7 +103,7 @@ export default function DashboardPage() {
       currentUser={user}
       tasks={tasks}
       projects={projects}
-      onUpdateStatus={handleUpdateTaskStatus}
+      onUpdateTaskStatus={handleUpdateTaskStatus}
     />
   );
 }

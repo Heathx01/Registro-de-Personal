@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { getTimeEntries, logTimeEntry } from '../services/api';
 
-export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskStatus }) {
+export default function DeveloperWorkspace({ tasks = [], currentUser = {}, onUpdateTaskStatus }) {
   const { t, translatePos, translateDept } = useLanguage();
   const { showToast } = useToast();
   const [workNote, setWorkNote] = useState('');
@@ -12,16 +12,21 @@ export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskSta
   const [selectedTask, setSelectedTask] = useState('');
 
   // Filtrar exclusivamente las tareas asignadas a este desarrollador
-  const myTasks = tasks.filter((t) => String(t.assigned_to) === String(currentUser.id));
+  const myTasks = Array.isArray(tasks)
+    ? tasks.filter((t) => String(t.assigned_to) === String(currentUser?.id))
+    : [];
 
   useEffect(() => {
-    loadTimeEntries();
-  }, [currentUser.id]);
+    if (currentUser?.id) {
+      loadTimeEntries();
+    }
+  }, [currentUser?.id]);
 
   const loadTimeEntries = async () => {
+    if (!currentUser?.id) return;
     try {
       const entries = await getTimeEntries(currentUser.id);
-      setLogHistory(entries);
+      setLogHistory(Array.isArray(entries) ? entries : []);
     } catch (err) {
       console.error('Error cargando logs de horas:', err);
     }
@@ -56,7 +61,7 @@ export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskSta
             {t('developer.badge')}
           </span>
           <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>
-            {t('developer.title')} ({currentUser.name})
+            {t('developer.title')} ({currentUser?.name || ''})
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
             {t('developer.subtitle')}
@@ -70,7 +75,7 @@ export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskSta
           <div className="glass-card" style={{ padding: '24px', marginBottom: '24px' }}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span>🎯 {t('developer.myTasks')} ({myTasks.length})</span>
-              <span className="badge badge-lead">{translatePos(currentUser.position)}</span>
+              <span className="badge badge-lead">{translatePos(currentUser?.position || '')}</span>
             </h3>
 
             {myTasks.length === 0 ? (
@@ -179,17 +184,17 @@ export default function DeveloperWorkspace({ tasks, currentUser, onUpdateTaskSta
                 {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : '👤'}
               </div>
               <div>
-                <h4 style={{ fontSize: '1rem', fontWeight: 800 }}>{currentUser.name}</h4>
-                <p style={{ fontSize: '0.78rem', color: 'var(--cyan)' }}>{translatePos(currentUser.position)}</p>
-                <span className={`badge badge-${currentUser.role}`} style={{ marginTop: '4px' }}>
-                  {currentUser.role.toUpperCase()}
+                <h4 style={{ fontSize: '1rem', fontWeight: 800 }}>{currentUser?.name || 'Usuario'}</h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--cyan)' }}>{translatePos(currentUser?.position || '')}</p>
+                <span className={`badge badge-${currentUser?.role || 'developer'}`} style={{ marginTop: '4px' }}>
+                  {(currentUser?.role || 'developer').toUpperCase()}
                 </span>
               </div>
             </div>
 
             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <div>📧 {currentUser.email}</div>
-              <div>🏢 Dept: {translateDept(currentUser.department)}</div>
+              <div>📧 {currentUser?.email || ''}</div>
+              <div>🏢 Dept: {translateDept(currentUser?.department || '')}</div>
             </div>
           </div>
 

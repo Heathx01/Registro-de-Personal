@@ -12,27 +12,36 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [token, setTokenState] = useState(() => getToken());
   const [loading, setLoading] = useState(true);
 
   // Cargar usuario autenticado en el arranque
   useEffect(() => {
     let isMounted = true;
     const initAuth = async () => {
-      const token = getToken();
-      if (!token) {
-        if (isMounted) setLoading(false);
+      const currentToken = getToken();
+      if (!currentToken) {
+        if (isMounted) {
+          setLoading(false);
+          setTokenState(null);
+        }
         return;
       }
 
       try {
-        const userData = await getMe();
+        const res = await getMe();
         if (isMounted) {
-          setUser(userData);
+          const userObj = res?.user ? res.user : res;
+          setUser(userObj);
+          setTokenState(currentToken);
         }
       } catch (err) {
         console.error('Error al verificar sesión:', err);
         setToken(null);
-        if (isMounted) setUser(null);
+        if (isMounted) {
+          setUser(null);
+          setTokenState(null);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -46,8 +55,10 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const res = await apiLogin(email, password);
-    if (res.user) {
-      setUser(res.user);
+    const userObj = res?.user ? res.user : res;
+    if (userObj) {
+      setUser(userObj);
+      setTokenState(getToken());
     }
     return res;
   };
@@ -60,7 +71,14 @@ export function AuthProvider({ children }) {
     } finally {
       setToken(null);
       setUser(null);
+      setTokenState(null);
     }
+  };
+
+  const handleSetUser = (newUserData) => {
+    const userObj = newUserData?.user ? newUserData.user : newUserData;
+    setUser(userObj);
+    setTokenState(getToken());
   };
 
   // Verificación de permisos según rol (Frontend orienta, Backend autoriza)
@@ -115,13 +133,13 @@ export function AuthProvider({ children }) {
       value={{
         user,
         currentUser: user,
-        token: getToken(),
+        token,
         loading,
         login,
         logout,
         can,
         permissions,
-        setUser,
+        setUser: handleSetUser,
       }}
     >
       {children}

@@ -24,7 +24,7 @@ export default function ProtectedRoute() {
   }
 
   // Si no hay token o usuario autenticado, redirigir a /login (Prueba T2 de la guía)
-  if (!token && !user) {
+  if (!token || !user) {
     return <Navigate to="/login" replace />;
   }
 

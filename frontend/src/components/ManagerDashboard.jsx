@@ -2,17 +2,25 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import DashboardCharts from './DashboardCharts';
 
-export default function ManagerDashboard({ users, projects, tasks, currentUser, permissions, onUnlockUser, onAssignTask }) {
+export default function ManagerDashboard({
+  users = [],
+  projects = [],
+  tasks = [],
+  currentUser = {},
+  permissions = {},
+  onUnlockUser,
+  onAssignTask,
+}) {
   const { t, translatePos } = useLanguage();
   const [selectedDev, setSelectedDev] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDesc, setTaskDesc] = useState('');
-  const [selectedProj, setSelectedProj] = useState(projects[0]?.id || '');
+  const [selectedProj, setSelectedProj] = useState(projects?.[0]?.id || '');
   const [priority, setPriority] = useState('High');
   const [dueDate, setDueDate] = useState('2026-08-30');
   const [successMsg, setSuccessMsg] = useState('');
 
-  const developers = users.filter((u) => u.role === 'developer' || u.role === 'qa');
+  const developers = (users || []).filter((u) => u.role === 'developer' || u.role === 'qa');
 
   const handleAssign = (e) => {
     e.preventDefault();
@@ -44,7 +52,7 @@ export default function ManagerDashboard({ users, projects, tasks, currentUser, 
           </span>
           <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>{t('manager.title')}</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-            {t('manager.subtitle')} (<strong>{currentUser.name}</strong>)
+            {t('manager.subtitle')} (<strong>{currentUser?.name || ''}</strong>)
           </p>
         </div>
       </div>

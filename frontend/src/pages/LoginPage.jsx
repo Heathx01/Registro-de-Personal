@@ -14,8 +14,15 @@ export default function LoginPage() {
   }, [user, navigate]);
 
   const handleLoginSuccess = (userData) => {
-    setUser(userData);
-    navigate('/', { replace: true });
+    const userObj = userData?.user || userData;
+    setUser(userObj);
+    if (userObj?.role === 'qa') {
+      navigate('/tareas', { replace: true });
+    } else if (userObj?.role === 'sales') {
+      navigate('/clientes', { replace: true });
+    } else {
+      navigate('/', { replace: true });
+    }
   };
 
   return <LoginView onLoginSuccess={handleLoginSuccess} />;

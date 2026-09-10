@@ -19,7 +19,12 @@ export default function DashboardLayout() {
   // Mapeo de pathname actual a activeTab para compatibilidad visual con Navbar
   const getActiveTabFromPath = () => {
     const path = location.pathname;
-    if (path === '/') return 'manager';
+    if (path === '/') {
+      if (user?.role === 'developer') return 'developer';
+      if (user?.role === 'qa') return 'tasks';
+      if (user?.role === 'sales') return 'clients';
+      return 'manager';
+    }
     if (path.startsWith('/catalogos') || path.startsWith('/templates')) return 'templates';
     if (path.startsWith('/roles')) return 'roles';
     if (path.startsWith('/usuarios') || path.startsWith('/personnel')) return 'personnel';
