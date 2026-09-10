@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import NotificationDropdown from './NotificationDropdown';
 
@@ -358,6 +359,7 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {canManageRoles && (
                 <SidebarMenuItem
+                  to="/"
                   icon={<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>}
                   label={t('nav.managerPanel')}
                   isActive={activeTab === 'manager'}
@@ -367,6 +369,7 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
 
               {isDev && (
                 <SidebarMenuItem
+                  to="/"
                   icon={<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>}
                   label={t('nav.devWorkspace')}
                   isActive={activeTab === 'developer'}
@@ -384,6 +387,7 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {canViewProjects && (
                 <SidebarMenuItem
+                  to="/proyectos"
                   icon={<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 01-2-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>}
                   label={t('nav.projects')}
                   isActive={activeTab === 'projects'}
@@ -393,6 +397,7 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
 
               {canViewTasks && (
                 <SidebarMenuItem
+                  to="/tareas"
                   icon={<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>}
                   label={t('nav.tasks')}
                   isActive={activeTab === 'tasks'}
@@ -402,6 +407,7 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
 
               {canViewClients && (
                 <SidebarMenuItem
+                  to="/clientes"
                   icon={<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0V5a2 2 0 012-2h2a2 2 0 012 2v6" /></svg>}
                   label={t('nav.clients')}
                   isActive={activeTab === 'clients'}
@@ -411,8 +417,9 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
 
               {canViewTemplates && (
                 <SidebarMenuItem
+                  to="/catalogos"
                   icon={<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}
-                  label={t('nav.templates')}
+                  label="Catálogos & Soluciones"
                   isActive={activeTab === 'templates'}
                   onClick={() => handleTabClick('templates')}
                 />
@@ -428,6 +435,7 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {canViewPersonnel && (
                 <SidebarMenuItem
+                  to="/usuarios"
                   icon={<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
                   label={t('nav.personnelDb')}
                   isActive={activeTab === 'personnel'}
@@ -436,6 +444,7 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
               )}
 
               <SidebarMenuItem
+                to="/organigrama"
                 icon={<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 01-2-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>}
                 label={t('nav.organigrama')}
                 isActive={activeTab === 'organigrama'}
@@ -443,6 +452,7 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
               />
 
               <SidebarMenuItem
+                to="/ausencias"
                 icon={<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
                 label={t('nav.leaveRequests')}
                 isActive={activeTab === 'leave'}
@@ -451,6 +461,7 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
 
               {canManageRoles && (
                 <SidebarMenuItem
+                  to="/roles"
                   icon={<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>}
                   label={t('nav.rolesMatrix')}
                   isActive={activeTab === 'roles'}
@@ -517,11 +528,77 @@ export default function Navbar({ currentUser, activeTab, setActiveTab, onLogout,
   );
 }
 
-// Subcomponent for Sidebar Items
-function SidebarMenuItem({ icon, label, isActive, onClick }) {
+// Subcomponent for Sidebar Items con soporte para NavLink (Sección 5 Paso 10)
+function SidebarMenuItem({ to, icon, label, isActive, onClick }) {
+  if (to) {
+    return (
+      <NavLink
+        to={to}
+        onClick={onClick}
+        className={({ isActive: linkActive }) =>
+          linkActive || isActive ? 'menu active' : 'menu'
+        }
+        style={({ isActive: linkActive }) => {
+          const currentActive = linkActive || isActive;
+          return {
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            textDecoration: 'none',
+            background: currentActive
+              ? 'linear-gradient(90deg, rgba(59,130,246,0.18) 0%, rgba(6,182,212,0.08) 100%)'
+              : 'transparent',
+            borderLeft: currentActive ? '3px solid var(--cyan)' : '3px solid transparent',
+            color: currentActive ? '#ffffff' : 'var(--text-muted)',
+            fontWeight: currentActive ? 700 : 500,
+            fontSize: '0.88rem',
+            cursor: 'pointer',
+            textAlign: 'left',
+            transition: 'all 0.2s ease',
+            boxSizing: 'border-box',
+          };
+        }}
+      >
+        {({ isActive: linkActive }) => {
+          const currentActive = linkActive || isActive;
+          return (
+            <>
+              <span
+                style={{
+                  color: currentActive ? 'var(--cyan)' : 'var(--text-dim)',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                {icon}
+              </span>
+              <span style={{ flex: 1 }}>{label}</span>
+              {currentActive && (
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: 'var(--cyan)',
+                    boxShadow: '0 0 8px var(--cyan)',
+                  }}
+                />
+              )}
+            </>
+          );
+        }}
+      </NavLink>
+    );
+  }
+
   return (
     <button
+      type="button"
       onClick={onClick}
+      className={isActive ? 'menu active' : 'menu'}
       style={{
         width: '100%',
         display: 'flex',
@@ -530,7 +607,9 @@ function SidebarMenuItem({ icon, label, isActive, onClick }) {
         padding: '10px 14px',
         borderRadius: '10px',
         border: 'none',
-        background: isActive ? 'linear-gradient(90deg, rgba(59,130,246,0.18) 0%, rgba(6,182,212,0.08) 100%)' : 'transparent',
+        background: isActive
+          ? 'linear-gradient(90deg, rgba(59,130,246,0.18) 0%, rgba(6,182,212,0.08) 100%)'
+          : 'transparent',
         borderLeft: isActive ? '3px solid var(--cyan)' : '3px solid transparent',
         color: isActive ? '#ffffff' : 'var(--text-muted)',
         fontWeight: isActive ? 700 : 500,
@@ -538,18 +617,6 @@ function SidebarMenuItem({ icon, label, isActive, onClick }) {
         cursor: 'pointer',
         textAlign: 'left',
         transition: 'all 0.2s ease',
-      }}
-      onMouseEnter={(e) => {
-        if (!isActive) {
-          e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-          e.currentTarget.style.color = '#ffffff';
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!isActive) {
-          e.currentTarget.style.background = 'transparent';
-          e.currentTarget.style.color = 'var(--text-muted)';
-        }
       }}
     >
       <span style={{ color: isActive ? 'var(--cyan)' : 'var(--text-dim)', display: 'flex', alignItems: 'center' }}>

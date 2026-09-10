@@ -12,7 +12,7 @@ export function setToken(token) {
   }
 }
 
-async function request(path, options = {}) {
+export async function request(path, options = {}) {
   const token = getToken();
   const headers = {
     'Content-Type': 'application/json',
@@ -29,19 +29,27 @@ async function request(path, options = {}) {
     headers,
   });
 
-  const data = await response.json().catch(() => ({}));
+  const data = response.status === 204
+    ? null
+    : await response.json().catch(() => ({}));
 
   if (!response.ok) {
     if (response.status === 401 && path !== '/login') {
       setToken(null);
     }
-    let errorMessage = data.message || `Error en el servidor (${response.status})`;
-    if (response.status === 422 && data.errors) {
+    let errorMessage = data?.message || `Error en el servidor (${response.status})`;
+    if (response.status === 422 && data?.errors) {
       errorMessage = Object.values(data.errors).flat().join(' ');
     } else if (response.status === 403) {
-      errorMessage = data.message || 'No estás autorizado para realizar esta acción';
+      errorMessage = data?.message || 'No estás autorizado para realizar esta acción';
     }
-    throw { responseStatus: response.status, message: errorMessage, ...data };
+
+    const error = new Error(errorMessage);
+    error.status = response.status;
+    error.responseStatus = response.status;
+    error.errors = data?.errors || {};
+    error.data = data;
+    throw error;
   }
 
   return data;
@@ -385,3 +393,37 @@ export function logTimeEntry(data) {
     body: JSON.stringify(data),
   });
 }
+
+// === SERVICIO DE CATÁLOGO (SECCIONES 5 Y 6) ===
+export const catalogosApi = {
+  list: async (params = {}) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, val]) => {
+      if (val !== undefined && val !== null && val !== '') {
+        searchParams.append(key, val);
+      }
+    });
+    const qs = searchParams.toString();
+    return request(`/catalogos${qs ? `?${qs}` : ''}`);
+  },
+  get: async (id) => {
+    return request(`/catalogos/${id}`);
+  },
+  create: async (data) => {
+    return request('/catalogos', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  update: async (id, data) => {
+    return request(`/catalogos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  remove: async (id) => {
+    return request(`/catalogos/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};

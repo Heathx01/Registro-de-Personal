@@ -37,7 +37,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rutas de clientes (CRM/SaaS)
     Route::apiResource('clients', ClientController::class);
     
-    // Rutas de catálogo de plantillas y modelos
+    // Rutas de catálogo de plantillas y modelos (Guía Secciones 5 y 6)
+    Route::apiResource('catalogos', TemplateController::class);
     Route::apiResource('templates', TemplateController::class);
     
     // Rutas de proyectos y tareas
