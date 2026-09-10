@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
 export default function TasksView({
-  tasks,
-  users,
-  currentUser,
-  permissions,
+  tasks = [],
+  users = [],
+  currentUser = {},
+  permissions = {},
   onUpdateTaskStatus,
   onOpenAddTask,
   onEditTask,
@@ -12,7 +12,7 @@ export default function TasksView({
 }) {
   const [filterUser, setFilterUser] = useState('');
 
-  const filteredTasks = tasks.filter((t) => (filterUser ? String(t.assigned_to) === String(filterUser) : true));
+  const filteredTasks = (tasks || []).filter((t) => (filterUser ? String(t.assigned_to) === String(filterUser) : true));
 
   const columns = [
     { key: 'Pending', label: '⏳ Pendiente (Backlog)', color: 'var(--amber)' },
@@ -27,7 +27,7 @@ export default function TasksView({
         <div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Tareas Diarias del Personal (Kanban)</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-            Control diario de actividades de desarrollo, refactorización, pruebas de calidad y gestión ({tasks.length} tareas totales).
+            Control diario de actividades de desarrollo, refactorización, pruebas de calidad y gestión ({(tasks || []).length} tareas totales).
           </p>
         </div>
 
@@ -38,15 +38,15 @@ export default function TasksView({
             onChange={(e) => setFilterUser(e.target.value)}
           >
             <option value="">Todas las Tareas del Personal</option>
-            <option value={currentUser.id}>⭐ Mis Tareas Asignadas ({currentUser.name})</option>
-            {users.map((u) => (
+            <option value={currentUser?.id || ''}>⭐ Mis Tareas Asignadas ({currentUser?.name || 'Usuario'})</option>
+            {(users || []).map((u) => (
               <option key={u.id} value={u.id}>
                 {u.name} ({u.position})
               </option>
             ))}
           </select>
 
-          {permissions.can_assign_tasks && (
+          {permissions?.can_assign_tasks && (
             <button className="btn btn-primary" onClick={onOpenAddTask}>
               <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -97,7 +97,7 @@ export default function TasksView({
                       >
                         Prioridad: {task.priority}
                       </span>
-                      {permissions.can_assign_tasks && (
+                      {permissions?.can_assign_tasks && (
                         <div style={{ display: 'flex', gap: '4px' }}>
                           {onEditTask && (
                             <button

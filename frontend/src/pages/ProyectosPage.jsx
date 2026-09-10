@@ -23,11 +23,9 @@ export default function ProyectosPage() {
     try {
       setLoading(true);
       setError('');
-      const [p, u, c] = await Promise.all([
-        getProjects().catch(() => []),
-        getUsers().catch(() => []),
-        getClients().catch(() => []),
-      ]);
+      const p = await getProjects().catch(() => []);
+      const u = await getUsers().catch(() => []);
+      const c = await getClients().catch(() => []);
       setProjects(Array.isArray(p) ? p : []);
       setUsers(Array.isArray(u) ? u : []);
       setClients(Array.isArray(c) ? c : []);

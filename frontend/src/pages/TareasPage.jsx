@@ -8,7 +8,7 @@ import Alert from '../components/ui/Alert';
 import { getTasks, getUsers, getProjects, createTask, updateTask, updateTaskStatus, deleteTask } from '../services/api';
 
 export default function TareasPage() {
-  const { user } = useAuth();
+  const { user, permissions } = useAuth();
   const { showToast } = useToast();
 
   const [tasks, setTasks] = useState([]);
@@ -23,11 +23,9 @@ export default function TareasPage() {
     try {
       setLoading(true);
       setError('');
-      const [t, u, p] = await Promise.all([
-        getTasks().catch(() => []),
-        getUsers().catch(() => []),
-        getProjects().catch(() => []),
-      ]);
+      const t = await getTasks().catch(() => []);
+      const u = await getUsers().catch(() => []);
+      const p = await getProjects().catch(() => []);
       setTasks(Array.isArray(t) ? t : []);
       setUsers(Array.isArray(u) ? u : []);
       setProjects(Array.isArray(p) ? p : []);
@@ -105,6 +103,7 @@ export default function TareasPage() {
         tasks={tasks}
         users={users}
         currentUser={user}
+        permissions={permissions}
         onOpenAddTask={() => {
           setEditingTask(null);
           setShowModal(true);

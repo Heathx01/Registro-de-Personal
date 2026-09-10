@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 
 export default function ProjectsView({
-  projects,
-  permissions,
+  projects = [],
+  permissions = {},
   onOpenAddProject,
   onEditProject,
   onDeleteProject,
 }) {
   const [filterStatus, setFilterStatus] = useState('');
 
-  const filteredProjects = projects.filter((p) => (filterStatus ? p.status === filterStatus : true));
+  const filteredProjects = (projects || []).filter((p) => (filterStatus ? p.status === filterStatus : true));
 
   return (
     <div className="animate-fade-in">
@@ -17,11 +17,11 @@ export default function ProjectsView({
         <div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Proyectos de Desarrollo de Software</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-            Control de productos digitales, plataformas SaaS, aplicaciones móviles y asignación de líderes ({projects.length} proyectos).
+            Control de productos digitales, plataformas SaaS, aplicaciones móviles y asignación de líderes ({(projects || []).length} proyectos).
           </p>
         </div>
 
-        {permissions.can_manage_projects && (
+        {permissions?.can_manage_projects && (
           <button className="btn btn-primary" onClick={onOpenAddProject}>
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -64,7 +64,7 @@ export default function ProjectsView({
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span className="badge badge-active">● {project.status}</span>
-                {permissions.can_manage_projects && (
+                {permissions?.can_manage_projects && (
                   <div style={{ display: 'flex', gap: '4px' }}>
                     {onEditProject && (
                       <button
@@ -76,7 +76,7 @@ export default function ProjectsView({
                         ✏️
                       </button>
                     )}
-                    {permissions.can_delete_records && onDeleteProject && (
+                    {permissions?.can_delete_records && onDeleteProject && (
                       <button
                         className="role-switch-btn"
                         style={{ padding: '4px 8px', fontSize: '0.75rem', background: 'rgba(244,63,94,0.2)', color: 'var(--rose)' }}
@@ -99,7 +99,7 @@ export default function ProjectsView({
             </div>
 
             {/* Ficha Financiera / Comercial (Para Admin / Lead) */}
-            {permissions.can_view_salaries && (project.budget > 0 || project.project_type) && (
+            {permissions?.can_view_salaries && (project.budget > 0 || project.project_type) && (
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px 12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
                 <div>
                   <span style={{ color: 'var(--text-dim)', fontSize: '0.72rem', display: 'block' }}>TIPO DE SERVICIO</span>
