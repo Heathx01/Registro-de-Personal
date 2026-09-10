@@ -1,4 +1,5 @@
 import React from 'react';
+import ModalPortal from './ModalPortal';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function ClientDetailModal({ client, permissions, onClose, onEdit, onDelete }) {
@@ -11,7 +12,8 @@ export default function ClientDetailModal({ client, permissions, onClose, onEdit
     : 0;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <ModalPortal>
+      <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '680px', padding: '28px' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '18px' }}>
@@ -149,5 +151,6 @@ export default function ClientDetailModal({ client, permissions, onClose, onEdit
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }

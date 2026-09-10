@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ModalPortal from './ModalPortal';
 
 export default function EmployeeModal({ onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -45,7 +46,8 @@ export default function EmployeeModal({ onClose, onSave }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
+    <ModalPortal>
+      <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Registrar Nuevo Empleado en la Empresa</h3>
@@ -244,5 +246,6 @@ export default function EmployeeModal({ onClose, onSave }) {
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }

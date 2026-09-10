@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ModalPortal from './ModalPortal';
 
 export default function TaskModal({ users, projects, editingTask = null, onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -31,7 +32,8 @@ export default function TaskModal({ users, projects, editingTask = null, onClose
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <ModalPortal>
+      <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>
@@ -136,5 +138,6 @@ export default function TaskModal({ users, projects, editingTask = null, onClose
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ModalPortal from './ModalPortal';
 import { useLanguage } from '../context/LanguageContext';
 
 function ChangePasswordModal({ currentUser, onClose, onRequestCode, onSave }) {
@@ -97,23 +98,24 @@ function ChangePasswordModal({ currentUser, onClose, onRequestCode, onSave }) {
   };
 
   return (
-    <div
-      className="modal-overlay animate-fade-in"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.85)',
-        backdropFilter: 'blur(10px)',
-        zIndex: 1150,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px',
-      }}
-    >
+    <ModalPortal>
+      <div
+        className="modal-overlay animate-fade-in"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(10px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+        }}
+      >
       <div
         className="glass-card modal-container animate-fade-in"
         style={{
@@ -429,6 +431,7 @@ function ChangePasswordModal({ currentUser, onClose, onRequestCode, onSave }) {
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 

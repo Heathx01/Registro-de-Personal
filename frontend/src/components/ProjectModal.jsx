@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ModalPortal from './ModalPortal';
 
 export default function ProjectModal({ users, clients = [], editingProject = null, onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -49,7 +50,8 @@ export default function ProjectModal({ users, clients = [], editingProject = nul
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <ModalPortal>
+      <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
@@ -244,5 +246,6 @@ export default function ProjectModal({ users, clients = [], editingProject = nul
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }

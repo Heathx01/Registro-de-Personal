@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ModalPortal from './ModalPortal';
 import { useLanguage } from '../context/LanguageContext';
 
 function TemplateDetailModal({ template, clients = [], onClose, onConfirmCreateProject }) {
@@ -24,8 +25,9 @@ function TemplateDetailModal({ template, clients = [], onClose, onConfirmCreateP
     : String(template.tech_stack || '').split(',').map((t) => t.trim()).filter(Boolean);
 
   return (
-    <div
-      className="modal-overlay animate-fade-in"
+    <ModalPortal>
+      <div
+        className="modal-overlay animate-fade-in"
       style={{
         position: 'fixed',
         top: 0,
@@ -253,6 +255,7 @@ function TemplateDetailModal({ template, clients = [], onClose, onConfirmCreateP
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 

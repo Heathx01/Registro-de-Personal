@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ModalPortal from './ModalPortal';
 import { useLanguage } from '../context/LanguageContext';
 
 const PRESET_IMAGES = [
@@ -154,8 +155,9 @@ function TemplateModal({ template, onClose, onSave }) {
   };
 
   return (
-    <div
-      className="modal-overlay animate-fade-in"
+    <ModalPortal>
+      <div
+        className="modal-overlay animate-fade-in"
       style={{
         position: 'fixed',
         top: 0,
@@ -751,6 +753,7 @@ function TemplateModal({ template, onClose, onSave }) {
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 
