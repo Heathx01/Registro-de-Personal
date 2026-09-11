@@ -21,7 +21,7 @@ class StoreCatalogoRequest extends FormRequest
     }
 
     /**
-     * Reglas de validación que deben cumplir los datos (Paso 4).
+     * Reglas de validación que deben cumplir los datos.
      */
     public function rules(): array
     {
@@ -40,7 +40,7 @@ class StoreCatalogoRequest extends FormRequest
     }
 
     /**
-     * Mensajes claros para cada campo (Sección 6, Paso 11).
+     * Mensajes claros para cada campo.
      */
     public function messages(): array
     {

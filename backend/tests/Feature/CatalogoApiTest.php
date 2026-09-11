@@ -149,4 +149,13 @@ class CatalogoApiTest extends TestCase
             'id' => $item->id,
         ]);
     }
+
+    public function test_not_found_item_returns_404(): void
+    {
+        $user = User::factory()->create(['role' => 'developer']);
+        Sanctum::actingAs($user);
+
+        $response = $this->getJson('/api/catalogos/999999');
+        $response->assertStatus(404);
+    }
 }

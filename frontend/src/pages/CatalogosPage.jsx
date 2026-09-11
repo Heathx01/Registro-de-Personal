@@ -90,6 +90,7 @@ export default function CatalogosPage() {
       } else {
         showToast(err.message || 'Error al guardar la plantilla.', 'error');
       }
+      throw err;
     }
   };
 

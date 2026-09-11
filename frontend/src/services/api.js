@@ -394,7 +394,7 @@ export function logTimeEntry(data) {
   });
 }
 
-// === SERVICIO DE CATÁLOGO (SECCIONES 5 Y 6) ===
+// === SERVICIO DE CATÁLOGO ===
 export const catalogosApi = {
   list: async (params = {}) => {
     const searchParams = new URLSearchParams();

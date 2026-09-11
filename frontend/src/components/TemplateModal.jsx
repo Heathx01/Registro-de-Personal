@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 const PRESET_IMAGES = [
   {
     name: 'E-Commerce Store',
-    url: 'https://images.unsplash.com/photo-1556742049-0a67e562132d?w=800&auto=format&fit=crop&q=80',
+    url: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&auto=format&fit=crop&q=80',
     category: 'E-Commerce',
   },
   {
@@ -133,25 +133,41 @@ function TemplateModal({ template, onClose, onSave }) {
     setTechStack(techStack.filter((_, idx) => idx !== indexToRemove));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!title.trim()) {
-      alert('Por favor ingresa un título para la plantilla.');
-      return;
-    }
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    onSave({
-      title: title.trim(),
-      category,
-      description: description.trim(),
-      features,
-      tech_stack: techStack,
-      estimated_delivery: estimatedDelivery.trim(),
-      image_url: imageUrl || PRESET_IMAGES[0].url,
-      demo_url: demoUrl.trim(),
-      suggested_price: parseFloat(suggestedPrice) || 0,
-      status: 'Available',
-    });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFieldErrors({});
+    setIsSubmitting(true);
+
+    try {
+      await onSave({
+        title: title.trim(),
+        category,
+        description: description.trim(),
+        features,
+        tech_stack: techStack,
+        estimated_delivery: estimatedDelivery.trim(),
+        image_url: imageUrl || PRESET_IMAGES[0].url,
+        demo_url: demoUrl.trim(),
+        suggested_price: suggestedPrice !== '' && !isNaN(suggestedPrice) ? parseFloat(suggestedPrice) : 0,
+        status: 'Available',
+      });
+    } catch (err) {
+      if (err.status === 422 || err.responseStatus === 422) {
+        const errors = err.errors || {};
+        setFieldErrors(errors);
+        // Si el error ocurrió en el título o descripción, llevar al usuario a la pestaña General
+        if (errors.title || errors.description || errors.category) {
+          setActiveTab('general');
+        } else if (errors.suggested_price) {
+          setActiveTab('pricing');
+        }
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -273,7 +289,33 @@ function TemplateModal({ template, onClose, onSave }) {
         </div>
 
         {/* Cuerpo del Formulario */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+        <form noValidate onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+          {/* Banner de Errores de Validación 422 de Laravel */}
+          {Object.keys(fieldErrors).length > 0 && (
+            <div
+              style={{
+                margin: '16px 32px 0',
+                padding: '12px 18px',
+                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                border: '1px solid rgba(239, 68, 68, 0.5)',
+                borderRadius: '14px',
+                color: '#fca5a5',
+                fontSize: '0.86rem',
+              }}
+            >
+              <div style={{ fontWeight: 700, color: '#f87171', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>⚠️ Error 422 (Unprocessable Content) - Validación rechazada por Laravel:</span>
+              </div>
+              <ul style={{ margin: '6px 0 0 18px', padding: 0, lineHeight: 1.4 }}>
+                {Object.entries(fieldErrors).map(([field, errList]) => (
+                  <li key={field}>
+                    <strong>{field}:</strong> {Array.isArray(errList) ? errList.join(', ') : errList}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div style={{ padding: '28px 32px', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Pestaña 1: Información General */}
             {activeTab === 'general' && (
@@ -284,13 +326,32 @@ function TemplateModal({ template, onClose, onSave }) {
                   </label>
                   <input
                     type="text"
-                    required
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => {
+                      setTitle(e.target.value);
+                      if (fieldErrors.title) {
+                        setFieldErrors((prev) => {
+                          const next = { ...prev };
+                          delete next.title;
+                          return next;
+                        });
+                      }
+                    }}
                     placeholder="ej. Portal E-Commerce Omni-channel High Conversion"
                     className="input-field"
-                    style={{ width: '100%', borderRadius: '12px', padding: '12px 16px', fontSize: '0.95rem' }}
+                    style={{
+                      width: '100%',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      fontSize: '0.95rem',
+                      border: fieldErrors.title ? '1px solid #ef4444' : undefined,
+                    }}
                   />
+                  {fieldErrors.title && (
+                    <small style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px', display: 'block', fontWeight: 600 }}>
+                      ⚠️ {fieldErrors.title[0]}
+                    </small>
+                  )}
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px' }}>
@@ -332,14 +393,33 @@ function TemplateModal({ template, onClose, onSave }) {
                     {t('templates.description')} *
                   </label>
                   <textarea
-                    required
                     rows="4"
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e) => {
+                      setDescription(e.target.value);
+                      if (fieldErrors.description) {
+                        setFieldErrors((prev) => {
+                          const next = { ...prev };
+                          delete next.description;
+                          return next;
+                        });
+                      }
+                    }}
                     placeholder="Describe la propuesta comercial, ventajas para el cliente y valor diferencial..."
                     className="input-field"
-                    style={{ width: '100%', borderRadius: '12px', padding: '12px 16px', resize: 'vertical' }}
+                    style={{
+                      width: '100%',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      resize: 'vertical',
+                      border: fieldErrors.description ? '1px solid #ef4444' : undefined,
+                    }}
                   />
+                  {fieldErrors.description && (
+                    <small style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px', display: 'block', fontWeight: 600 }}>
+                      ⚠️ {fieldErrors.description[0]}
+                    </small>
+                  )}
                 </div>
               </div>
             )}
@@ -627,19 +707,40 @@ function TemplateModal({ template, onClose, onSave }) {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px' }}>
                   <div>
                     <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '8px', display: 'block' }}>
-                      💵 {t('templates.price')} ($ USD) *
+                      💵 {t('templates.price')} ($ USD)
                     </label>
                     <input
                       type="number"
                       step="100"
                       min="0"
-                      required
                       value={suggestedPrice}
-                      onChange={(e) => setSuggestedPrice(e.target.value)}
+                      onChange={(e) => {
+                        setSuggestedPrice(e.target.value);
+                        if (fieldErrors.suggested_price) {
+                          setFieldErrors((prev) => {
+                            const next = { ...prev };
+                            delete next.suggested_price;
+                            return next;
+                          });
+                        }
+                      }}
                       placeholder="3500"
                       className="input-field"
-                      style={{ width: '100%', borderRadius: '12px', padding: '12px 16px', fontSize: '1.1rem', fontWeight: 700, color: '#10b981' }}
+                      style={{
+                        width: '100%',
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                        fontSize: '1.1rem',
+                        fontWeight: 700,
+                        color: '#10b981',
+                        border: fieldErrors.suggested_price ? '1px solid #ef4444' : undefined,
+                      }}
                     />
+                    {fieldErrors.suggested_price && (
+                      <small style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px', display: 'block', fontWeight: 600 }}>
+                        ⚠️ {fieldErrors.suggested_price[0]}
+                      </small>
+                    )}
                   </div>
 
                   <div>

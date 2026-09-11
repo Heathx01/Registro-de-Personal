@@ -18,7 +18,7 @@ import NotFoundPage from '../pages/NotFoundPage';
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Ruta pública (Paso 7 - Sección 5) */}
+      {/* Ruta pública */}
       <Route path="/login" element={<LoginPage />} />
 
       {/* Rutas protegidas por sesión */}
@@ -27,7 +27,7 @@ export default function AppRoutes() {
           {/* Ruta índice (Dashboard) */}
           <Route index element={<DashboardPage />} />
 
-          {/* Rutas del módulo Catálogos (Sección 5 y 6) */}
+          {/* Rutas del módulo Catálogos*/}
           <Route path="catalogos" element={<CatalogosPage />} />
           <Route path="catalogos/:id" element={<CatalogoEditPage />} />
           <Route path="templates" element={<CatalogosPage />} />
@@ -47,7 +47,7 @@ export default function AppRoutes() {
         </Route>
       </Route>
 
-      {/* Ruta comodín 404 para atender URLs no reconocidas (Prueba T6) */}
+      {/* Ruta comodín 404 para atender URLs no reconocidas */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

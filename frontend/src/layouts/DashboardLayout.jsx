@@ -111,7 +111,7 @@ export default function DashboardLayout() {
         onOpenChangePassword={() => setShowPasswordModal(true)}
       />
 
-      {/* Área principal donde se renderizan las rutas hijas mediante <Outlet /> (Paso 8 - Sección 5) */}
+      {/* Área principal donde se renderizan las rutas hijas mediante <Outlet /> */}
       <main className="main-content">
         <div key={location.pathname} className="view-container animate-view-enter">
           <Outlet />

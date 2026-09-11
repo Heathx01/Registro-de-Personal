@@ -21,6 +21,7 @@ export default function CatalogoForm({
   // Estados separados del formulario (Paso 2 - Sección 6)
   const [form, setForm] = useState(defaultState);
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -89,7 +90,7 @@ export default function CatalogoForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+    <form noValidate onSubmit={handleSubmit} style={{ width: '100%' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '16px' }}>
         {/* Campo Título */}
         <div>
