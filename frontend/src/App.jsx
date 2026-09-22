@@ -87,6 +87,7 @@ function App() {
   const [activeTab, setActiveTab] = useState(
     () => getTabFromPath(window.location.pathname) || 'manager'
   );
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [dataLoadError, setDataLoadError] = useState('');
   const [apiRequestCount, setApiRequestCount] = useState(0);
@@ -164,6 +165,7 @@ function App() {
     // Las rutas de datos están protegidas. Sin token solo mostramos el login
     // y evitamos peticiones que terminarían en errores 401.
     if (!getToken()) {
+      setIsCheckingSession(false);
       setIsLoadingData(false);
       return;
     }
@@ -177,6 +179,8 @@ function App() {
       console.error('Session expired or invalid', err);
       apiLogout();
       setIsLoadingData(false);
+    } finally {
+      setIsCheckingSession(false);
     }
   };
 
@@ -509,6 +513,10 @@ function App() {
     if (!currentUser) return Promise.reject(new Error('Usuario no autenticado.'));
     return sendPasswordChangeCode(currentUser.id, currentPassword);
   };
+
+  if (isCheckingSession) {
+    return <LoadingSpinner message="Restaurando sesión..." />;
+  }
 
   if (!currentUser) {
     return (
