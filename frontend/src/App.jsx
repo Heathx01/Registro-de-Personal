@@ -61,12 +61,32 @@ import './App.css';
 
 import LoadingSpinner from './components/LoadingSpinner';
 
+const TAB_PATHS = {
+  manager: '/manager',
+  developer: '/developer',
+  personnel: '/personnel',
+  organigrama: '/organigrama',
+  templates: '/templates',
+  projects: '/projects',
+  tasks: '/tasks',
+  clients: '/clients',
+  roles: '/roles',
+  leave: '/leave',
+};
+
+const getTabFromPath = (pathname) => {
+  const path = pathname.replace(/\/+$/, '') || '/';
+  return Object.entries(TAB_PATHS).find(([, tabPath]) => path === tabPath)?.[0] || null;
+};
+
 function App() {
   const { showToast } = useToast();
   useScrollReveal();
   useSpotlight();
   const [currentUser, setCurrentUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('manager');
+  const [activeTab, setActiveTab] = useState(
+    () => getTabFromPath(window.location.pathname) || 'manager'
+  );
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [dataLoadError, setDataLoadError] = useState('');
   const [apiRequestCount, setApiRequestCount] = useState(0);
@@ -98,6 +118,17 @@ function App() {
 
   const closeConfirm = () => setConfirmDialog(null);
 
+  const navigateToTab = (tab, { replace = false } = {}) => {
+    const path = TAB_PATHS[tab];
+    if (!path) return;
+
+    if (window.location.pathname !== path) {
+      const method = replace ? 'replaceState' : 'pushState';
+      window.history[method]({}, '', path);
+    }
+    setActiveTab(tab);
+  };
+
   useEffect(() => {
     checkSession();
 
@@ -115,10 +146,17 @@ function App() {
     window.addEventListener('api:request-end', handleRequestEnd);
     window.addEventListener('auth:expired', handleSessionExpired);
 
+    const handleBrowserNavigation = () => {
+      const tab = getTabFromPath(window.location.pathname);
+      if (tab) setActiveTab(tab);
+    };
+    window.addEventListener('popstate', handleBrowserNavigation);
+
     return () => {
       window.removeEventListener('api:request-start', handleRequestStart);
       window.removeEventListener('api:request-end', handleRequestEnd);
       window.removeEventListener('auth:expired', handleSessionExpired);
+      window.removeEventListener('popstate', handleBrowserNavigation);
     };
   }, []);
 
@@ -170,22 +208,37 @@ function App() {
     // El usuario autenticado trae su rol. Ese rol decide la pantalla inicial
     // y los permisos que se comparten con las demás vistas.
     setCurrentUser(user);
-    if (['admin', 'lead', 'hr'].includes(user.role)) {
-      setActiveTab('manager');
-    } else if (user.role === 'developer') {
-      setActiveTab('developer');
-    } else if (user.role === 'qa') {
-      setActiveTab('tasks');
-    } else if (user.role === 'sales') {
-      setActiveTab('clients');
+    const tabFromPath = getTabFromPath(window.location.pathname);
+    if (!tabFromPath) {
+      if (['admin', 'lead', 'hr'].includes(user.role)) {
+        navigateToTab('manager', { replace: true });
+      } else if (user.role === 'developer') {
+        navigateToTab('developer', { replace: true });
+      } else if (user.role === 'qa') {
+        navigateToTab('tasks', { replace: true });
+      } else if (user.role === 'sales') {
+        navigateToTab('clients', { replace: true });
+      } else {
+        navigateToTab('personnel', { replace: true });
+      }
     } else {
-      setActiveTab('personnel'); // default fallback
+      setActiveTab(tabFromPath);
+      if (tabFromPath === 'clients') {
+        setIsClientUnlocked(false);
+        setShowClientAuthModal(true);
+      }
     }
 
     // Los datos se solicitan después de confirmar la identidad del usuario;
     // así las peticiones incluyen el token de autenticación.
     await loadAllData();
   };
+
+  useEffect(() => {
+    if (currentUser && activeTab === 'clients' && !isClientUnlocked) {
+      setShowClientAuthModal(true);
+    }
+  }, [activeTab, currentUser, isClientUnlocked]);
 
   const handleTabSelect = (tab) => {
     if (tab === 'clients' && !isClientUnlocked) {
@@ -195,17 +248,17 @@ function App() {
     if (tab === activeTab) return;
     if (typeof document !== 'undefined' && document.startViewTransition) {
       document.startViewTransition(() => {
-        setActiveTab(tab);
+        navigateToTab(tab);
       });
     } else {
-      setActiveTab(tab);
+      navigateToTab(tab);
     }
   };
 
   const handleClientAuthSuccess = () => {
     setIsClientUnlocked(true);
     setShowClientAuthModal(false);
-    setActiveTab('clients');
+    navigateToTab('clients');
   };
 
   const handleLogout = () => {
@@ -593,7 +646,7 @@ function App() {
                 onDeleteClient={handleDeleteClient}
                 onLockAccess={() => {
                   setIsClientUnlocked(false);
-                  setActiveTab('manager');
+                  navigateToTab('manager');
                 }}
               />
             )}
