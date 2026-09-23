@@ -66,6 +66,7 @@ function TemplatesView({
           </p>
         </div>
 
+        {/* Leer el catálogo es distinto de crear o editar plantillas. */}
         {permissions.can_manage_templates && (
           <button
             onClick={onOpenAddTemplate}

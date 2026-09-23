@@ -1,5 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
+function dispatchApiEvent(name, detail = {}) {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(name, { detail }));
+  }
+}
+
 export function getToken() {
   return localStorage.getItem('auth_token');
 }
@@ -24,35 +30,42 @@ export async function request(path, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  dispatchApiEvent('api:request-start');
 
-  const data = response.status === 204
-    ? null
-    : await response.json().catch(() => ({}));
+  try {
+    const response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers,
+    });
 
-  if (!response.ok) {
-    if (response.status === 401 && path !== '/login') {
-      setToken(null);
+    const data = response.status === 204
+      ? null
+      : await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      if (response.status === 401 && path !== '/login') {
+        setToken(null);
+        dispatchApiEvent('auth:expired');
+      }
+      let errorMessage = data?.message || `Error en el servidor (${response.status})`;
+      if (response.status === 422 && data?.errors) {
+        errorMessage = Object.values(data.errors).flat().join(' ');
+      } else if (response.status === 403) {
+        errorMessage = data?.message || 'No estás autorizado para realizar esta acción';
+      }
+
+      const error = new Error(errorMessage);
+      error.status = response.status;
+      error.responseStatus = response.status;
+      error.errors = data?.errors || {};
+      error.data = data;
+      throw error;
     }
-    let errorMessage = data?.message || `Error en el servidor (${response.status})`;
-    if (response.status === 422 && data?.errors) {
-      errorMessage = Object.values(data.errors).flat().join(' ');
-    } else if (response.status === 403) {
-      errorMessage = data?.message || 'No estás autorizado para realizar esta acción';
-    }
 
-    const error = new Error(errorMessage);
-    error.status = response.status;
-    error.responseStatus = response.status;
-    error.errors = data?.errors || {};
-    error.data = data;
-    throw error;
+    return data;
+  } finally {
+    dispatchApiEvent('api:request-end');
   }
-
-  return data;
 }
 
 export async function login(email, password) {
@@ -269,8 +282,12 @@ export function sendPasswordResetCode(email) {
 }
 
 export function getPermissionsForRole(role) {
+  // Convierte el rol guardado del usuario en permisos fáciles de consultar.
+  // Por ejemplo, can_manage_users indica si puede administrar empleados.
+  // Estos permisos controlan la interfaz; el backend también debe proteger sus rutas.
   switch (role) {
     case 'admin':
+      // El administrador tiene acceso completo a la gestión de la empresa.
       return {
         label: 'Director General / CEO',
         can_manage_users: true,
@@ -288,6 +305,7 @@ export function getPermissionsForRole(role) {
         restrictions: 'Sin restricciones.',
       };
     case 'lead':
+      // El líder coordina proyectos, clientes y tareas, pero no elimina usuarios.
       return {
         label: 'Líder Técnico / Manager',
         can_manage_users: false,
@@ -305,6 +323,7 @@ export function getPermissionsForRole(role) {
         restrictions: 'No puede eliminar usuarios.',
       };
     case 'sales':
+      // Ventas trabaja con clientes, propuestas y plantillas, sin acceso a salarios.
       return {
         label: 'Ejecutivo de Ventas & BDM',
         can_manage_users: false,
@@ -321,6 +340,8 @@ export function getPermissionsForRole(role) {
         can_delete_records: false,
       };
     case 'developer':
+      // Desarrollo consulta plantillas y actualiza el estado de sus tareas,
+      // pero no administra personal, clientes ni presupuestos.
       return {
         label: 'Desarrollador de Software',
         can_manage_users: false,
@@ -338,6 +359,7 @@ export function getPermissionsForRole(role) {
         can_delete_records: false,
       };
     case 'qa':
+      // QA participa en el seguimiento de tareas y pruebas, con permisos limitados.
       return {
         label: 'QA Automation Lead',
         can_manage_users: false,
@@ -355,6 +377,8 @@ export function getPermissionsForRole(role) {
         can_delete_records: false,
       };
     case 'hr':
+      // Recursos Humanos administra empleados y puede consultar información salarial,
+      // pero no gestiona proyectos ni tareas técnicas.
       return {
         label: 'Recursos Humanos (HR)',
         can_manage_users: true,
@@ -371,6 +395,7 @@ export function getPermissionsForRole(role) {
         can_delete_records: false,
       };
     default:
+      // Un rol desconocido recibe solo permisos mínimos de lectura.
       return {
         label: 'Empleado',
         can_manage_users: false,

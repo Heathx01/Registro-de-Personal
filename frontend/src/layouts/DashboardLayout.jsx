@@ -100,6 +100,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="app-container">
+      <a className="skip-link" href="#main-content">Saltar al contenido principal</a>
       <ScrollProgressBar />
 
       {/* Header y Sidebar de Navegación */}
@@ -112,7 +113,7 @@ export default function DashboardLayout() {
       />
 
       {/* Área principal donde se renderizan las rutas hijas mediante <Outlet /> */}
-      <main className="main-content">
+      <main id="main-content" className="main-content" tabIndex="-1">
         <div key={location.pathname} className="view-container animate-view-enter">
           <Outlet />
         </div>
